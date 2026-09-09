@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -253,32 +254,30 @@ fun QuickSetupScreen(
                 .padding(horizontal = if (step == QuickSetupStep.WELCOME) 12.dp else 20.dp)
         ) {
             if (step != QuickSetupStep.WELCOME) {
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = stringResource(step.titleRes),
-                            style = MaterialTheme.typography.displaySmall,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = stringResource(step.subtitleRes),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(top = 8.dp),
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                        )
-                    }
-                    TextButton(
-                        onClick = ::completeWithoutDialog,
-                        modifier = Modifier.align(Alignment.TopEnd)
-                    ) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    TextButton(onClick = ::completeWithoutDialog) {
                         Text(stringResource(R.string.qs_skip))
                     }
+                }
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = stringResource(step.titleRes),
+                        style = MaterialTheme.typography.displaySmall,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
+                    Text(
+                        text = stringResource(step.subtitleRes),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 8.dp),
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
                 }
                 Spacer(modifier = Modifier.height(18.dp))
             }
@@ -1236,7 +1235,9 @@ private fun QuickSetupBottomBar(
         shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
         ) {
             Row(
                 modifier = Modifier
