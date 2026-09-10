@@ -9,6 +9,16 @@ use monica_rust_crypto::{derive_argon2id, derive_pbkdf2_sha256};
 use search::{filter_metadata_batch, SearchQuery};
 
 const RUST_CORE_VERSION: &str = "monica-rust-jni/0.5.0-kdf";
+const PBKDF2_SELF_TEST_EXPECTED: [u8; 32] = [
+    0x12, 0x0f, 0xb6, 0xcf, 0xfc, 0xf8, 0xb3, 0x2c, 0x43, 0xe7, 0x22, 0x52, 0x56, 0xc4, 0xf8,
+    0x37, 0xa8, 0x65, 0x48, 0xc9, 0x2c, 0xcc, 0x35, 0x48, 0x08, 0x05, 0x98, 0x7c, 0xb7, 0x0b,
+    0xe1, 0x7b,
+];
+const ARGON2_SELF_TEST_EXPECTED: [u8; 32] = [
+    0x31, 0x11, 0x1c, 0xc0, 0x53, 0xba, 0x0a, 0x79, 0x9c, 0x08, 0x84, 0x14, 0x8f, 0xd7, 0xec,
+    0x9d, 0xc3, 0x63, 0x1f, 0x3e, 0x8c, 0xf4, 0x76, 0xcc, 0xa9, 0x52, 0x1d, 0x4c, 0xcc, 0x51,
+    0x36, 0xe8,
+];
 
 #[no_mangle]
 pub extern "system" fn Java_takagi_ru_monica_rustcore_RustPasswordListCore_nativeVersion(
@@ -42,6 +52,18 @@ pub extern "system" fn Java_takagi_ru_monica_rustcore_RustPasswordListCore_nativ
     query: JString,
 ) -> jintArray {
     filter_indices(&mut env, &metadata, &query).unwrap_or(std::ptr::null_mut())
+}
+
+#[no_mangle]
+pub extern "system" fn Java_takagi_ru_monica_rustcore_RustBitwardenKdfCore_nativeSelfTest(
+    _env: JNIEnv,
+    _class: JClass,
+) -> jboolean {
+    if kdf_self_test() {
+        JNI_TRUE
+    } else {
+        JNI_FALSE
+    }
 }
 
 #[no_mangle]
@@ -89,6 +111,21 @@ fn filter_indices(env: &mut JNIEnv, metadata: &JByteArray, query: &JString) -> O
     Some(output.into_raw())
 }
 
+fn kdf_self_test() -> bool {
+    let pbkdf2 = match derive_pbkdf2_sha256(b"password", b"salt", 1) {
+        Ok(value) => value,
+        Err(_) => return false,
+    };
+    if pbkdf2 != PBKDF2_SELF_TEST_EXPECTED {
+        return false;
+    }
+
+    matches!(
+        derive_argon2id(b"password", b"somesalt", 2, 32, 1),
+        Ok(value) if value == ARGON2_SELF_TEST_EXPECTED
+    )
+}
+
 fn derive_pbkdf2(
     env: &mut JNIEnv,
     password: &JByteArray,
@@ -101,9 +138,10 @@ fn derive_pbkdf2(
     let result = derive_pbkdf2_sha256(&password, &salt, iterations).ok();
     password.fill(0);
     salt.fill(0);
-    let result = result?;
-    let output = env.byte_array_from_slice(&result).ok()?;
-    Some(output.into_raw())
+    let mut result = result?;
+    let output = env.byte_array_from_slice(&result).ok();
+    result.fill(0);
+    Some(output?.into_raw())
 }
 
 fn derive_argon2(
@@ -122,9 +160,10 @@ fn derive_argon2(
     let result = derive_argon2id(&password, &salt, iterations, memory_kib, parallelism).ok();
     password.fill(0);
     salt.fill(0);
-    let result = result?;
-    let output = env.byte_array_from_slice(&result).ok()?;
-    Some(output.into_raw())
+    let mut result = result?;
+    let output = env.byte_array_from_slice(&result).ok();
+    result.fill(0);
+    Some(output?.into_raw())
 }
 
 fn positive_u32(value: jint) -> Option<u32> {
@@ -133,12 +172,17 @@ fn positive_u32(value: jint) -> Option<u32> {
 
 #[cfg(test)]
 mod tests {
-    use super::positive_u32;
+    use super::{kdf_self_test, positive_u32};
 
     #[test]
     fn rejects_non_positive_jni_work_factors() {
         assert_eq!(positive_u32(-1), None);
         assert_eq!(positive_u32(0), None);
         assert_eq!(positive_u32(1), Some(1));
+    }
+
+    #[test]
+    fn kdf_self_test_covers_native_crypto_primitives() {
+        assert!(kdf_self_test());
     }
 }
