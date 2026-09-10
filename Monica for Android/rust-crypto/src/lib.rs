@@ -73,9 +73,13 @@ pub fn derive_argon2id(
         .map_err(|_| KdfError::InvalidArgon2Parameters)?;
     let argon2 = Argon2::new(Algorithm::Argon2id, Version::V0x13, params);
     let mut output = [0_u8; MASTER_KEY_LEN];
-    argon2
+    if argon2
         .hash_password_into(password, salt, &mut output)
-        .map_err(|_| KdfError::Argon2DerivationFailed)?;
+        .is_err()
+    {
+        output.fill(0);
+        return Err(KdfError::Argon2DerivationFailed);
+    }
     Ok(output)
 }
 
