@@ -191,6 +191,32 @@ class SettingsSearchInstrumentedTest {
         compose.onNode(SemanticsMatcher.expectValue(SettingsSearchTarget, true), useUnmergedTree = true).assertIsDisplayed()
     }
 
+    @Test fun editorStyleSearchOnlyNavigatesAndPreservesPreferenceInLargeText() {
+        val before = runBlocking { manager.settingsFlow.first() }.passwordContentEditorEnabled
+        show(dark = true, large = true)
+        query("编辑样式")
+        compose.onNodeWithTag("settings_search_result_entry_editor_style").performScrollTo().performClick()
+        compose.waitUntil(10_000) { nav.currentDestination?.route == Screen.PasswordFieldCustomization.route }
+        compose.onNode(SemanticsMatcher.expectValue(SettingsSearchTarget, true), useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithTag("entry_style_false").assertIsDisplayed()
+        compose.onNodeWithTag("entry_style_true").assertIsDisplayed()
+        capture("content-search-editor-style.png")
+        assertEquals(before, runBlocking { manager.settingsFlow.first() }.passwordContentEditorEnabled)
+        compose.runOnIdle { nav.popBackStack() }
+        compose.onNodeWithTag("settings_search_input").assertTextContains("编辑样式")
+    }
+
+    @Test fun firstSystemFieldStillReceivesSearchFocusAfterStylePickerIsInserted() {
+        val before = runBlocking { manager.settingsFlow.first() }
+        show()
+        query("账号 用户名")
+        compose.onNodeWithTag("settings_search_result_separate_username_account_title").performScrollTo().performClick()
+        compose.waitUntil(10_000) { nav.currentDestination?.route == Screen.PasswordFieldCustomization.route }
+        compose.onNode(SemanticsMatcher.expectValue(SettingsSearchTarget, true), useUnmergedTree = true).assertIsDisplayed()
+        capture("content-search-system-field.png")
+        assertEquals(before, runBlocking { manager.settingsFlow.first() })
+    }
+
     @Test fun localizedCatalogContainsUniqueConcreteItemsAndEmptySearchHasNoControls() {
         val zh = context.createConfigurationContext(Configuration(context.resources.configuration).apply { setLocale(Locale.SIMPLIFIED_CHINESE) })
         val entries = settingsSearchEntries(zh)

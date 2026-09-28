@@ -1,149 +1,69 @@
-# 未发布
+# Monica for Android 1.0.315
 
-## 中文
-
-- 密码添加／编辑支持 TOTP、HOTP、Steam、Yandex 和 mOTP，与独立验证器使用相同类型和参数选项；支持计数器、PIN、周期、位数和算法，重新编辑及多凭据切换保留各自参数。
-- 修复密码 OTP 在 KeePass 原生写入、重新打开和导出时参数丢失的问题；Yandex、mOTP 使用受保护的扩展 URI 保存。其他 KeePass 客户端是否能生成这些扩展类型仍取决于其支持范围。
-- 密码内部 OTP 载荷保留所需 PIN，公开二维码继续默认不包含 PIN。
-- 修复 KeePass 密码修改时关联 Steam 元数据可能丢失的问题。
-
-## English
-
-- Password editors now offer the same TOTP, HOTP, Steam, Yandex and mOTP types and parameters as the authenticator editor, preserving parameters when editing or switching credentials.
-- Preserve password OTP parameters in native KeePass writes, reopen and exports. Yandex and mOTP use protected extension URIs; generation in other KeePass clients depends on their support.
-- Internal OTP payloads retain required PINs. Public QR exports continue to omit PINs by default.
-- Preserve existing Steam metadata when editing a KeePass password.
-
----
-
-# Monica for Android 1.0.314
+> 未发布。原实验内容已接入 main，构建版本已切换为 1.0.315，接入后的构建与回归验证已通过，版本尚未发布。接下来的新增功能、优化与修复均记录在本版本。
 
 ## 中文
 
 ### 简要
 
-- 设置搜索细化到具体设置项，以卡片展示名称、说明和路径；点击跳转定位，返回保留搜索词。
-
-- 优化 Monica 键盘大库加载与搜索，新增可关闭的数字键随机和隐藏预览，并统一按键布局。
-
-- 新增面向 AI 服务的 API Key 类型，分别保存供应商、官网、密钥、请求地址和备注。
-
-- 新增 GPG 密钥与生成器操作菜单。
-- 新增意大利语及 Liberapay 支持入口。
-- 支持密码字段值二维码 / Code 128 展示，以及 Emoji、已安装应用和图标包图标。
-- 通行密钥保存和登录选择器统一使用 Monica 彩色图标与名称。
-- 停用 MDBX1 日常使用，保留原文件并提供 MDBX2 升级。
-- 完善 MDBX2 同步与未知类型详情，优化冲突确认、历史和快照参数展示。
-- 修复 KeePass 条目和验证码漏显，补齐原生条目的验证码、标签与有效期管理。
-- 优化新建页面、验证器布局和密码库预览性能。
-- 独立调整 Steam 令牌卡片的内容间距，改善背景可见性；验证器磁贴保持原布局。
-- 完善二维码编辑、SSH 数据保存及数据库、卡包的显示与返回体验。
+- 新增可选“按需添加”密码编辑样式，统一已有字段与详情信息卡的展示。
+- 密码详情显示支付卡面，并复用验证器页面的验证码卡片。
+- 优化大字体、窄屏和自定义字段操作；“添加附件”移至卡片底部右侧。
 
 ### 详细
 
-- **设置搜索**：支持具体设置名称、相关关键词和所在路径搜索，优先显示名称匹配项。搜索结果只展示导航卡片，点击后进入原设置页、滚动定位并短暂高亮；从具体设置返回保留搜索词。搜索时支持返回键、返回手势及搜索框左侧箭头收起搜索，清空查询并留在设置页。搜索结果不直接切换开关、修改设置或执行清空操作，开发者功能保留原有验证入口。
+本版已接入的实验内容与后续修复：
 
-- **主应用图标**：在“页面调整 → 自定义图标”中选择默认图标或 Grok bot 图标，预览并记住选择；支持两种桌面名称，重启与升级后保留，切换语言不会覆盖手动选择。
+- **设置子页面：** 重新设计页面调整自定义与权限管理，改用外侧大圆角、组内小圆角的连续分组。自定义按密码库、卡片和字段图标归类，保留开关、导航与搜索定位；权限用途、状态和操作分层展示，支持大字体完整换行，按需开启权限，从系统设置返回时自动刷新。
 
-- **键盘加载与搜索**：使用轻量数据库投影，预计算中文排序和首字母导航，复用解锁期间的数据索引；大列表搜索接入现有 Rust 批处理，并保留兼容回退。合并重复窗口加载，搜索不再匹配数据库来源标签；旧查询和锁定前的读取结果不会回写到新页面。
-- **PIN 与键盘布局**：自动填充设置新增“随机排列数字键”和“隐藏数字按键预览”，均默认关闭、可独立设置，修改会同步到独立键盘进程。数字键每次打开时洗牌，输入过程中保持稳定；数字输入框自动使用数字键盘。统一字母键宽度、第二排居中缩进、Shift / 删除对称，Enter 和模式键采用胶囊圆角；数字键盘按键等高，窄屏和横屏保留操作空间。密码条目的验证码改为填充时读取并生成，避免使用过期缓存。
+- **旧版 Android 自动填充：** 修复 Android 10 等旧版系统在自动填充请求的协程恢复时引用新版内联候选类型、导致服务崩溃的问题。补充候选显示期间的连续输入、组合输入、字段切换及取消验证后的焦点测试。用户反馈的偶发输入阻塞尚不能确定为同一原因。
 
-- **AI API Key**：密码页的新建类型菜单新增 API Key，支持官方、自建和中转服务。供应商名称作为条目标题，官网与 API 请求地址分别保存；支持本地密码库、MDBX2、KeePass 和 Bitwarden。密钥加密保存、默认隐藏，可查看、编辑和复制；锁定时清除编辑草稿，不作为网站登录密码参与自动填充。
+- **本地数据与验证器恢复：** 覆盖恢复改为解析后再事务写入，写入失败或取消时回滚本地条目及关联字段；不再按同一账号误跳过不同密钥、参数或恢复资料的验证器，重新映射密码绑定时保留未知扩展字段。损坏单条验证器不再中断列表，解密失败的密文不再当作普通密钥；解锁后重新解析。后台敏感字段迁移使用条件更新，避免覆盖并发编辑的新值。
 
-- **GPG 密钥**：在新建页和生成器中生成或导入密钥，加密保存到密码库；支持导出公私钥、复制指纹和设置私钥口令。
-- **生成器菜单**：点击随机密码、单词、短语或 PIN 的结果卡片，可复制或用于新建用户名、密码；SSH 结果可分别复制公钥、指纹和私钥，GPG 结果提供复制、导出与创建条目操作。
-- **字段值条码（#141）**：密码详情的字段值展示支持在二维码与 Code 128 间切换。二维码支持 Unicode 文本；Code 128 可展示礼品卡、会员编号等最多 80 个可打印 ASCII 字符。无法编码时显示提示，屏幕过窄时提示横屏查看，避免将长条码压缩到难以扫描。
-- **密码 Emoji 图标（#142）**：自定义图标增加 Emoji 入口，支持快捷选择或输入单个 Emoji（含组合、旗帜和肤色修饰符）。编辑预览、列表、详情、自动填充、安全分析及通行密钥绑定的密码图标保持一致；放大系统字体时图标尺寸保持稳定。
-- **已安装图标（#142）**：可从手机已安装的应用或兼容图标包中搜索并选择密码图标。选中的图像保存到 Monica，卸载来源应用或图标包后仍可显示；旋转屏幕保留搜索和未保存的图标选择。
-- **通行密钥系统标识**：保存位置和登录条目明确提供 Monica 彩色应用图标，修复通用钥匙图标在浅色背景下难以辨认的问题；服务名称统一显示为 Monica Pass，便于区分其他密码管理器。
-- **MDBX1 停用与升级**：不再新建或日常使用 MDBX1；已有数据库保留在管理页并标为不可用，可升级为 MDBX2。升级校验完成后才接入新库，原文件保留；远程旧库升级设备上已保存的副本，生成新的本地 MDBX2，远程未下载的修改不包含在内，云同步需另行配置。
-- **MDBX2 增量同步**：修复分片乱序时缺少父提交导致同步中断的问题；父提交或跨流引用状态到齐后继续合并，失败分片不推进游标；同一轮同步复用已下载分片。恢复初始副本时可取回本机先前上传的历史；分页上传保留续传状态，减少重复目录与附件检查。
-- **MDBX 数据完整性**：保留大整数、高精度小数和特殊名称的扩展字段，修复原生读取、写入与同步合并中的误解析；完善 Android / CLI 合成库往返验证及可重复设备测试。
-- **MDBX 跨端新类型**：CLI 等客户端新增的未知类型可在密码列表显示并查看全部字段，保留原生类型与 ID；值默认隐藏，暂不支持编辑时以只读方式打开，防止误改成密码或丢失扩展内容。补充跨端存储兼容规范。
-- **MDBX 冲突与管理**：选择保留本机或传入版本前明确确认，防止重复提交与已删除项目被缓存错误恢复；当前引擎未提供历史字段值时明确提示。历史与快照保留简洁摘要，按需展开、选择和复制完整 ID、设备、时间、字节数及校验等参数。
-- **WebDAV 同步**：复用已确认的远程目录，减少路径探测和目录列表请求；服务器返回不含 Retry-After 的 503 时也执行退避，遵守等待时间并有界重试，避免连续请求加重拥堵。
-- **兼容数据库写入**：CLI 等客户端创建的 MDBX2 缺少 Android 默认根集合时，在首次写入的同一事务中补齐，保留已有集合与内容。
-- **原生内容与备份**：MDBX 保存、同步和重建缓存保留现有联系人、地址与银行卡字段；备份和恢复保留相同内容。重复导入比较卡号、地址与完整笔记，避免误合并内容不同的条目；清空字段也会同步保存。
-- **大量密码读取**：列表读取使用一致快照，避免同步、删除与跨 CursorWindow 读取并发时出现数据不一致；停用的 MDBX1 缓存不再影响自动填充保存和导入去重。
-- **官网链接**：设置页更新为 MonicaDocs 官方文档站。
-- **芝士雪豹语（#143）**：在中文语言分类中新增芝士雪豹语，默认图标随语言切换为新版雪豹彩蛋图片，从原图重新裁切并优化缩放清晰度，兼顾主体完整度，切回其他语言恢复；保留手动选择的 Grok bot 图标。统一系统自适应图标格式，修复部分系统开屏大白边和主体被额外缩小的问题，保留现有图片构图与清晰度。**彩蛋娱乐性语言，只保留一个版本**。
-- **语言与支持**：新增完整意大利语，中文界面中显示为“超级马里奥语”；Monica Plus 支付页和支持作者页新增 Liberapay 欧元（EUR）支持入口。 补齐 10 种语言中 API Key、键盘、KeePass 管理和 MDBX1 升级的新文案。
-- **验证器与卡片间距**：列表卡片边缘间距统一为 8dp。磁贴保留 313 的紧凑外观和等高外框，无账号不留空行；当前验证码完整显示，空间紧张时缩小或隐藏下一组码，正常列表保留 Next。收紧密码分组及组内留白，保留收藏、封面按钮原有尺寸（#139）。
-- **新建体验**：密码、银行卡、证件和笔记页面复用安全组件并精简重复过渡，减少打开时的停顿。生成器打开的编辑页使用独立窗口，保存按钮始终可达。
-- **二维码编辑**：二维码表单不再显示“密码登录／第三方登录”，避免误切换为密码条目；扫描、内容输入、保存和顶部类型菜单保持原流程。
-- **返回与显示**：修复 MDBX 详情返回列表时短暂显示空数据库的情况，以及卡包堆叠详情返回收起后位置偏移的问题。
-- **SSH 数据完整性**：保留 MDBX / Rust MDBX2 导入、编辑和完整导出中的密钥材料、扩展字段及私钥换行，完善 SSH / GPG 跨端格式约定。
-- **KeePass 数据可见性**：兼容 KeePass 原生 TimeOtp/HmacOtp 的文本、Hex、Base32、Base64 密钥，以及 KeeOtp、Tray TOTP 和 Steam 字段；保留未知或不完整类型、仅有自定义字段及空值的条目。修复普通登录编辑后被误标为模板而漏显的问题；数据库计数统计原生条目，普通 Trash 同名文件夹不再误判为回收站。
-- **KeePass 写入完整性**：按数据库和条目 UUID 区分验证码与同名登录；编辑验证码保留账号密码及第三方字段。修复 XML 解析裁掉字段名和值的空白、分段文本被截断的问题，保留原始大小写、空值和保护状态；完整替换遇到远端新增字段时提示冲突。 标准 Password 字段即使为空、只有空格或字面值为 password 也原样读取，不再误用银行卡 PIN 或其他受保护字段替代。
-- **KeePass 原生管理**：详情支持实时验证码及保存后递增的 HOTP，编辑页增加标签与有效期；字段、图标、属性和待添加附件一次保存，避免附件或图标错误造成部分保存。详情及时刷新编辑和历史还原结果，显示解析后的字段引用，保存时保留原始引用。
-- **KeePass 文件夹**：修复通行密钥引起的编码文件夹名重复显示，同一路径统一名称与计数。
-- **密码库列表排序（#144）**：在列表右上角“更多 → 排序方式”选择名称正序／倒序、创建时间新到旧／旧到新、更新时间新到旧／旧到新；选择自动保存，适用于全部项目、文件夹与搜索结果。时间排序按日期分组，返回列表与重启后保持选择。
-- **密码库预览**：密码条目就绪后先显示概览，其他类型在后台解析并补全统计与推荐；大规模概览使用 Rust 批量聚合，小规模沿用 Kotlin，减少 JNI 开销。
-- **长文案排版**：KeePass WebDAV 浏览器和云备份按钮的文字换行后保持居中（#140）。
-- **Steam 令牌卡片**：Steam 页面使用独立的卡片垂直内边距和区块间距，让令牌内容与个人资料背景同时可见；验证器页面继续使用现有紧凑磁贴尺寸。
+- **多语言补齐：** 补齐 11 种语言共 490 条新增编辑样式、字段、密码库排序、设置搜索及 MDBX 冲突/未知类型提示文案，保留原有译文与彩蛋语言继承规则。
+
+- **详情字段条形码：** 复用独立条形码项目的展示组件，码图保持矩形并留出完整白边，修复条纹被圆角裁切的问题。按实际可用宽度生成 Code 128，内容过长时提示切换二维码；保留格式切换和页面状态恢复。
+
+- **Monica 键盘菜单：** 将按住菜单时的反馈限制在圆形按钮内，去除矩形白色包边，保留完整点击范围。自动填充入口由三个点改为“箭头进入输入框”图标，与密码、验证器等入口区分；清空后的撤销功能保留。
+
+- **时间线稳定性（#144）：** 修复法语界面存在较早历史记录时，打开时间线因日期格式翻译错误而闪退的问题；保留正确的日/月显示，并补充全部语言日期格式及历史日期分组回归测试。
+
+- **按需编辑与已有字段：** 默认保留经典编辑，可在页面调整中切换按需添加。密码、卡包、笔记和证件沿用已有模型与存储格式，保留敏感复制、显隐、大字、二维码 / Code 128、分享和 Send。密码编辑沿用 main 已有的 TOTP、HOTP、Steam、Yandex、mOTP 支持，并覆盖按需添加、保存、重新编辑与凭据切换。
+- **统一详情卡片：** 内置与自定义信息使用统一平面卡片和字段布局，减少重复边距、阴影和卡片嵌套。大字体与窄屏下操作独立成行，秘密内容变更或切换条目后重新隐藏。
+- **密码中的支付卡面：** 将密码已有的单组支付信息显示为银行卡面；展开查看卡号、持卡人、有效期和 CVV，敏感值默认隐藏，大字体下保留卡号尾号。暂不增加多卡绑定和卡包自定义图片关联。
+- **密码中的验证器：** 复用验证器页面的验证码卡片、类型格式、隐藏设置与时间偏移；缺少关联验证器时读取密码自身保存的加密 OTP。HOTP 显示已保存的计数器，不再误用即将到期的红色，本轮不增加计数器写入。
+- **附件布局：** 经典与按需编辑中的“添加附件”独占卡片底部右侧，标题和文件列表使用完整宽度，修复英文大字体下标题被挤成竖排的问题。
+- **验证器已有资料：** 改进发行者、账号和备注的展示，保留 Steam 元数据。验证器新增自定义字段仍暂缓，不列为本版已实现功能。
 
 ## English
 
 ### Summary
 
-- Preserve precise MDBX numbers and literal extension keys; strengthen Android/CLI roundtrips.
-
-- Search individual settings with name, description and path cards; tap to navigate and highlight the setting, then return to the preserved query.
-
-- **Snow Leopard language (#143):** Add this Chinese-language variant with recropped Snow Leopard artwork that improves default launcher icon clarity while retaining key details, preserving a manually selected Grok bot icon. Use adaptive icons consistently to prevent extra white splash borders and excessive shrinking on affected systems, keeping the existing artwork and clarity. This playful Easter egg language will be available for one release only.
-
-- Speed up Monica Keyboard loading/search, add optional number-key shuffle and hidden previews, and refine key geometry.
-
-- Add an AI API Key type with provider, website, secret, request URL and notes.
-
-- Add GPG keys and generator action menus.
-- Add Italian and a Liberapay support option.
-- Show password field values as QR / Code 128 barcodes and choose Emoji, installed app, or icon-pack artwork for password entries.
-- Use Monica's color app icon and name in passkey save and sign-in selectors.
-- Retire MDBX1 ordinary use and offer MDBX2 upgrades while preserving originals.
-- Improve MDBX2 sync, unknown-type details, conflict confirmation, and expandable history/snapshot parameters.
-- Fix missing KeePass entries and OTP; add native OTP, tags and expiration management.
-- Improve entry creation, authenticator layouts and vault overview performance.
-- Give Steam token cards their own content spacing so profile backgrounds remain visible; keep authenticator tiles unchanged.
-- Fix QR editing, SSH data preservation, and database and card-wallet navigation.
+- Add an optional on-demand password editor and unify existing detail fields.
+- Show payment card artwork and authenticator cards in password details.
+- Improve large-text and narrow-screen layouts, with Add attachment at the bottom-right of its card.
 
 ### Details
 
-- **Settings search:** Find individual settings by name, related keywords and location, with name matches ranked first. Results are navigation cards that open the original page, scroll to the target and briefly highlight it. Returning from a setting preserves the query. Back or the search field's arrow dismisses the search, clears the query and stays on Settings. Results do not toggle settings or execute destructive actions; developer features retain their existing verification entry.
+- **Settings subpages:** Redesign page customization and permission management with grouped rows. Preserve toggles, navigation and search focus; separate permission descriptions, statuses and actions, support large text, and refresh statuses after returning from system settings.
 
-- **Main app icon:** Choose the default or Grok bot icon in Page adjustment → Icon settings. Preview and remember the selection across restarts and upgrades, with both launcher labels; language changes preserve the chosen icon.
+- **Autofill on older Android:** Fix a service crash caused by restoring an Android 11-only inline request type across coroutine suspension on Android 10 and earlier. Add real input-connection coverage for typing, composition, field changes and focus after cancelling authentication. The reported intermittent input blockage has not been confirmed as the same issue.
 
-- **Keyboard loading and search:** Read a lightweight database projection, prepare Chinese sort keys and letter navigation once, and reuse the unlocked snapshot. Use the existing Rust batch search for large lists with a Kotlin fallback. Coalesce duplicate window loads and keep database-source labels out of content searches. Discard results from superseded queries or locked sessions.
-- **PIN and keyboard layout:** Add independent, default-off number-key shuffle and hidden-preview options to Autofill settings, synchronized with the separate keyboard process. Shuffle when the number pad opens, keep positions stable while typing, and select the number pad for numeric fields. Use equal letter widths, a centered home row, symmetric Shift/Delete, capsule Enter/mode keys and equal-height number keys, with narrow-screen and landscape layouts. Resolve password-entry OTP codes at fill time instead of using an expired cached code.
+These changes are integrated into main with build version 1.0.315. Post-integration builds and regression checks passed. Version 1.0.315 remains unpublished.
 
-- **AI API Keys:** Add API Key to the password creation type menu for official, self-hosted and proxy providers. Use the provider name as the entry title and store the website and API request URL separately, with support for local vaults, MDBX2, KeePass and Bitwarden. Store secrets encrypted, hide them by default, and support viewing, editing and copying. Clear editor drafts on lock and exclude these keys from login autofill.
+- **Local data and authenticator recovery:** Apply local replacement in a transaction after parsing, rolling back records and related fields on write failure or cancellation. Preserve authenticators with different secrets, parameters or recovery metadata, including unknown fields when remapping password bindings. Isolate unreadable records, retry parsing after unlock, and prevent background encryption migration from overwriting concurrent edits.
 
-- **GPG keys:** Generate or import keys from the entry editor and generator, store them encrypted in the vault, export public/private keys, copy fingerprints, and optionally protect private keys with a passphrase.
-- **Generator menus:** Tap password, word, passphrase or PIN results to copy them or create username/password entries. SSH results offer separate public-key, fingerprint and private-key actions; GPG results support copying, exporting and creating entries.
-- **Field barcodes (#141):** Switch between QR and Code 128 from the password detail field menu. QR supports Unicode text; Code 128 accepts up to 80 printable ASCII characters for gift cards and membership numbers. Unsupported content shows an error, and barcodes that need a wider screen prompt rotation instead of shrinking into unreadable bars.
-- **Password Emoji icons (#142):** Add quick picks and single-Emoji input, including ZWJ sequences, flags and skin-tone modifiers. Icons display consistently in the editor, lists, details, autofill, security analysis, and linked-password previews in the passkey list. Icon dimensions remain stable with larger system fonts.
-- **Installed icons (#142):** Search and choose password icons from installed applications and compatible icon packs. Monica keeps a local copy so the selected icon remains available after its source is uninstalled. Searches and unsaved icon choices survive screen rotation.
-- **System passkey identity:** Explicitly provide Monica's color app icon for save destinations and sign-in entries, replacing a generic key that could disappear against light backgrounds. Use the Monica Pass provider name to distinguish it from other password managers.
-- **MDBX1 retirement and upgrade:** Disable MDBX1 creation and ordinary use. Keep existing databases visible as unavailable with an MDBX2 upgrade action. Verify the new vault before registering it and preserve the original file. Remote legacy upgrades convert the copy saved on this device into a new local MDBX2 vault; remote changes not yet downloaded are excluded and synchronization must be configured separately.
-- **MDBX2 incremental sync:** Resolve out-of-order segment dependencies including missing parent commits and cross-stream referenced state without acknowledging failed segments, and reuse downloaded segments within the same synchronization. Recover previously published same-device history after reopening a bootstrap. Retain paged upload resumes and reduce repeated directory and attachment checks.
-- **Vault list sorting (#144):** Choose name A–Z/Z–A, created newest/oldest, or updated newest/oldest from More → Sort by. The saved choice applies to all items, folders and search results; time sorting uses date sections.
-- **MDBX future types:** Show unknown CLI/client types in the password list with complete read-only field details, masked by default. Preserve native types and IDs and reject lossy password edits. Add a cross-client storage contract.
-- **MDBX conflict and management:** Confirm local/incoming choices, reject repeated submissions, and prevent cache reconciliation from reviving resolved deletions. Explain when historical values are unavailable. Keep summaries simple with selectable, copyable full IDs, devices, timestamps, byte sizes and verification metadata in expandable details.
-- **WebDAV sync:** Reuse confirmed remote directories and reduce path probes and listings. Apply backoff to 503 responses even without Retry-After with bounded retries that respect the required delay during service overload.
-- **Compatible vault writes:** Initialize a missing Android root collection in the same transaction as the first write to a valid CLI-created MDBX2 vault, preserving existing collections and content.
-- **Native content and backups:** Retain existing contact, address and card fields across MDBX saves, synchronization, cache rebuilds, backups and restores. Compare card details, addresses and exact notes during duplicate imports so distinct entries survive; explicit field clears also persist.
-- **Large password reads:** Use consistent snapshots across CursorWindow refills during concurrent synchronization or deletion. Retired MDBX1 caches no longer interfere with autofill saves or import duplicate detection.
-- **Website link:** Point Settings to the official MonicaDocs site.
-- **Language and support:** Add complete Italian localization, playfully named “Super Mario language” in the Chinese interface, and a Liberapay option in euros (EUR) on the Monica Plus payment and Support Author pages. Complete the new API Key, keyboard, KeePass management and MDBX1 upgrade messages in ten languages.
-- **Authenticator and card spacing:** Use an actual 8dp gap between list cards. Tiles retain the compact 313 appearance and equal outer heights without empty account rows. Current codes remain complete; crowded tiles shrink or hide the next-code preview, while regular lists retain Next. Reduce grouped-password padding while preserving favorite and cover button sizes (#139).
-- **Entry creation:** Reuse security components and remove duplicate transitions when opening password, bank-card, document and note editors. Editors opened from the generator use separate windows so Save remains accessible.
-- **QR editing:** Remove password/third-party login controls from the QR form to prevent accidental conversion into a password entry. Scanning, content editing, saving and the top type menu retain their existing flow.
-- **Navigation and display:** Prevent a false empty-database state when leaving MDBX details, and keep card stacks in their original position after returning from details and collapsing them.
-- **SSH data preservation:** Retain key material, extension fields and private-key line endings across MDBX / Rust MDBX2 imports, edits and full exports, with documented SSH / GPG interchange formats.
-- **KeePass data visibility:** Read native TimeOtp/HmacOtp UTF-8, Hex, Base32 and Base64 secrets, plus KeeOtp, Tray TOTP and Steam fields. Keep entries with unknown or incomplete type metadata, custom-only fields and empty values accessible. Prevent ordinary logins from becoming hidden templates after editing. Count native entries and recognize recycle bins by metadata rather than ordinary Trash folder names.
-- **KeePass write preservation:** Distinguish authenticators and same-name logins by database and entry UUID. Preserve login credentials and third-party fields when editing OTP. Fix XML whitespace trimming and fragmented text truncation; retain exact field names, empty values and protection, and reject full replacements that would erase remotely added fields. Respect an existing Password field, including empty, whitespace-only and literal password values, instead of substituting a card PIN or another protected field.
-- **KeePass native management:** Show live OTP and persist HOTP counter advances; edit entry tags and expiration. Save fields, icons, properties and pending attachments together. Refresh details after edits and history restoration, display resolved references, and preserve their raw expressions when saving.
-- **KeePass folders:** Correct duplicate encoded folder names introduced by passkeys, using consistent names and counts for the same path.
-- **Vault overview:** Display password entries as soon as they are ready, then fill in other types, counts and recommendations in the background. Use Rust batch aggregation for large overviews and Kotlin for smaller ones to avoid JNI overhead.
-- **Long labels:** Keep wrapped button labels centered in the KeePass WebDAV browser and cloud backup pages (#140).
-- **Steam token cards:** Use independent vertical card padding and section spacing on the Steam page so token content and profile backgrounds remain visible; keep the authenticator page on its existing compact tile dimensions.
+- **Translations:** Complete 490 missing strings across 11 locales for editor styles, fields, vault sorting, settings search and MDBX conflict/unknown-type guidance, preserving existing translations and easter-egg locale fallback.
+
+- **Detail-field barcodes:** Reuse the saved barcode preview with rectangular artwork and a complete white border, fixing rounded clipping of the bars. Generate Code 128 for the available width and suggest QR for values that cannot fit; preserve format switching and state restoration.
+
+- **Monica keyboard toolbar:** Keep press feedback inside circular buttons while preserving the full touch area. Replace the three-dot autofill shortcut with an arrow-entering-field icon, distinct from the password and authenticator icons; retain the temporary undo action.
+
+- **Timeline stability (#144):** Fix a crash when opening older history in French caused by translated date-format tokens. Preserve day/month display and add date-pattern and timeline-grouping regression checks across languages.
+
+- **Editing and existing fields:** Keep the classic editor as the default and offer an on-demand alternative in page settings. Preserve existing storage models and sensitive-field actions. Carry main's existing TOTP, HOTP, Steam, Yandex and mOTP support through on-demand editing, saving, reopening and credential switching.
+- **Detail cards:** Give built-in and custom fields consistent surfaces and spacing. Place actions on separate rows for large text or narrow screens, and hide revealed secrets again when their values or entries change.
+- **Payment information:** Render the password's existing single payment group as a card face, with expandable details and masked sensitive values. Preserve the last digits with large text. Multiple-card binding and linked custom card images are outside this change.
+- **Authenticator display:** Reuse authenticator-page cards and their formatting, masking and time offset. Fall back to the password's encrypted OTP when no linked authenticator exists. Show the saved HOTP counter without expiry-red styling; no new counter-write path is introduced.
+- **Attachments:** Place Add attachment on its own bottom-right row in both editor styles, leaving full width for the heading and file list.
+- **Existing authenticator metadata:** Improve issuer, account and notes display while preserving Steam metadata. New authenticator custom fields remain deferred.
