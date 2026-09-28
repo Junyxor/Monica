@@ -13,13 +13,15 @@
 - 支持密码字段值二维码 / Code 128 展示，以及 Emoji、已安装应用和图标包图标。
 - 通行密钥保存和登录选择器统一使用 Monica 彩色图标与名称。
 - 停用 MDBX1 日常使用，保留原文件并提供 MDBX2 升级。
-- 修复 MDBX2 增量同步及兼容库写入，减少 WebDAV 重复请求。
+- 完善 MDBX2 同步与未知类型详情，优化冲突确认、历史和快照参数展示。
 - 修复 KeePass 条目和验证码漏显，补齐原生条目的验证码、标签与有效期管理。
 - 优化新建页面、验证器布局和密码库预览性能。
 - 独立调整 Steam 令牌卡片的内容间距，改善背景可见性；验证器磁贴保持原布局。
 - 完善二维码编辑、SSH 数据保存及数据库、卡包的显示与返回体验。
 
 ### 详细
+
+- **主应用图标**：在“页面调整 → 自定义图标”中选择默认图标或 Grok bot 图标，预览并记住选择；支持两种桌面名称，重启与升级后保留，切换语言不会覆盖手动选择。
 
 - **键盘加载与搜索**：使用轻量数据库投影，预计算中文排序和首字母导航，复用解锁期间的数据索引；大列表搜索接入现有 Rust 批处理，并保留兼容回退。合并重复窗口加载，搜索不再匹配数据库来源标签；旧查询和锁定前的读取结果不会回写到新页面。
 - **PIN 与键盘布局**：自动填充设置新增“随机排列数字键”和“隐藏数字按键预览”，均默认关闭、可独立设置，修改会同步到独立键盘进程。数字键每次打开时洗牌，输入过程中保持稳定；数字输入框自动使用数字键盘。统一字母键宽度、第二排居中缩进、Shift / 删除对称，Enter 和模式键采用胶囊圆角；数字键盘按键等高，窄屏和横屏保留操作空间。密码条目的验证码改为填充时读取并生成，避免使用过期缓存。
@@ -33,11 +35,15 @@
 - **已安装图标（#142）**：可从手机已安装的应用或兼容图标包中搜索并选择密码图标。选中的图像保存到 Monica，卸载来源应用或图标包后仍可显示；旋转屏幕保留搜索和未保存的图标选择。
 - **通行密钥系统标识**：保存位置和登录条目明确提供 Monica 彩色应用图标，修复通用钥匙图标在浅色背景下难以辨认的问题；服务名称统一显示为 Monica Pass，便于区分其他密码管理器。
 - **MDBX1 停用与升级**：不再新建或日常使用 MDBX1；已有数据库保留在管理页并标为不可用，可升级为 MDBX2。升级校验完成后才接入新库，原文件保留；远程旧库升级设备上已保存的副本，生成新的本地 MDBX2，远程未下载的修改不包含在内，云同步需另行配置。
-- **MDBX2 增量同步**：修复分片乱序时缺少父提交导致同步中断的问题；依赖到齐后继续合并，同一轮同步复用已下载分片。恢复初始副本时可取回本机先前上传的历史；分页上传保留续传状态，减少重复目录与附件检查。
-- **WebDAV 同步**：复用已确认的远程目录，减少路径探测和目录列表请求；服务器返回不含 Retry-After 的 503 时也执行退避，避免连续请求加重拥堵。
+- **MDBX2 增量同步**：修复分片乱序时缺少父提交导致同步中断的问题；父提交或跨流引用状态到齐后继续合并，失败分片不推进游标；同一轮同步复用已下载分片。恢复初始副本时可取回本机先前上传的历史；分页上传保留续传状态，减少重复目录与附件检查。
+- **MDBX 跨端新类型**：CLI 等客户端新增的未知类型可在密码列表显示并查看全部字段，保留原生类型与 ID；值默认隐藏，暂不支持编辑时以只读方式打开，防止误改成密码或丢失扩展内容。补充跨端存储兼容规范。
+- **MDBX 冲突与管理**：选择保留本机或传入版本前明确确认，防止重复提交与已删除项目被缓存错误恢复；当前引擎未提供历史字段值时明确提示。历史与快照保留简洁摘要，按需展开、选择和复制完整 ID、设备、时间、字节数及校验等参数。
+- **WebDAV 同步**：复用已确认的远程目录，减少路径探测和目录列表请求；服务器返回不含 Retry-After 的 503 时也执行退避，遵守等待时间并有界重试，避免连续请求加重拥堵。
 - **兼容数据库写入**：CLI 等客户端创建的 MDBX2 缺少 Android 默认根集合时，在首次写入的同一事务中补齐，保留已有集合与内容。
 - **原生内容与备份**：MDBX 保存、同步和重建缓存保留现有联系人、地址与银行卡字段；备份和恢复保留相同内容。重复导入比较卡号、地址与完整笔记，避免误合并内容不同的条目；清空字段也会同步保存。
 - **大量密码读取**：列表读取使用一致快照，避免同步、删除与跨 CursorWindow 读取并发时出现数据不一致；停用的 MDBX1 缓存不再影响自动填充保存和导入去重。
+- **官网链接**：设置页更新为 MonicaDocs 官方文档站。
+- **芝士雪豹语（#143）**：在中文语言分类中新增芝士雪豹语，选择后启用雪豹桌面图标，切回其他语言恢复原图标。**彩蛋娱乐性语言，只保留一个版本**。
 - **语言与支持**：新增完整意大利语，中文界面中显示为“超级马里奥语”；Monica Plus 支付页和支持作者页新增 Liberapay 欧元（EUR）支持入口。 补齐 10 种语言中 API Key、键盘、KeePass 管理和 MDBX1 升级的新文案。
 - **验证器与卡片间距**：列表卡片边缘间距统一为 8dp。磁贴保留 313 的紧凑外观和等高外框，无账号不留空行；当前验证码完整显示，空间紧张时缩小或隐藏下一组码，正常列表保留 Next。收紧密码分组及组内留白，保留收藏、封面按钮原有尺寸（#139）。
 - **新建体验**：密码、银行卡、证件和笔记页面复用安全组件并精简重复过渡，减少打开时的停顿。生成器打开的编辑页使用独立窗口，保存按钮始终可达。
@@ -48,6 +54,7 @@
 - **KeePass 写入完整性**：按数据库和条目 UUID 区分验证码与同名登录；编辑验证码保留账号密码及第三方字段。修复 XML 解析裁掉字段名和值的空白、分段文本被截断的问题，保留原始大小写、空值和保护状态；完整替换遇到远端新增字段时提示冲突。 标准 Password 字段即使为空、只有空格或字面值为 password 也原样读取，不再误用银行卡 PIN 或其他受保护字段替代。
 - **KeePass 原生管理**：详情支持实时验证码及保存后递增的 HOTP，编辑页增加标签与有效期；字段、图标、属性和待添加附件一次保存，避免附件或图标错误造成部分保存。详情及时刷新编辑和历史还原结果，显示解析后的字段引用，保存时保留原始引用。
 - **KeePass 文件夹**：修复通行密钥引起的编码文件夹名重复显示，同一路径统一名称与计数。
+- **密码库列表排序（#144）**：在列表右上角“更多 → 排序方式”选择名称正序／倒序、创建时间新到旧／旧到新、更新时间新到旧／旧到新；选择自动保存，适用于全部项目、文件夹与搜索结果。时间排序按日期分组，返回列表与重启后保持选择。
 - **密码库预览**：密码条目就绪后先显示概览，其他类型在后台解析并补全统计与推荐；大规模概览使用 Rust 批量聚合，小规模沿用 Kotlin，减少 JNI 开销。
 - **长文案排版**：KeePass WebDAV 浏览器和云备份按钮的文字换行后保持居中（#140）。
 - **Steam 令牌卡片**：Steam 页面使用独立的卡片垂直内边距和区块间距，让令牌内容与个人资料背景同时可见；验证器页面继续使用现有紧凑磁贴尺寸。
@@ -55,6 +62,8 @@
 ## English
 
 ### Summary
+
+- **Snow Leopard language (#143):** Add this Chinese-language variant with a matching launcher icon. This playful Easter egg language will be available for one release only.
 
 - Speed up Monica Keyboard loading/search, add optional number-key shuffle and hidden previews, and refine key geometry.
 
@@ -65,13 +74,15 @@
 - Show password field values as QR / Code 128 barcodes and choose Emoji, installed app, or icon-pack artwork for password entries.
 - Use Monica's color app icon and name in passkey save and sign-in selectors.
 - Retire MDBX1 ordinary use and offer MDBX2 upgrades while preserving originals.
-- Fix MDBX2 incremental sync and compatible-vault writes; reduce WebDAV requests.
+- Improve MDBX2 sync, unknown-type details, conflict confirmation, and expandable history/snapshot parameters.
 - Fix missing KeePass entries and OTP; add native OTP, tags and expiration management.
 - Improve entry creation, authenticator layouts and vault overview performance.
 - Give Steam token cards their own content spacing so profile backgrounds remain visible; keep authenticator tiles unchanged.
 - Fix QR editing, SSH data preservation, and database and card-wallet navigation.
 
 ### Details
+
+- **Main app icon:** Choose the default or Grok bot icon in Page adjustment → Icon settings. Preview and remember the selection across restarts and upgrades, with both launcher labels; language changes preserve the chosen icon.
 
 - **Keyboard loading and search:** Read a lightweight database projection, prepare Chinese sort keys and letter navigation once, and reuse the unlocked snapshot. Use the existing Rust batch search for large lists with a Kotlin fallback. Coalesce duplicate window loads and keep database-source labels out of content searches. Discard results from superseded queries or locked sessions.
 - **PIN and keyboard layout:** Add independent, default-off number-key shuffle and hidden-preview options to Autofill settings, synchronized with the separate keyboard process. Shuffle when the number pad opens, keep positions stable while typing, and select the number pad for numeric fields. Use equal letter widths, a centered home row, symmetric Shift/Delete, capsule Enter/mode keys and equal-height number keys, with narrow-screen and landscape layouts. Resolve password-entry OTP codes at fill time instead of using an expired cached code.
@@ -85,11 +96,15 @@
 - **Installed icons (#142):** Search and choose password icons from installed applications and compatible icon packs. Monica keeps a local copy so the selected icon remains available after its source is uninstalled. Searches and unsaved icon choices survive screen rotation.
 - **System passkey identity:** Explicitly provide Monica's color app icon for save destinations and sign-in entries, replacing a generic key that could disappear against light backgrounds. Use the Monica Pass provider name to distinguish it from other password managers.
 - **MDBX1 retirement and upgrade:** Disable MDBX1 creation and ordinary use. Keep existing databases visible as unavailable with an MDBX2 upgrade action. Verify the new vault before registering it and preserve the original file. Remote legacy upgrades convert the copy saved on this device into a new local MDBX2 vault; remote changes not yet downloaded are excluded and synchronization must be configured separately.
-- **MDBX2 incremental sync:** Resolve out-of-order segment dependencies instead of aborting on missing parent commits, and reuse downloaded segments within the same synchronization. Recover previously published same-device history after reopening a bootstrap. Retain paged upload resumes and reduce repeated directory and attachment checks.
-- **WebDAV sync:** Reuse confirmed remote directories and reduce path probes and listings. Apply backoff to 503 responses even without Retry-After to avoid repeated requests during service overload.
+- **MDBX2 incremental sync:** Resolve out-of-order segment dependencies including missing parent commits and cross-stream referenced state without acknowledging failed segments, and reuse downloaded segments within the same synchronization. Recover previously published same-device history after reopening a bootstrap. Retain paged upload resumes and reduce repeated directory and attachment checks.
+- **Vault list sorting (#144):** Choose name A–Z/Z–A, created newest/oldest, or updated newest/oldest from More → Sort by. The saved choice applies to all items, folders and search results; time sorting uses date sections.
+- **MDBX future types:** Show unknown CLI/client types in the password list with complete read-only field details, masked by default. Preserve native types and IDs and reject lossy password edits. Add a cross-client storage contract.
+- **MDBX conflict and management:** Confirm local/incoming choices, reject repeated submissions, and prevent cache reconciliation from reviving resolved deletions. Explain when historical values are unavailable. Keep summaries simple with selectable, copyable full IDs, devices, timestamps, byte sizes and verification metadata in expandable details.
+- **WebDAV sync:** Reuse confirmed remote directories and reduce path probes and listings. Apply backoff to 503 responses even without Retry-After with bounded retries that respect the required delay during service overload.
 - **Compatible vault writes:** Initialize a missing Android root collection in the same transaction as the first write to a valid CLI-created MDBX2 vault, preserving existing collections and content.
 - **Native content and backups:** Retain existing contact, address and card fields across MDBX saves, synchronization, cache rebuilds, backups and restores. Compare card details, addresses and exact notes during duplicate imports so distinct entries survive; explicit field clears also persist.
 - **Large password reads:** Use consistent snapshots across CursorWindow refills during concurrent synchronization or deletion. Retired MDBX1 caches no longer interfere with autofill saves or import duplicate detection.
+- **Website link:** Point Settings to the official MonicaDocs site.
 - **Language and support:** Add complete Italian localization, playfully named “Super Mario language” in the Chinese interface, and a Liberapay option in euros (EUR) on the Monica Plus payment and Support Author pages. Complete the new API Key, keyboard, KeePass management and MDBX1 upgrade messages in ten languages.
 - **Authenticator and card spacing:** Use an actual 8dp gap between list cards. Tiles retain the compact 313 appearance and equal outer heights without empty account rows. Current codes remain complete; crowded tiles shrink or hide the next-code preview, while regular lists retain Next. Reduce grouped-password padding while preserving favorite and cover button sizes (#139).
 - **Entry creation:** Reuse security components and remove duplicate transitions when opening password, bank-card, document and note editors. Editors opened from the generator use separate windows so Save remains accessible.

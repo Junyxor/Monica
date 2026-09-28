@@ -16,8 +16,8 @@ class VaultV2ArchiveTopBarStateTest {
             .substringBefore("VaultV2QuickStatusBar(")
 
         assertFalse(topBar.contains("navigationIcon = if (state.isArchiveView)"))
-        assertTrue(topBar.contains("navigationIcon = if (appSettings.vaultOverviewEnabled)"))
-        assertTrue(topBar.contains("IconButton(onClick = ::closeOverviewList)"))
+        assertTrue(pane.contains("state.overviewListOpen || appSettings.vaultOverviewEnabled -> closeOverviewList()"))
+        assertTrue(pane.contains("BackHandler("))
         val archiveActionIndex = topBar.indexOf("if (state.isArchiveView && !appSettings.vaultOverviewEnabled)")
         val searchActionIndex = topBar.indexOf("IconButton(onClick = { isSearchExpanded = true })")
         assertTrue(archiveActionIndex >= 0)

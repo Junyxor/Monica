@@ -61,7 +61,7 @@ class MultiPasswordSaveRegressionGuardTest {
 
         assertTrue(
             "Inline add-password surfaces must still show concrete MDBX vaults when they do not pass MdbxViewModel.",
-            source.contains("?: database.localMdbxDatabaseDao().getAllDatabases()")
+            source.contains("?: database.localMdbxDatabaseDao().getAvailableDatabases()")
         )
         assertFalse(
             "Falling back to only the constructor list leaves FAB inline creation unable to choose a concrete MDBX vault.",
