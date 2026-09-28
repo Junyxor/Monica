@@ -13,6 +13,7 @@
 
 - **GPG 密钥**：在新建页和生成器中生成或导入密钥，加密保存到密码库；支持导出公私钥、复制指纹和设置私钥口令。
 - **生成器菜单**：点击随机密码、单词、短语或 PIN 的结果卡片，可复制或用于新建用户名、密码；SSH 结果可分别复制公钥、指纹和私钥，GPG 结果提供复制、导出与创建条目操作。
+- **芝士雪豹语（#143）**：在中文语言分类中新增芝士雪豹语，选择后启用雪豹桌面图标，切回其他语言恢复原图标。**彩蛋娱乐性语言，只保留一个版本**。
 - **语言与支持**：新增完整意大利语，中文界面中显示为“超级马里奥语”；Monica Plus 支付页和支持作者页新增 Liberapay 欧元（EUR）支持入口。
 - **验证器与卡片间距**：列表卡片边缘间距统一为 8dp。磁贴保留 313 的紧凑外观和等高外框，无账号不留空行；当前验证码完整显示，空间紧张时缩小或隐藏下一组码，正常列表保留 Next。收紧密码分组及组内留白，保留收藏、封面按钮原有尺寸（#139）。
 - **新建体验**：密码、银行卡、证件和笔记页面复用安全组件并精简重复过渡，减少打开时的停顿。生成器打开的编辑页使用独立窗口，保存按钮始终可达。
@@ -26,6 +27,8 @@
 ## English
 
 ### Summary
+
+- **Snow Leopard language (#143):** Add this Chinese-language variant with a matching launcher icon. This playful Easter egg language will be available for one release only.
 
 - Add GPG keys and generator action menus.
 - Add Italian and a Liberapay support option.
