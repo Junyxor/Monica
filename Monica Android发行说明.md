@@ -4,6 +4,8 @@
 
 ### 简要
 
+- 设置搜索细化到具体设置项，以卡片展示名称、说明和路径；点击跳转定位，返回保留搜索词。
+
 - 优化 Monica 键盘大库加载与搜索，新增可关闭的数字键随机和隐藏预览，并统一按键布局。
 
 - 新增面向 AI 服务的 API Key 类型，分别保存供应商、官网、密钥、请求地址和备注。
@@ -20,6 +22,8 @@
 - 完善二维码编辑、SSH 数据保存及数据库、卡包的显示与返回体验。
 
 ### 详细
+
+- **设置搜索**：支持具体设置名称、相关关键词和所在路径搜索，优先显示名称匹配项。搜索结果只展示导航卡片，点击后进入原设置页、滚动定位并短暂高亮；返回保留搜索词。搜索结果不直接切换开关、修改设置或执行清空操作，开发者功能保留原有验证入口。
 
 - **主应用图标**：在“页面调整 → 自定义图标”中选择默认图标或 Grok bot 图标，预览并记住选择；支持两种桌面名称，重启与升级后保留，切换语言不会覆盖手动选择。
 
@@ -63,6 +67,8 @@
 
 ### Summary
 
+- Search individual settings with name, description and path cards; tap to navigate and highlight the setting, then return to the preserved query.
+
 - **Snow Leopard language (#143):** Add this Chinese-language variant with updated Snow Leopard artwork and less cropping for the default launcher icon, preserving a manually selected Grok bot icon. This playful Easter egg language will be available for one release only.
 
 - Speed up Monica Keyboard loading/search, add optional number-key shuffle and hidden previews, and refine key geometry.
@@ -81,6 +87,8 @@
 - Fix QR editing, SSH data preservation, and database and card-wallet navigation.
 
 ### Details
+
+- **Settings search:** Find individual settings by name, related keywords and location, with name matches ranked first. Results are navigation cards that open the original page, scroll to the target and briefly highlight it. Returning preserves the query. Results do not toggle settings or execute destructive actions; developer features retain their existing verification entry.
 
 - **Main app icon:** Choose the default or Grok bot icon in Page adjustment → Icon settings. Preview and remember the selection across restarts and upgrades, with both launcher labels; language changes preserve the chosen icon.
 
