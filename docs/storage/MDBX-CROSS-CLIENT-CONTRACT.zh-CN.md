@@ -57,6 +57,8 @@ Vault
 
 注意当前 FFI 的历史 `createEntry/updateEntry` 便捷 API 仍可能只接受旧枚举类型。新类型使用支持 ObjectTypeId 的通用对象接口，或经当前运行时验证的 `executeWriteOperation` 配合 `MdbxWriteCommand.CreateEntry/UpdateEntry`，不能因方法名字类似就假定支持范围相同。原生写入可能规范化 JSON 对象键顺序；无损要求是字段、类型和值完整保留，不承诺排版空格或键顺序不变。
 
+JSON 边界统一使用共享核心 `mdbx_core::json::from_str/from_slice`（保留数值精度及字面对象键）。仅开启 `serde_json/arbitrary_precision` 不够：直接解析为 `Value` 会把 `$serde_json::private::Number` 等合法字段误当内部标记；`raw_value` 也有同类标记。不得静默改类型、丢字段或预先舍入。该要求覆盖 FFI、普通编辑、合并、导出及同步扩展，不仅是详情显示。
+
 ### 未知类型的强制行为
 
 1. 正常发现对象；不能 `when(type) { ... else -> skip }` 而让用户看不到数据。

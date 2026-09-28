@@ -47,9 +47,36 @@
           "Cargo.toml": "a957865c151120d18f527c861c7c457f9c24ebeab75bf0b5579c6be08600af37"
         },
         "description": "Enable serde_json arbitrary_precision so FFI reads and writes preserve JSON integer and decimal lexemes. No FFI or storage schema change."
+      },
+      {
+        "base_commit": "90005c8c608c952093a4522ffa507a562e2e39a4",
+        "patch": "patches/90005c8-json-literal-keys.patch",
+        "patch_sha256": "8ce59d57462f33d6b5d5cd914b54b03aeb14baab9f2834d4ee30607b31df83b3",
+        "files": {
+          "Cargo.toml": "8e4cfc3d0da2b1b182a62d33611dead8da92db5f3c678cf1a021cebe9f3ef931",
+          "crates/mdbx-core/src/lib.rs": "87f151875952e1ad8fff19111208f8da90fd08b7fe31267c4d4dfd89c9bcf6d2",
+          "crates/mdbx-core/src/json.rs": "0c87f40be5b85a69528e1c9f6f5e60f4a4af531fa2259e722b5a8f90258e90ec",
+          "crates/mdbx-ffi/src/object_facade.rs": "8ddb80eb7e7499884161bef1909c3203391a5f3b64a0e19266bf3b110f3436a7",
+          "crates/mdbx-storage/src/import/kdbx_export.rs": "e27f426b61b79bd4568facc3776a1750bededa121131a58a7429ce7afaab8a92",
+          "crates/mdbx-storage/src/repo/operation_coordinator.rs": "9fddbfe35e468225962c9811ed53de65dfe1a4d30697d434beed9018cea9854a",
+          "crates/mdbx-storage/src/sync_apply/entry.rs": "9ea4e7db177add6da77be6db60d63ba9c2a3fd53b5556767a2b75a1465d686c7",
+          "crates/mdbx-storage/src/sync_state.rs": "667b29478f4faf5e6fb92a3d724fecc06fd6b6ee9385c7b94309608c456502f9"
+        },
+        "hash_encoding": "UTF-8, LF-normalized",
+        "description": "Shared lossless JSON parser preserves literal internal-marker keys and precise numbers in FFI, writes, merges, exports and sync extensions. No FFI or database schema change."
       }
     ],
-    "reconstruction_note": "git archive of exact base plus listed overlays. Source content matches vendored F-Droid files after LF normalization. Prior main-runtime overlay hashes are retained separately; current file hashes use LF-normalized bytes. No claim of byte-identical reproduction of prior binaries."
+    "reconstruction_note": "git archive of exact base plus listed overlays. Source content matches vendored F-Droid files after LF normalization. Prior main-runtime overlay hashes are retained separately; current file hashes use LF-normalized bytes. No claim of byte-identical reproduction of prior binaries.",
+    "final_overlay_files": {
+      "Cargo.toml": "8e4cfc3d0da2b1b182a62d33611dead8da92db5f3c678cf1a021cebe9f3ef931",
+      "crates/mdbx-core/src/lib.rs": "87f151875952e1ad8fff19111208f8da90fd08b7fe31267c4d4dfd89c9bcf6d2",
+      "crates/mdbx-core/src/json.rs": "0c87f40be5b85a69528e1c9f6f5e60f4a4af531fa2259e722b5a8f90258e90ec",
+      "crates/mdbx-ffi/src/object_facade.rs": "8ddb80eb7e7499884161bef1909c3203391a5f3b64a0e19266bf3b110f3436a7",
+      "crates/mdbx-storage/src/import/kdbx_export.rs": "e27f426b61b79bd4568facc3776a1750bededa121131a58a7429ce7afaab8a92",
+      "crates/mdbx-storage/src/repo/operation_coordinator.rs": "9fddbfe35e468225962c9811ed53de65dfe1a4d30697d434beed9018cea9854a",
+      "crates/mdbx-storage/src/sync_apply/entry.rs": "9ea4e7db177add6da77be6db60d63ba9c2a3fd53b5556767a2b75a1465d686c7",
+      "crates/mdbx-storage/src/sync_state.rs": "667b29478f4faf5e6fb92a3d724fecc06fd6b6ee9385c7b94309608c456502f9"
+    }
   },
   "runtime": {
     "name": "MDBX3",
@@ -68,72 +95,94 @@
     "cargo_ndk": "4.1.2",
     "strip": "llvm-strip --strip-all --keep-section=.note.gnu.build-id",
     "rustflags": "-C link-arg=-Wl,--build-id=sha1",
-    "cargo_lock_sha256": "d1cdc3da22787e147daf0708046742b2b67e54768eb7006726d2dff0b2c60855"
+    "cargo_lock_sha256": "d1cdc3da22787e147daf0708046742b2b67e54768eb7006726d2dff0b2c60855",
+    "source_directory": "F-Droid vendored Mdbx-ffi, verified against exact archive plus four overlays"
   },
   "abi": {
     "required_symbols": 539,
     "verified_checksums": 239,
     "uniffi_contract_version": 30,
-    "release_gate": "passed-scoped-android-cli-compatibility-validation",
+    "release_gate": "passed-scoped-review-fix-validation",
     "static_android_validation": "passed-all-three-abis",
-    "previous_android_runtime_validation": {
-      "validated_at_utc": "2026-09-16T08:38:32.918857+00:00",
-      "environment": "Monica_Issue136_API_32 shared emulator",
-      "api_level": 32,
-      "avd_abi": "x86_64",
-      "app_abi": "x86_64",
-      "app_version": "1.0.311-26091612-21",
-      "database_transfer_tests": 17,
-      "credential_import_regression_tests": 9,
-      "large_mdbx_rows": 4097,
-      "large_kdbx_rows": 1001,
-      "large_utf8_rows": 20,
-      "authenticated_sync_segments": 10,
-      "physical_device_validation": "not-run",
-      "live_bitwarden_validation": "not-run"
-    },
     "android_runtime_validation": {
       "validated_at": "2026-09-28",
-      "environment": "Monica_Issue136_API_32 shared emulator",
-      "api_level": 32,
-      "avd_abi": "x86_64",
-      "app_abi": "arm64-v8a",
-      "runner": "isolated native harness plus actual main APK on shared emulator",
-      "synthetic_contract_tests": 1,
-      "portable_outputs": 2,
-      "cli_return_verification": "passed",
+      "status": "passed-scoped-review-fix-validation",
+      "environment": "Monica_Issue136_API_32, API 32, x86_64; actual ARM64 APK via native bridge",
+      "app_version": "1.0.314-26092812-23",
+      "packaged_native_sha256": "11f9cbb9dd82e5928211ff4a144fab2ec7fbb5038128d3a0842e5a38fd9b8c0f",
+      "jvm_tests": 210,
+      "actual_app_device_regressions": 5,
+      "default_contract_repeat": 1,
+      "dynamic_contract_test": 1,
+      "cli_return_verification": "passed, two outputs, each with three corruption rejection controls",
+      "shared_core_rust_tests": 965,
       "verified_api_checksums": 239,
-      "full_application_build": "passed debug APK and instrumentation APK",
-      "jvm_and_ui_regressions": {
-        "jvm_tests": 210,
-        "actual_app_device_tests": 5,
-        "failures": 0,
-        "skipped": 0,
-        "unknown_object_ui_screenshot": "checked"
-      },
-      "arm_device_validation": "arm64-v8a actual APK on x86_64 emulator native bridge; no physical ARM device",
+      "isolated_harness_tests": 5,
       "physical_device_validation": "not-run",
       "live_cloud_validation": "not-run",
-      "native_engine_smoke_tests": 3,
-      "isolated_harness_abi": "x86_64",
-      "app_version": "1.0.314-26092812-13"
-    }
+      "source_reconstruction": "167 Rust/Cargo files match exact archive plus four overlays after LF normalization",
+      "scope_limits": "Not a full historical Android Adapter audit; no independent clean-build reproducibility claim."
+    },
+    "validation_history": [
+      {
+        "validated_at_utc": "2026-09-16T08:38:32.918857+00:00",
+        "environment": "Monica_Issue136_API_32 shared emulator",
+        "api_level": 32,
+        "avd_abi": "x86_64",
+        "app_abi": "x86_64",
+        "app_version": "1.0.311-26091612-21",
+        "database_transfer_tests": 17,
+        "credential_import_regression_tests": 9,
+        "large_mdbx_rows": 4097,
+        "large_kdbx_rows": 1001,
+        "large_utf8_rows": 20,
+        "authenticated_sync_segments": 10,
+        "physical_device_validation": "not-run",
+        "live_bitwarden_validation": "not-run"
+      },
+      {
+        "validated_at": "2026-09-28",
+        "environment": "Monica_Issue136_API_32 shared emulator",
+        "api_level": 32,
+        "avd_abi": "x86_64",
+        "app_abi": "arm64-v8a",
+        "runner": "isolated native harness plus actual main APK on shared emulator",
+        "synthetic_contract_tests": 1,
+        "portable_outputs": 2,
+        "cli_return_verification": "passed",
+        "verified_api_checksums": 239,
+        "full_application_build": "passed debug APK and instrumentation APK",
+        "jvm_and_ui_regressions": {
+          "jvm_tests": 210,
+          "actual_app_device_tests": 5,
+          "failures": 0,
+          "skipped": 0,
+          "unknown_object_ui_screenshot": "checked"
+        },
+        "arm_device_validation": "arm64-v8a actual APK on x86_64 emulator native bridge; no physical ARM device",
+        "physical_device_validation": "not-run",
+        "live_cloud_validation": "not-run",
+        "native_engine_smoke_tests": 3,
+        "isolated_harness_abi": "x86_64",
+        "app_version": "1.0.314-26092812-13"
+      }
+    ]
   },
   "artifacts": {
+    "x86_64": {
+      "bytes": 8989328,
+      "sha256": "78c0badc8839559d8c019d4b0965c09c502ceda48e3c9e5a9ef7f3f5e1678e15",
+      "build_id": "185ab72e5e54d0e96560c052b6700622bc0b55f5"
+    },
     "arm64-v8a": {
-      "bytes": 7469384,
-      "sha256": "b13091d1dec341bde6366e074ce68f5d419cf97f5d839d57afb33a7ee6657134",
-      "build_id": "ff97cb74941960ee33de14a59811b38a009b4c82"
+      "bytes": 7549944,
+      "sha256": "11f9cbb9dd82e5928211ff4a144fab2ec7fbb5038128d3a0842e5a38fd9b8c0f",
+      "build_id": "5db91bf4d7700eb0c5d981ad7bacb8a303434591"
     },
     "armeabi-v7a": {
-      "bytes": 5745696,
-      "sha256": "e7d4e03fd4c325f87af6df4926f362f3210d69fe5221272ff2d1ae7276c4540b",
-      "build_id": "1613c1039bb78c35cff1ed908510b2131d6ec8f3"
-    },
-    "x86_64": {
-      "bytes": 8860080,
-      "sha256": "ed1434e7d5399d0cea59f57d441ef60ca28c4b16e9410b2b3f769687494bebc8",
-      "build_id": "c28d752f6ddb5c039dd7dced864e8065b960572b"
+      "bytes": 5808696,
+      "sha256": "471776c55fdcdfefab053ef43dff6cc43bdd1808f5a73a1d9d68a5d7524ce6cd",
+      "build_id": "2cfec824a0998edb38c8c84086aad0c78b1b76e4"
     }
   }
 }
