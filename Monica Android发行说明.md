@@ -47,7 +47,7 @@
 - **原生内容与备份**：MDBX 保存、同步和重建缓存保留现有联系人、地址与银行卡字段；备份和恢复保留相同内容。重复导入比较卡号、地址与完整笔记，避免误合并内容不同的条目；清空字段也会同步保存。
 - **大量密码读取**：列表读取使用一致快照，避免同步、删除与跨 CursorWindow 读取并发时出现数据不一致；停用的 MDBX1 缓存不再影响自动填充保存和导入去重。
 - **官网链接**：设置页更新为 MonicaDocs 官方文档站。
-- **芝士雪豹语（#143）**：在中文语言分类中新增芝士雪豹语，默认图标随语言切换为新版雪豹彩蛋图片，增加圆形图标留白以减少裁剪，切回其他语言恢复；保留手动选择的 Grok bot 图标。**彩蛋娱乐性语言，只保留一个版本**。
+- **芝士雪豹语（#143）**：在中文语言分类中新增芝士雪豹语，默认图标随语言切换为新版雪豹彩蛋图片，从原图重新裁切并优化缩放清晰度，兼顾主体完整度，切回其他语言恢复；保留手动选择的 Grok bot 图标。**彩蛋娱乐性语言，只保留一个版本**。
 - **语言与支持**：新增完整意大利语，中文界面中显示为“超级马里奥语”；Monica Plus 支付页和支持作者页新增 Liberapay 欧元（EUR）支持入口。 补齐 10 种语言中 API Key、键盘、KeePass 管理和 MDBX1 升级的新文案。
 - **验证器与卡片间距**：列表卡片边缘间距统一为 8dp。磁贴保留 313 的紧凑外观和等高外框，无账号不留空行；当前验证码完整显示，空间紧张时缩小或隐藏下一组码，正常列表保留 Next。收紧密码分组及组内留白，保留收藏、封面按钮原有尺寸（#139）。
 - **新建体验**：密码、银行卡、证件和笔记页面复用安全组件并精简重复过渡，减少打开时的停顿。生成器打开的编辑页使用独立窗口，保存按钮始终可达。
@@ -69,7 +69,7 @@
 
 - Search individual settings with name, description and path cards; tap to navigate and highlight the setting, then return to the preserved query.
 
-- **Snow Leopard language (#143):** Add this Chinese-language variant with updated Snow Leopard artwork and less cropping for the default launcher icon, preserving a manually selected Grok bot icon. This playful Easter egg language will be available for one release only.
+- **Snow Leopard language (#143):** Add this Chinese-language variant with recropped Snow Leopard artwork that improves default launcher icon clarity while retaining key details, preserving a manually selected Grok bot icon. This playful Easter egg language will be available for one release only.
 
 - Speed up Monica Keyboard loading/search, add optional number-key shuffle and hidden previews, and refine key geometry.
 
