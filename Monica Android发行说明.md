@@ -23,7 +23,7 @@
 
 ### 详细
 
-- **设置搜索**：支持具体设置名称、相关关键词和所在路径搜索，优先显示名称匹配项。搜索结果只展示导航卡片，点击后进入原设置页、滚动定位并短暂高亮；返回保留搜索词。搜索结果不直接切换开关、修改设置或执行清空操作，开发者功能保留原有验证入口。
+- **设置搜索**：支持具体设置名称、相关关键词和所在路径搜索，优先显示名称匹配项。搜索结果只展示导航卡片，点击后进入原设置页、滚动定位并短暂高亮；从具体设置返回保留搜索词。搜索时支持返回键、返回手势及搜索框左侧箭头收起搜索，清空查询并留在设置页。搜索结果不直接切换开关、修改设置或执行清空操作，开发者功能保留原有验证入口。
 
 - **主应用图标**：在“页面调整 → 自定义图标”中选择默认图标或 Grok bot 图标，预览并记住选择；支持两种桌面名称，重启与升级后保留，切换语言不会覆盖手动选择。
 
@@ -40,6 +40,7 @@
 - **通行密钥系统标识**：保存位置和登录条目明确提供 Monica 彩色应用图标，修复通用钥匙图标在浅色背景下难以辨认的问题；服务名称统一显示为 Monica Pass，便于区分其他密码管理器。
 - **MDBX1 停用与升级**：不再新建或日常使用 MDBX1；已有数据库保留在管理页并标为不可用，可升级为 MDBX2。升级校验完成后才接入新库，原文件保留；远程旧库升级设备上已保存的副本，生成新的本地 MDBX2，远程未下载的修改不包含在内，云同步需另行配置。
 - **MDBX2 增量同步**：修复分片乱序时缺少父提交导致同步中断的问题；父提交或跨流引用状态到齐后继续合并，失败分片不推进游标；同一轮同步复用已下载分片。恢复初始副本时可取回本机先前上传的历史；分页上传保留续传状态，减少重复目录与附件检查。
+- **MDBX 数据完整性**：保留大整数、高精度小数和特殊名称的扩展字段，修复原生读取、写入与同步合并中的误解析；完善 Android / CLI 合成库往返验证及可重复设备测试。
 - **MDBX 跨端新类型**：CLI 等客户端新增的未知类型可在密码列表显示并查看全部字段，保留原生类型与 ID；值默认隐藏，暂不支持编辑时以只读方式打开，防止误改成密码或丢失扩展内容。补充跨端存储兼容规范。
 - **MDBX 冲突与管理**：选择保留本机或传入版本前明确确认，防止重复提交与已删除项目被缓存错误恢复；当前引擎未提供历史字段值时明确提示。历史与快照保留简洁摘要，按需展开、选择和复制完整 ID、设备、时间、字节数及校验等参数。
 - **WebDAV 同步**：复用已确认的远程目录，减少路径探测和目录列表请求；服务器返回不含 Retry-After 的 503 时也执行退避，遵守等待时间并有界重试，避免连续请求加重拥堵。
@@ -47,7 +48,7 @@
 - **原生内容与备份**：MDBX 保存、同步和重建缓存保留现有联系人、地址与银行卡字段；备份和恢复保留相同内容。重复导入比较卡号、地址与完整笔记，避免误合并内容不同的条目；清空字段也会同步保存。
 - **大量密码读取**：列表读取使用一致快照，避免同步、删除与跨 CursorWindow 读取并发时出现数据不一致；停用的 MDBX1 缓存不再影响自动填充保存和导入去重。
 - **官网链接**：设置页更新为 MonicaDocs 官方文档站。
-- **芝士雪豹语（#143）**：在中文语言分类中新增芝士雪豹语，默认图标随语言切换为新版雪豹彩蛋图片，从原图重新裁切并优化缩放清晰度，兼顾主体完整度，切回其他语言恢复；保留手动选择的 Grok bot 图标。**彩蛋娱乐性语言，只保留一个版本**。
+- **芝士雪豹语（#143）**：在中文语言分类中新增芝士雪豹语，默认图标随语言切换为新版雪豹彩蛋图片，从原图重新裁切并优化缩放清晰度，兼顾主体完整度，切回其他语言恢复；保留手动选择的 Grok bot 图标。统一系统自适应图标格式，修复部分系统开屏大白边和主体被额外缩小的问题，保留现有图片构图与清晰度。**彩蛋娱乐性语言，只保留一个版本**。
 - **语言与支持**：新增完整意大利语，中文界面中显示为“超级马里奥语”；Monica Plus 支付页和支持作者页新增 Liberapay 欧元（EUR）支持入口。 补齐 10 种语言中 API Key、键盘、KeePass 管理和 MDBX1 升级的新文案。
 - **验证器与卡片间距**：列表卡片边缘间距统一为 8dp。磁贴保留 313 的紧凑外观和等高外框，无账号不留空行；当前验证码完整显示，空间紧张时缩小或隐藏下一组码，正常列表保留 Next。收紧密码分组及组内留白，保留收藏、封面按钮原有尺寸（#139）。
 - **新建体验**：密码、银行卡、证件和笔记页面复用安全组件并精简重复过渡，减少打开时的停顿。生成器打开的编辑页使用独立窗口，保存按钮始终可达。
@@ -67,9 +68,11 @@
 
 ### Summary
 
+- Preserve precise MDBX numbers and literal extension keys; strengthen Android/CLI roundtrips.
+
 - Search individual settings with name, description and path cards; tap to navigate and highlight the setting, then return to the preserved query.
 
-- **Snow Leopard language (#143):** Add this Chinese-language variant with recropped Snow Leopard artwork that improves default launcher icon clarity while retaining key details, preserving a manually selected Grok bot icon. This playful Easter egg language will be available for one release only.
+- **Snow Leopard language (#143):** Add this Chinese-language variant with recropped Snow Leopard artwork that improves default launcher icon clarity while retaining key details, preserving a manually selected Grok bot icon. Use adaptive icons consistently to prevent extra white splash borders and excessive shrinking on affected systems, keeping the existing artwork and clarity. This playful Easter egg language will be available for one release only.
 
 - Speed up Monica Keyboard loading/search, add optional number-key shuffle and hidden previews, and refine key geometry.
 
@@ -88,7 +91,7 @@
 
 ### Details
 
-- **Settings search:** Find individual settings by name, related keywords and location, with name matches ranked first. Results are navigation cards that open the original page, scroll to the target and briefly highlight it. Returning preserves the query. Results do not toggle settings or execute destructive actions; developer features retain their existing verification entry.
+- **Settings search:** Find individual settings by name, related keywords and location, with name matches ranked first. Results are navigation cards that open the original page, scroll to the target and briefly highlight it. Returning from a setting preserves the query. Back or the search field's arrow dismisses the search, clears the query and stays on Settings. Results do not toggle settings or execute destructive actions; developer features retain their existing verification entry.
 
 - **Main app icon:** Choose the default or Grok bot icon in Page adjustment → Icon settings. Preview and remember the selection across restarts and upgrades, with both launcher labels; language changes preserve the chosen icon.
 
