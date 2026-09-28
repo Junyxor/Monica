@@ -251,7 +251,7 @@ class Mdbx2Repository(
             }
             val commands = buildList {
                 // CLI-created vaults need not contain Android's conventional root collection.
-                if (collection == null) add(MdbxWriteCommand.CreateProject(rootId, "Monica"))
+                if (collection == null) add(MdbxWriteCommand.CreateProject(rootId, Mdbx2VaultSessionExecutor.ROOT_PROJECT_TITLE))
                 val moving = original != null && original.summary.collectionId != targetId
                 // Labels belong to one collection; remove old assignments before moving.
                 if (!isFavorite || moving) favoriteAssignments.forEach {
@@ -305,6 +305,16 @@ class Mdbx2Repository(
         if (!copy) deleteNativeApiToken(original)
         return saved
     }
+
+    internal suspend fun readUnknownEntry(databaseId: Long, entryId: String): MdbxStoredVaultEntry =
+        sessions.withNativeReadVault(databaseId,
+            uniffi.mdbx_ffi.MdbxTigaScope(uniffi.mdbx_ffi.MdbxTigaScopeType.ENTRY, entryId)) { _, vault ->
+            val record = vault.revealObjectWithLimits(entryId,
+                uniffi.mdbx_ffi.MdbxObjectDisclosureLimits(4uL * 1024uL * 1024uL)).`object`
+                ?: error("MDBX object disclosure was not authorized")
+            check(!record.deleted && MdbxUnknownEntry.isUnknown(record.objectTypeId))
+            MdbxStoredVaultEntry(entryId, record.objectTypeId, record.title, record.payloadJson, false, record.collectionId)
+        }
 
     override suspend fun readStoredEntries(databaseId: Long): List<MdbxStoredVaultEntry> =
         sessions.withNativeReadVault(databaseId) { _, vault ->
@@ -722,10 +732,12 @@ class Mdbx2Repository(
     }
 
     override suspend fun deletePassword(entry: PasswordEntry) {
+        MdbxUnknownEntry.requireEditable(entry)
         entry.mdbxDatabaseId?.let { deleteEntries(it, listOf(passwordObjectId(entry))) }
     }
 
     override suspend fun deletePasswords(entries: List<PasswordEntry>) {
+        entries.forEach(MdbxUnknownEntry::requireEditable)
         entries.groupBy { it.mdbxDatabaseId }.forEach { (databaseId, values) ->
             if (databaseId != null) deleteEntries(databaseId, values.map(::passwordObjectId))
         }
@@ -1489,12 +1501,22 @@ class Mdbx2Repository(
             },
             rootCollectionId = rootProjectId
         )
-        val commandGroups = mutationsWithPhysicalIds.map { (mutation, physicalEntryId) ->
+        val needsAndroidRoot = vault.getCollectionSummary(rootProjectId) == null
+        val commandGroups = mutationsWithPhysicalIds.mapIndexed { index, (mutation, physicalEntryId) ->
             val desiredProjectId = mutation.folderId
                 ?.takeIf { it.isNotBlank() && it in snapshot.activeCollectionIds }
                 ?: rootProjectId
             val current = snapshot.objectsById[physicalEntryId]
+            require(current == null || current.objectTypeId == mutation.entryType) {
+                "Cannot replace an MDBX object with a different entry type"
+            }
             buildList {
+                // CLI vaults need not contain Android's default collection. Create
+                // it atomically with the first write, retaining the vault identity
+                // and every existing collection. A failed write rolls this back too.
+                if (index == 0 && needsAndroidRoot) {
+                    add(MdbxWriteCommand.CreateProject(rootProjectId, Mdbx2VaultSessionExecutor.ROOT_PROJECT_TITLE))
+                }
                 if (current == null) {
                     add(
                         MdbxWriteCommand.CreateEntry(
@@ -1666,6 +1688,15 @@ class Mdbx2Repository(
 
     private suspend fun passwordMutation(entry: PasswordEntry): EntryMutation? {
         val databaseId = entry.mdbxDatabaseId ?: return null
+        MdbxUnknownEntry.requireEditable(entry)
+        entry.replicaGroupId?.takeIf { runCatching { UUID.fromString(it) }.isSuccess }?.let { nativeId ->
+            sessions.withNativeReadVault(databaseId) { _, vault ->
+                val native = vault.getObjectSummary(nativeId)
+                require(native == null || native.objectTypeId == "login") {
+                    "Cannot edit a native MDBX object through the password adapter"
+                }
+            }
+        }
         val entryId = passwordObjectId(entry)
         val payload = JSONObject()
             .put("kind", "password")
@@ -1689,6 +1720,9 @@ class Mdbx2Repository(
             .put("custom_fields", passwordCustomFieldsPayload(entry.id))
             .put("bitwarden_mode", entry.bitwardenVaultId != null)
             .put("keepass_mode", entry.keepassDatabaseId != null)
+        MdbxPasswordContentFields.writeTo(payload, entry) { value ->
+            decryptSensitiveValue(value, "payment", entry.id)
+        }
         return EntryMutation(
             databaseId = databaseId,
             folderId = entry.mdbxFolderId,
@@ -1926,7 +1960,8 @@ class Mdbx2Repository(
             .ifBlank { entryId }
 
     private fun uniffi.mdbx_ffi.EntryRecord.toStoredEntry(): MdbxStoredVaultEntry =
-        MdbxStoredVaultEntry(logicalEntryId(), entryType, title, payloadJson, deleted)
+        MdbxStoredVaultEntry(if (MdbxUnknownEntry.isUnknown(entryType)) entryId else logicalEntryId(),
+            entryType, title, payloadJson, deleted, projectId)
 
     private fun MdbxVault.listAllProjects(): List<uniffi.mdbx_ffi.MdbxCollectionSummary> {
         val projects = mutableListOf<uniffi.mdbx_ffi.MdbxCollectionSummary>()

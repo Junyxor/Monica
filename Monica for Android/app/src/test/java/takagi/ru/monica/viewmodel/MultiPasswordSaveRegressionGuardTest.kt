@@ -61,7 +61,7 @@ class MultiPasswordSaveRegressionGuardTest {
 
         assertTrue(
             "Inline add-password surfaces must still show concrete MDBX vaults when they do not pass MdbxViewModel.",
-            source.contains("?: database.localMdbxDatabaseDao().getAllDatabases()")
+            source.contains("?: database.localMdbxDatabaseDao().getAvailableDatabases()")
         )
         assertFalse(
             "Falling back to only the constructor list leaves FAB inline creation unable to choose a concrete MDBX vault.",
@@ -2655,10 +2655,10 @@ class MultiPasswordSaveRegressionGuardTest {
                 totpViewModelSource.contains("Soft-deleting extra bound TOTP")
         )
         assertTrue(
-            "The authenticator list should collapse already-existing duplicate bound rows so users do not keep seeing one card per bad edit.",
-            totpViewModelSource.contains("collapseDuplicateBoundStoredTotps(storedTotps)") &&
-                totpViewModelSource.contains("private fun collapseDuplicateBoundStoredTotps(") &&
-                totpViewModelSource.contains("val key = \"\$boundPasswordId|")
+            "The authenticator list should use the source-scoped duplicate-binding filter, whose behavior is covered by KeePassTotpDisplaySourceTest.",
+            totpViewModelSource.contains("KeePassTotpDisplaySource.collapseDuplicateBoundStoredTotps(") &&
+                totpViewModelSource.contains("dataForItem = { parsedStored[it.id] }") &&
+                totpViewModelSource.contains("otpIdentity = ::buildTotpIdentityKey")
         )
         assertTrue(
             "Deleting one duplicated bound authenticator must not clear password.authenticatorKey while another equivalent bound item still exists.",

@@ -48,6 +48,7 @@ class SnowLeopardLanguageInstrumentedTest {
         val manager = SettingsManager(context)
         val original = manager.settingsFlow.first()
         try {
+            manager.updateAppLauncherIcon(AppLauncherIcon.MODERN)
             AppLauncherLabel.entries.forEach { label ->
                 manager.updateAppLauncherLabel(label)
                 withTimeout(5_000) { manager.settingsFlow.first { it.appLauncherLabel == label } }
@@ -69,7 +70,7 @@ class SnowLeopardLanguageInstrumentedTest {
             manager.updateAppLauncherLabel(original.appLauncherLabel)
             withTimeout(5_000) { manager.settingsFlow.first { it.appLauncherLabel == original.appLauncherLabel } }
             manager.updateLanguage(original.language)
-            AppLauncherIconManager.apply(context, original.appLauncherIcon, original.appLauncherLabel)
+            manager.updateAppLauncherIcon(original.appLauncherIcon)
         }
     }
 

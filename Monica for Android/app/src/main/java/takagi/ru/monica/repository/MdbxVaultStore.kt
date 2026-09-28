@@ -308,7 +308,8 @@ data class MdbxStoredVaultEntry(
     val entryType: String,
     val title: String,
     val payloadJson: String,
-    val deleted: Boolean
+    val deleted: Boolean,
+    val collectionId: String? = null
 )
 
 private data class MdbxEntryMutation(
@@ -2078,6 +2079,9 @@ class MdbxVaultStore(
             .put("custom_fields", passwordCustomFieldsPayload(entry.id))
             .put("bitwarden_mode", entry.bitwardenVaultId != null)
             .put("keepass_mode", entry.keepassDatabaseId != null)
+        MdbxPasswordContentFields.writeTo(payload, entry) { value ->
+            portableSensitiveValueForMdbx(value, "payment", entry.id)
+        }
         return MdbxEntryMutation(
             databaseId = databaseId,
             projectId = entryId,

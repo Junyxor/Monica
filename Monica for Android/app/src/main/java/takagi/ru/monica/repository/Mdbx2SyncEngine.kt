@@ -5,6 +5,7 @@ import java.util.Locale
 import takagi.ru.monica.data.MdbxSyncCheckpointState
 import takagi.ru.monica.data.MdbxSyncResumeState
 import uniffi.mdbx_ffi.MdbxExternalBlobState
+import uniffi.mdbx_ffi.MdbxFfiException
 import uniffi.mdbx_ffi.MdbxIncrementalSyncCheckpoint
 import uniffi.mdbx_ffi.MdbxIncrementalSyncResume
 import uniffi.mdbx_ffi.MdbxVault
@@ -102,7 +103,8 @@ internal data class Mdbx2SegmentApplyResult(
     val missingParentCount: UInt,
     // Both snapshots are captured under the same local lock as the Rust apply.
     val localCheckpointBefore: MdbxSyncCheckpointState,
-    val localCheckpointAfter: MdbxSyncCheckpointState
+    val localCheckpointAfter: MdbxSyncCheckpointState,
+    val missingStateDependencies: Boolean = false
 )
 
 internal enum class Mdbx2BlobAvailability {
@@ -192,11 +194,36 @@ private class NativeMdbx2SyncEngine(
         expectedResume: MdbxSyncResumeState?
     ): Mdbx2SegmentApplyResult = mutate { vault ->
         val before = vault.incrementalSyncCheckpoint().toState()
-        val result = vault.applyIncrementalSyncSegment(
-            source = source.absolutePath,
-            expectedBase = expectedBase.toFfi(),
-            expectedResume = expectedResume?.toFfi()
-        )
+        val result = try {
+            vault.applyIncrementalSyncSegment(
+                source = source.absolutePath,
+                expectedBase = expectedBase.toFfi(),
+                expectedResume = expectedResume?.toFfi()
+            )
+        } catch (error: MdbxFfiException.Storage) {
+            // Native apply rolls back the entire segment. Auxiliary state can
+            // reference objects/operations arriving in a different stream even
+            // when all commit parents are present. Neither failure acknowledges
+            // the segment; retry only after another stream has made progress.
+            val missing = MISSING_PARENTS_DETAIL.matchEntire(error.detail)
+                ?.groupValues?.get(1)?.toUIntOrNull()
+                ?.takeIf { it > 0u }
+            val missingState = error.detail == "database error: FOREIGN KEY constraint failed"
+            if (missing == null && !missingState) throw error
+            val after = vault.incrementalSyncCheckpoint().toState()
+            if (after != before) throw error
+            return@mutate Mdbx2SegmentApplyResult(
+                result = expectedBase,
+                nextResume = expectedResume,
+                appliedCommits = 0u,
+                skippedCommits = 0u,
+                conflictCount = 0u,
+                missingParentCount = missing ?: 0u,
+                localCheckpointBefore = before,
+                localCheckpointAfter = after,
+                missingStateDependencies = missingState
+            )
+        }
         Mdbx2SegmentApplyResult(
             result = result.result.toState(),
             nextResume = result.nextResume?.toState(),
@@ -233,6 +260,12 @@ private class NativeMdbx2SyncEngine(
 
     override suspend fun <T> withBlobTransfer(block: suspend (Mdbx2BlobTransferSession) -> T): T =
         mutate { vault -> block(NativeMdbx2BlobTransferSession(vault)) }
+
+    companion object {
+        private val MISSING_PARENTS_DETAIL = Regex(
+            "validation error: incremental segment is missing ([1-9][0-9]*) commit parent\\(s\\)"
+        )
+    }
 }
 
 private class NativeMdbx2BlobTransferSession(

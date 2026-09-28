@@ -282,7 +282,23 @@ private data class TrashPasswordBackupEntry(
     val ssoRefEntryId: Long? = null,
     val customIconType: String = "NONE",
     val customIconValue: String? = null,
-    val customIconUpdatedAt: Long = 0L
+    val customIconUpdatedAt: Long = 0L,
+    val sortOrder: Int = 0,
+    val appPackageName: String = "",
+    val appName: String = "",
+    val boundNoteId: Long? = null,
+    val addressLine: String = "",
+    val city: String = "",
+    val state: String = "",
+    val zipCode: String = "",
+    val country: String = "",
+    val creditCardNumber: String = "",
+    val creditCardHolder: String = "",
+    val creditCardExpiry: String = "",
+    val creditCardCVV: String = "",
+    val isArchived: Boolean = false,
+    val archivedAt: Long? = null,
+    val wifiMetadata: String = ""
 )
 
 @Serializable
@@ -447,6 +463,7 @@ private data class PageAdjustmentSettingsBackupEntry(
     val authenticatorCardHideCodeByDefault: Boolean = false,
     val authenticatorLayoutMode: String = takagi.ru.monica.data.AuthenticatorLayoutMode.STANDARD.name,
     val vaultV2LayoutMode: String = takagi.ru.monica.data.VaultV2LayoutMode.CLASSIC.name,
+    val vaultListSort: String = takagi.ru.monica.data.VaultListSort.TITLE_ASC.name,
     val vaultOverviewEnabled: Boolean = true,
     val vaultOverviewConfig: String = "{}",
     val validatorProgressBarStyle: String = "LINEAR",
@@ -773,6 +790,7 @@ class WebDavHelper(
             authenticatorCardHideCodeByDefault = authenticatorCardHideCodeByDefault,
             authenticatorLayoutMode = authenticatorLayoutMode,
             vaultV2LayoutMode = vaultV2LayoutMode,
+            vaultListSort = vaultListSort,
             vaultOverviewEnabled = vaultOverviewEnabled,
             vaultOverviewConfig = vaultOverviewConfig,
             validatorProgressBarStyle = validatorProgressBarStyle,
@@ -1642,6 +1660,16 @@ class WebDavHelper(
                 value = entry.authenticatorKey,
                 securityManager = securityManager,
                 entryTitle = entry.title
+            ),
+            creditCardNumber = portableSensitiveBackupValue(
+                value = entry.creditCardNumber,
+                securityManager = securityManager,
+                entryTitle = entry.title
+            ),
+            creditCardCVV = portableSensitiveBackupValue(
+                value = entry.creditCardCVV,
+                securityManager = securityManager,
+                entryTitle = entry.title
             )
         )
     }
@@ -1922,6 +1950,12 @@ class WebDavHelper(
                                 appName = password.appName,
                                 email = password.email,
                                 phone = password.phone,
+                                boundNoteId = password.boundNoteId,
+                                addressLine = password.addressLine, city = password.city, state = password.state,
+                                zipCode = password.zipCode, country = password.country,
+                                creditCardNumber = password.creditCardNumber, creditCardHolder = password.creditCardHolder,
+                                creditCardExpiry = password.creditCardExpiry, creditCardCVV = password.creditCardCVV,
+                                isArchived = password.isArchived, archivedAt = password.archivedAt?.time,
                                 keepassDatabaseId = null,
                                 keepassGroupPath = null,
                                 bitwardenVaultId = null,
@@ -2428,6 +2462,14 @@ class WebDavHelper(
                                         categoryName = categoryName,
                                         email = password.email,
                                         phone = password.phone,
+                                        sortOrder = password.sortOrder, appPackageName = password.appPackageName,
+                                        appName = password.appName, boundNoteId = password.boundNoteId,
+                                        addressLine = password.addressLine, city = password.city, state = password.state,
+                                        zipCode = password.zipCode, country = password.country,
+                                        creditCardNumber = password.creditCardNumber, creditCardHolder = password.creditCardHolder,
+                                        creditCardExpiry = password.creditCardExpiry, creditCardCVV = password.creditCardCVV,
+                                        isArchived = password.isArchived, archivedAt = password.archivedAt?.time,
+                                        wifiMetadata = password.wifiMetadata,
                                         createdAt = password.createdAt.time,
                                         updatedAt = password.updatedAt.time,
                                         authenticatorKey = password.authenticatorKey,
@@ -3657,6 +3699,14 @@ class WebDavHelper(
                                                             categoryId = backup.categoryId,
                                                             email = backup.email,
                                                             phone = backup.phone,
+                                                            sortOrder = backup.sortOrder, appPackageName = backup.appPackageName,
+                                                            appName = backup.appName, boundNoteId = backup.boundNoteId,
+                                                            addressLine = backup.addressLine, city = backup.city, state = backup.state,
+                                                            zipCode = backup.zipCode, country = backup.country,
+                                                            creditCardNumber = backup.creditCardNumber, creditCardHolder = backup.creditCardHolder,
+                                                            creditCardExpiry = backup.creditCardExpiry, creditCardCVV = backup.creditCardCVV,
+                                                            isArchived = backup.isArchived, archivedAt = backup.archivedAt?.let(::Date),
+                                                            wifiMetadata = backup.wifiMetadata,
                                                             createdAt = java.util.Date(backup.createdAt),
                                                             updatedAt = java.util.Date(backup.updatedAt),
                                                             authenticatorKey = backup.authenticatorKey,
@@ -4082,6 +4132,7 @@ class WebDavHelper(
                                                     pageAdjustmentBackup.authenticatorCardHideCodeByDefault,
                                                 authenticatorLayoutMode =
                                                     pageAdjustmentBackup.authenticatorLayoutMode,
+                                                vaultListSort = pageAdjustmentBackup.vaultListSort,
                                                 vaultV2LayoutMode =
                                                     pageAdjustmentBackup.vaultV2LayoutMode,
                                                 vaultOverviewEnabled = pageAdjustmentBackup.vaultOverviewEnabled,

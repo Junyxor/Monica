@@ -25,7 +25,7 @@ class VaultV2SecurityWiringGuardTest {
         val signature = pane
             .substringAfter("fun VaultV2Pane(")
             .substringBefore(") {")
-        val itemCard = pane.substringAfter("private fun VaultV2ItemCard(")
+        val itemCard = pane.substringAfter("fun VaultV2ItemCard(")
 
         assertTrue(signature.contains("securityManager: SecurityManager,"))
         assertTrue(signature.contains("biometricEnabled: Boolean,"))

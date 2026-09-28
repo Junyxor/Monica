@@ -1,13 +1,13 @@
     <resources>
     <string name="app_name">Monica</string>
     <string name="app_label">Monica Pass</string>
-    
+
     <!-- General -->
     <string name="press_back_again_to_exit">再按一次就退出窝了嗷呜</string>
-    
+
     <!-- Accessibility Service -->
     <string name="accessibility_service_description">Monica 无障碍服务有助于提高自动填充功能,更准确地检测密码字段嗷呜。</string>
-    
+
     <!-- General -->
     <string name="ok">好嗷呜</string>
     <string name="cancel">算了嗷呜</string>
@@ -15,11 +15,11 @@
     <string name="delete">叼走嗷呜</string>
     <string name="edit">改改嗷呜</string>
     <string name="search">搜搜嗷呜</string>
-    
+
     <!-- Swipe Actions -->
     <string name="swipe_action_select">选择嗷呜</string>
     <string name="swipe_action_delete">删除嗷呜</string>
-    
+
     <string name="settings">设置嗷呜</string>
     <string name="back">回去嗷呜</string>
     <string name="close">关上嗷呜</string>
@@ -78,7 +78,7 @@
     <string name="note_detail_empty_content">这条笔记还空着嗷呜。</string>
     <string name="note_detail_additional_notes">补充几句嗷呜</string>
     <string name="note_detail_updated_at">最后更新 %1$s嗷呜</string>
-    
+
     <!-- Login Screen -->
     <string name="setup_master_password">给窝配一把主密码嗷呜</string>
     <string name="enter_master_password">交出主密码嗷呜</string>
@@ -140,7 +140,7 @@
     <string name="use_master_password">用主密码嗷呜</string>
     <string name="show_password">显示密码嗷呜</string>
     <string name="hide_password">隐藏密码嗷呜</string>
-    
+
     <!-- Biometric Authentication -->
     <string name="biometric_login_title">开门嗷呜，Monica 在等您嗷呜</string>
     <string name="biometric_login_subtitle">让人家认一认是不是您嗷呜</string>
@@ -161,13 +161,13 @@
     <string name="biometric_weak_warning_message">这台设备只支持较弱的生物识别，防骗能力比较低嗷呜。确定还要继续打开指纹解锁嗷呜？</string>
     <string name="biometric_weak_warning_confirm">继续打开嗷呜</string>
     <string name="biometric_weak_warning_cancel">取消嗷呜</string>
-    
+
     <!-- Autofill Authentication -->
     <string name="autofill_auth_title">验明正身再填充嗷呜</string>
     <string name="autofill_unlock_monica">先解锁 Monica 再填充嗷呜</string>
     <string name="autofill_auth_subtitle">用指纹或密码验明正身嗷呜</string>
     <string name="autofill_auth_description">验明正身后就替您填密码嗷呜</string>
-    
+
     <!-- 🔐 Password Suggestion -->
     <string name="password_suggestion">强密码建议嗷呜</string>
     <string name="password_suggestion_title">生成强密码嗷呜</string>
@@ -175,7 +175,7 @@
     <string name="password_suggestion_accept">使用嗷呜</string>
     <string name="password_suggestion_decline">不了,谢谢嗷呜</string>
     <string name="password_suggestion_copied">密码已复制嗷呜</string>
-    
+
     <!-- Password List Screen -->
     <string name="search_passwords">搜索密码嗷呜...</string>
     <string name="no_passwords_saved">还没有保存任何密码嗷呜</string>
@@ -190,7 +190,7 @@
     <string name="copy">叼一份嗷呜</string>
     <string name="username_copied">用户名已复制到剪贴板嗷呜</string>
     <string name="password_copied">密码已经揣进肉垫嗷呜</string>
-    
+
     <!-- Quick Settings Tile & Smart Copy -->
     <string name="tile_autofill_label">Monica 填充嗷呜</string>
     <string name="smart_copy_username_first">复制账号 (稍后复制密码)嗷呜</string>
@@ -201,13 +201,13 @@
     <string name="smart_copy_notification_unavailable">无法加入第二步复制，请手动复制嗷呜。</string>
     <string name="autofill_copy_password_unavailable">密码解不开嗷呜，请去详情里手动复制嗷呜。</string>
     <string name="autofill_copy_account_unavailable">账号为空，请进入详情后手动复制嗷呜。</string>
-    
+
     <!-- Autofill Authentication -->
     <string name="autofill_auth_required">填充前验明正身嗷呜</string>
     <string name="autofill_auth_required_desc">填充之前嗷呜，先过一道爪纹或密码验证嗷呜</string>
     <string name="autofill_auth_waiting">蹲着等验证嗷呜…</string>
 
-    
+
     <!-- Form Fields -->
     <string name="field_email">邮箱嗷呜</string>
     <string name="field_phone">手机号嗷呜</string>
@@ -222,7 +222,7 @@
     <string name="field_cardholder">持卡人姓名嗷呜</string>
     <string name="field_expiry">有效期嗷呜</string>
     <string name="field_cvv">CVV</string>
-    
+
     <!-- Password Group Actions -->
     <string name="collapse">收起嗷呜</string>
     <string name="collapse_group">收起 %d 只密码嗷呜</string>
@@ -265,7 +265,7 @@
     <string name="group_mode_title_desc">严格按完整标题分组嗷呜</string>
     <string name="group_mode_folder">按文件夹堆叠嗷呜</string>
     <string name="group_mode_folder_desc">按数据库文件夹分别堆叠嗷呜</string>
-    
+
     <!-- Add/Edit Password Screen -->
     <string name="add_password_title">添加密码嗷呜</string>
     <string name="edit_password_title">编辑密码嗷呜</string>
@@ -396,7 +396,7 @@
     <string name="password_strength_moderate">中等嗷呜</string>
     <string name="password_strength_strong">强嗷呜</string>
     <string name="password_strength_very_strong">非常强嗷呜</string>
-    
+
     <!-- Password Generator -->
     <string name="password_generator_title">密码生成器嗷呜</string>
     <string name="password_fill_title">密码填充嗷呜</string>
@@ -422,7 +422,7 @@
     <string name="generate_new_password">生成新密码嗷呜</string>
     <string name="show">显示嗷呜</string>
     <string name="hide">隐藏嗷呜</string>
-    
+
     <!-- TOTP Authenticator -->
     <string name="add_totp_title">添加验证器嗷呜</string>
     <string name="edit_totp_title">编辑验证器嗷呜</string>
@@ -469,7 +469,7 @@
     <string name="usually_6_digits">通常为6位嗷呜</string>
     <string name="how_to_get_secret_key">如何获取密钥嗷呜？</string>
     <string name="secret_key_instructions">1. 在要启用2FA的网站上找到"两步验证"设置\n2. 选择"使用验证器应用"\n3. 复制显示的密钥或扫描二维码\n4. 将密钥粘贴到上方输入框嗷呜</string>
-    
+
     <!-- OTP Types -->
     <string name="otp_type">OTP类型嗷呜</string>
     <string name="otp_type_totp">按时间走 (TOTP)嗷呜</string>
@@ -492,7 +492,7 @@
     <string name="otp_type_description_steam">Steam Guard 专用的 5 位验证码嗷呜</string>
     <string name="otp_type_description_yandex">Yandex身份验证码嗷呜</string>
     <string name="otp_type_description_motp">带PIN码保护的Mobile-OTP验证码嗷呜</string>
-    
+
     <!-- Bank Card -->
     <string name="add_bank_card_title">添加银行卡嗷呜</string>
     <string name="edit_bank_card_title">编辑银行卡嗷呜</string>
@@ -575,7 +575,7 @@
     <string name="bottom_nav_auto_hide_single_tab_subtitle">猫爬架上只剩一根爬柱时，会自动收起来，改从右上角菜单进设置嗷呜</string>
     <string name="draggable_bottom_nav">可拖拽底部导航栏嗷呜</string>
     <string name="draggable_bottom_nav_description">上滑导航栏可显示快捷操作面板嗷呜</string>
-    
+
     <!-- Document -->
     <string name="add_document_title">添加证件嗷呜</string>
     <string name="edit_document_title">编辑证件嗷呜</string>
@@ -599,31 +599,31 @@
     <string name="document_encryption_notice">所有证件信息和照片将加密存储在本地设备嗷呜</string>
     <string name="document_photo_front">%s照片（正面）嗷呜</string>
     <string name="document_photo_back">%s照片（反面，可选）嗷呜</string>
-    
+
     <!-- Document Card Labels -->
     <string name="document_number_label">证件号码嗷呜</string>
     <string name="holder_label">持有人嗷呜</string>
     <string name="valid_until">有效期至嗷呜</string>
-    
+
     <!-- Bank Card Labels -->
     <string name="cardholder_label">持卡人嗷呜</string>
     <string name="expiry_label">有效期嗷呜</string>
-    
+
     <!-- Menu Actions -->
     <string name="move_up">上移嗷呜</string>
     <string name="move_down">下移嗷呜</string>
-    
+
     <!-- Content Descriptions -->
     <string name="favorite">收进爪下嗷呜</string>
     <string name="more_options">更多嗷呜</string>
-    
+
     <!-- Document Type Names -->
     <string name="document_type_id_card">身份证嗷呜</string>
     <string name="document_type_passport">护照嗷呜</string>
     <string name="document_type_driver_license">驾驶证嗷呜</string>
     <string name="document_type_social_security">社保卡嗷呜</string>
     <string name="document_type_other">其他证件嗷呜</string>
-    
+
     <!-- TOTP List -->
     <string name="search_authenticator">搜索验证器嗷呜</string>
     <string name="bind_authenticator">绑定验证器嗷呜</string>
@@ -639,13 +639,13 @@
     <string name="delete_document_message">确定要删除 \"%s\" 吗嗷呜？此操作无法撤销嗷呜。</string>
     <string name="delete_bank_card_title">删除银行卡嗷呜</string>
     <string name="delete_bank_card_message">确定要删除 \"%s\" 吗嗷呜？此操作无法撤销嗷呜。</string>
-    
+
     <!-- QR Scanner -->
     <string name="scan_qr_code_title">扫描二维码嗷呜</string>
     <string name="grant_permission">授予权限嗷呜</string>
     <string name="go_back">退回去嗷呜</string>
     <string name="camera_permission_required">扫描二维码需要访问相机嗷呜。请授予相机权限以继续嗷呜。</string>
-    
+
     <!-- Image Picker -->
     <string name="gallery">相册嗷呜</string>
     <string name="camera">拍照嗷呜</string>
@@ -655,7 +655,7 @@
     <string name="camera_permission_needed">需要相机权限才能进行拍照嗷呜</string>
     <string name="error_launch_gallery">打开相册失败：%1$s嗷呜</string>
     <string name="error_launch_camera">打开相机失败：%1$s嗷呜</string>
-    
+
     <!-- Export/Import Data -->
     <string name="export_data_title">导出数据嗷呜</string>
     <string name="exporting">导出中...嗷呜</string>
@@ -675,7 +675,7 @@
     <string name="export_data_success">宝贝都装好带走啦嗷呜</string>
     <string name="export_data_error">没叼出去嗷呜</string>
     <string name="export_data_warning">CSV 文件没有上锁嗷呜，请把导出的文件藏好嗷呜。</string>
-    
+
     <!-- 新的导出界面 -->
     <string name="export_select_option">选择导出选项嗷呜</string>
     <string name="export_option_zip">完整备份 (ZIP)嗷呜</string>
@@ -702,7 +702,7 @@
     <string name="kdbx_import_password_title">输入 KDBX 密码嗷呜</string>
     <string name="kdbx_import_password_hint">请输入用于解密此 KDBX 文件的密码嗷呜</string>
     <string name="import_data_btn">叼进来嗷呜</string>
-    
+
     <string name="import_data_warning_title">注意嗷呜</string>
     <string name="import_data_warning_message">导入可能会盖掉现有数据嗷呜，动手前记得先把小鱼干备份好嗷呜。</string>
     <string name="import_data_select_file">挑个文件嗷呜</string>
@@ -722,7 +722,7 @@
     <string name="import_data_success_alipay">叼回来 %d 条支付宝账单嗷呜</string>
     <string name="import_data_error_exception">没叼进来嗷呜：%s</string>
     <string name="import_data_notice">叼进来的数据会排在现有数据后面，不会动您已有的宝贝嗷呜</string>
-    
+
     <!-- Support Author -->
     <string name="support_author_title">给人家投喂小鱼干嗷呜</string>
     <string name="software_free_title">💝 软件完全免费嗷呜</string>
@@ -739,14 +739,14 @@
     <string name="qr_code_saved">二维码已保存到相册嗷呜</string>
     <string name="save_failed">没保存上嗷呜</string>
     <string name="save_failed_with_error">保存失败: %s嗷呜</string>
-    
+
     <!-- Password Entry Card -->
     <string name="username">用户名嗷呜</string>
     <string name="password">密码嗷呜</string>
     <string name="password_hidden">••••••••</string>
     <string name="delete_password_title">删除密码嗷呜</string>
     <string name="delete_password_message">确定要删除「%s」吗嗷呜？</string>
-    
+
     <!-- Error Messages -->
     <string name="error_password_too_short">主密码至少需要3个字符嗷呜</string>
     <string name="error_password_must_be_6_digits">主密码至少需要3个字符嗷呜</string>
@@ -759,7 +759,7 @@
     <string name="error_title_required">标题为必填项嗷呜</string>
     <string name="error_password_required">密码为必填项嗷呜</string>
     <string name="password_min_6_digits">至少需要3个字符嗷呜</string>
-    
+
     <!-- Settings Screen -->
     <string name="settings_title">设置嗷呜</string>
     <string name="language">语言嗷呜</string>
@@ -772,7 +772,7 @@
     <string name="about">关于嗷呜</string>
     <string name="version">版本嗷呜</string>
     <string name="cannot_open_browser">无法打开浏览器嗷呜</string>
-    
+
     <!-- Language Options -->
     <string name="language_system">跟随系统嗷呜</string>
     <string name="language_english">English</string>
@@ -802,7 +802,7 @@
     <string name="auto_lock_5_hours">5小时嗷呜</string>
     <string name="auto_lock_1_day">1天嗷呜</string>
     <string name="auto_lock_never">从不嗷呜</string>
-    
+
     <!-- Reset Password Screen -->
     <string name="reset_password_title">重设密码嗷呜</string>
     <string name="reset_password">重设密码嗷呜</string>
@@ -822,9 +822,9 @@
     <string name="password_reset_success_message">您的主密码已成功更改嗷呜。请记住您的新密码嗷呜。</string>
     <string name="passwords_do_not_match">密码不匹配嗷呜</string>
     <string name="password_too_short">密码至少需要3个字符嗷呜</string>
-    
+
     <!-- Forgot Password -->
-    
+
     <!-- Security Questions -->
     <string name="security_questions">密保问题嗷呜</string>
     <string name="setup_security_questions">设置密保问题嗷呜</string>
@@ -848,7 +848,7 @@
     <string name="second_custom_question_required">请输入第二个自定义问题嗷呜</string>
     <string name="first_answer_required">请提供第一个问题的答案嗷呜</string>
     <string name="second_answer_required">请提供第二个问题的答案嗷呜</string>
-    
+
     <!-- Security Questions Verification -->
     <string name="verify_identity">验证身份嗷呜</string>
     <string name="verify_to_delete">验证后删除嗷呜</string>
@@ -867,7 +867,7 @@
     <string name="verification_attempts" formatted="false">尝试次数：%d / %d嗷呜</string>
     <string name="too_many_attempts">错误尝试次数过多嗷呜。请联系客服或使用完全重置选项嗷呜。</string>
     <string name="back_to_login">返回登录嗷呜</string>
-    
+
     <!-- Main Screen Bottom Navigation -->
     <string name="nav_passwords">密码嗷呜</string>
     <string name="nav_authenticator">验证器嗷呜</string>
@@ -882,7 +882,7 @@
     <string name="trash_bin">纸箱嗷呜</string>
     <string name="trash_settings">纸箱设置嗷呜</string>
     <string name="add">添一只嗷呜</string>
-    
+
     <!-- Main Screen Bottom Navigation (Short) -->
     <string name="nav_card_wallet">卡包嗷呜</string>
     <!-- Dock labels use the short Chinese labels from values-zh. -->
@@ -1091,7 +1091,7 @@
     <string name="steam_login_response_failed">Steam 登录处理失败嗷呜</string>
     <string name="steam_invalid_qr_link">无效的 Steam 二维码链接嗷呜</string>
     <string name="steam_qr_response_failed">Steam 二维码登录处理失败嗷呜</string>
-    
+
     <!-- V2 多源密码库导航 -->
     <string name="nav_v2_vault">储物罐（测试功能）嗷呜</string>
     <string name="nav_v2_send">发送嗷呜</string>
@@ -1112,7 +1112,7 @@
     <string name="v2_filter_note">笔记嗷呜</string>
     <string name="v2_no_items">密码库为空嗷呜</string>
     <string name="v2_connect_bitwarden">连接 Bitwarden嗷呜</string>
-    
+
     <string name="filter_monica">Monica</string>
     <string name="filter_bitwarden">Bitwarden</string>
     <string name="move">挪窝嗷呜</string>
@@ -1127,7 +1127,7 @@
     <string name="password_picker_all_vaults">全部保管库嗷呜</string>
     <string name="password_picker_all_folders">全部文件夹嗷呜</string>
     <string name="password_picker_results_count">%1$d 条结果嗷呜</string>
-    
+
     <!-- Passkey Screen -->
     <string name="passkey_title">通行密钥嗷呜</string>
     <string name="passkey_count">%1$d 把通行密钥嗷呜</string>
@@ -1156,7 +1156,7 @@
     <string name="passkey_scan_qr_menu_title">扫描通行密钥二维码嗷呜</string>
     <string name="passkey_qr_invalid">无效的通行密钥二维码嗷呜</string>
     <string name="passkey_qr_open_failed">当前系统无法处理此通行密钥二维码嗷呜</string>
-    
+
     <!-- Passkey Management -->
     <string name="passkey">通行密钥嗷呜</string>
     <string name="passkey_search_hint">搜索通行密钥嗷呜…</string>
@@ -1185,9 +1185,9 @@
     <string name="passkey_keepass_credential_conflict_count">目标 KeePass 数据库里已经有 %1$d 把通行密钥嗷呜。</string>
     <string name="passkey_copy_uses_move_hint">通行密钥是唯一凭据，复制将按安全移动处理嗷呜。</string>
     <string name="keepass_copy_only_hint">KeePass 来源条目不能移动到其他数据库，只能复制嗷呜。</string>
-    
+
     <string name="dismiss">关闭嗷呜</string>
-    
+
     <!-- Timeline Screen -->
     <string name="no_history_records">暂无历史记录嗷呜</string>
     <string name="password_history_title">历史密码嗷呜</string>
@@ -1225,7 +1225,7 @@
     <string name="restore_version">恢复此版本嗷呜</string>
     <string name="save_as_new_entry">保存为新条目嗷呜</string>
     <string name="no_changes">无变更嗷呜</string>
-    
+
     <!-- Generator Screen -->  <!-- 添加生成器页面相关字符串 -->
     <string name="generator_title">生成器嗷呜</string>
     <string name="random_symbol_generator">随机符号生成器嗷呜</string>
@@ -1343,11 +1343,11 @@
     <string name="settings_support_author">投喂小鱼干嗷呜</string>
     <string name="settings_support_author_description">每一根小鱼干都被记在心里嗷呜</string>
     <string name="settings_privacy_policy">隐私条约嗷呜</string>
-    
+
     <!-- Icon Cards -->
     <string name="icon_cards_title">网站图标嗷呜</string>
     <string name="icon_cards_description">在密码卡片上显示网站图标嗷呜</string>
-    
+
     <!-- Password Card Display Mode -->
     <string name="password_card_display_mode_title">卡片显示内容嗷呜</string>
     <string name="display_mode_all">详细模式嗷呜</string>
@@ -1356,16 +1356,16 @@
     <string name="display_mode_title_username_desc">仅显示标题和用户名嗷呜</string>
     <string name="display_mode_title_only">极简模式嗷呜</string>
     <string name="display_mode_title_only_desc">仅显示标题嗷呜</string>
-    
+
     <!-- Bottom Sheet -->
     <string name="all_navigation_items">所有导航项嗷呜</string>
     <string name="hidden">已隐藏嗷呜</string>
-    
+
     <!-- Language Selection Dialog -->
     <string name="dialog_select_language">选择语言嗷呜</string>
     <string name="language_simplified_chinese">简体中文嗷呜</string>
     <string name="language_english_name">English</string>
-    
+
     <!-- Change Password Screen -->
     <string name="change_password_title">修改主密码嗷呜</string>
     <string name="change_password_warning_title">重要提示嗷呜</string>
@@ -1387,7 +1387,7 @@
     <string name="change_password_error_same_as_current">新密码不能与当前密码相同嗷呜</string>
     <string name="show_password_desc">显示密码嗷呜</string>
     <string name="hide_password_desc">隐藏密码嗷呜</string>
-    
+
     <!-- Security Question Screen -->
     <string name="security_question_title">密保问题嗷呜</string>
     <string name="security_question_description">设好密保问题嗷呜，万一忘了主密码还能靠它们认出您嗷呜。</string>
@@ -1408,7 +1408,7 @@
     <string name="security_question_error_a1_empty">请提供第一个问题的答案嗷呜</string>
     <string name="security_question_error_a2_empty">请提供第二个问题的答案嗷呜</string>
     <string name="security_question_error_a3_empty">请提供第三个问题的答案嗷呜</string>
-    
+
     <!-- Preset Security Questions -->
     <string name="security_question_preset_1">您母亲的娘家姓是什么嗷呜？</string>
     <string name="security_question_preset_2">您的第一只猫叫什么名字嗷呜？</string>
@@ -1426,12 +1426,12 @@
     <string name="security_question_grew_up_street">您成长的街道名称是什么嗷呜？</string>
     <string name="security_question_hs_mascot">您高中的吉祥物是什么嗷呜？</string>
     <string name="security_question_ultraman">您喜欢哪只奥特曼嗷呜？</string>
-    
+
     <!-- Support Author Screen (legacy) -->
     <string name="support_author_description">如果这个小窝帮到了您，欢迎给人家投喂小鱼干嗷呜，这是人家持续打理的最大动力嗷呜！</string>
     <string name="support_author_thanks">摸摸头感谢您嗷呜！</string>
     <string name="support_author_thanks_message">谢谢您使用 Monica 嗷呜，您投喂的每根小鱼干都是搭窝的动力嗷呜！</string>
-    
+
     <!-- Common -->
     <string name="search_passwords_hint">搜索密码嗷呜</string>
     <string name="return_text">返回嗷呜</string>
@@ -1440,20 +1440,20 @@
     <string name="name">名称嗷呜</string>
     <string name="totp_secret">密钥嗷呜</string>
     <string name="content">内容嗷呜</string>
-    
+
     <!-- Screenshot Protection -->
     <string name="screenshot_protection">防截屏保护嗷呜</string>
     <string name="screenshot_protection_enabled">已启用 - 保护敏感信息嗷呜</string>
     <string name="screenshot_protection_disabled">已禁用 - 允许截屏嗷呜</string>
-    
+
     <!-- Dynamic Color -->
     <string name="disable_wallpaper_color_extraction">关闭壁纸取色嗷呜</string>
     <string name="disable_wallpaper_color_extraction_description">使用系统默认配色方案而非从壁纸提取颜色嗷呜</string>
-    
+
     <!-- Reduce Animations -->
     <string name="reduce_animations">减少动画嗷呜</string>
     <string name="reduce_animations_description">禁用共享元素动画以解决部分设备（HyperOS 2/Android 15）的卡顿问题嗷呜</string>
-    
+
     <!-- Color Scheme -->
     <string name="color_scheme">配色方案嗷呜</string>
     <string name="color_scheme_description">为应用选择一个配色方案嗷呜</string>
@@ -1499,12 +1499,12 @@
     <string name="custom_color_saturation">饱和度嗷呜</string>
     <string name="custom_color_value">亮度嗷呜</string>
     <string name="select_from_preset_colors">从预设颜色中选择嗷呜</string>
-    
+
     <!-- Validator Progress Bar Style -->
     <string name="validator_progress_bar_style">验证器进度条嗷呜</string>
     <string name="progress_bar_style_linear">线形嗷呜</string>
     <string name="progress_bar_style_wave">波浪形嗷呜</string>
-    
+
     <!-- Unified Progress Bar -->
     <string name="unified_progress_bar_title">统一进度条嗷呜</string>
     <string name="unified_progress_bar_description">在顶部显示统一的30秒进度条，适用于所有标准TOTP验证器嗷呜</string>
@@ -1606,7 +1606,7 @@
     <string name="hide_fab_on_scroll_description">向下滑动列表时隐藏右下角的添加按钮嗷呜</string>
     <string name="keepass_dx_like_mutation_title">KeePass DX 类引擎嗷呜</string>
     <string name="keepass_dx_like_mutation_description">实验功能：KeePass 操作使用内存变更 + 异步落盘（默认关闭）嗷呜</string>
-    
+
     <!-- 触觉反馈 -->
     <string name="haptic_feedback">触觉反馈嗷呜</string>
     <string name="haptic_feedback_description">下拉手势、长按等交互时震动嗷呜</string>
@@ -1616,18 +1616,18 @@
     <string name="validator_vibration_description">倒计时快结束时震动提醒嗷呜</string>
 
 
-    
+
     <!-- Support Author -->
     <string name="support_author">给人家投喂小鱼干嗷呜</string>
     <string name="support_author_subtitle">应用完全免费，小鱼干全都用来搭窝嗷呜</string>
-    
+
     <!-- Data Management in Settings -->
     <string name="data_management">数据管理嗷呜</string>
     <string name="export_data">把家当叼出去嗷呜</string>
     <string name="export_data_description">把储物罐里的数据倒进 CSV 文件嗷呜</string>
     <string name="import_data">导入数据嗷呜</string>
     <string name="import_data_description">把 CSV 文件里的数据叼进窝嗷呜</string>
-    
+
     <!-- WebDAV Backup -->
     <string name="webdav_backup">WebDAV 囤粮嗷呜</string>
     <string name="webdav_backup_description">把小鱼干藏到 WebDAV 服务器嗷呜</string>
@@ -1649,7 +1649,7 @@
     <string name="backup_deleted">备份已删除嗷呜</string>
     <string name="delete_failed">删除失败嗷呜： %s</string>
     <string name="refresh">刷新嗷呜</string>
-    
+
     <!-- WebDAV Encryption -->
     <string name="webdav_enable_encryption">启用加密嗷呜</string>
     <string name="webdav_encryption_description">备份会用 AES-256 锁好嗷呜</string>
@@ -1664,7 +1664,7 @@
     <string name="webdav_enter_decrypt_password">输入解密密码嗷呜</string>
     <string name="webdav_decrypt_password_hint">用于解密备份的密码嗷呜</string>
     <string name="webdav_decryption_failed">解密失败嗷呜：密码不对或文件损坏了嗷呜。</string>
-    
+
     <!-- WebDAV Auto Backup -->
     <string name="webdav_auto_backup">自动囤粮嗷呜</string>
     <string name="webdav_auto_backup_description">每天第一次进窝或每 12 小时自动备份嗷呜</string>
@@ -1718,7 +1718,7 @@
     <string name="webdav_backup_authenticators">验证器：%d 只嗷呜</string>
     <string name="webdav_backup_documents">证件：%d 本嗷呜</string>
     <string name="webdav_backup_bank_cards">银行卡：%d 张嗷呜</string>
-    
+
     <!-- Restore Settings -->
     <string name="webdav_restore_settings">恢复设置嗷呜</string>
     <string name="webdav_overwrite_local">覆盖本地数据嗷呜</string>
@@ -1776,11 +1776,11 @@
     <string name="add_to_favorites">添加到收藏嗷呜</string>
     <string name="remove_from_favorites">取消收藏嗷呜</string>
     <string name="enter_master_password_confirm">再念一遍主密码嗷呜</string>
-    
+
     <!-- Autofill -->
     <string name="autofill">自动填充嗷呜</string>
     <string name="autofill_subtitle">帮您在应用和网站里自动填密码嗷呜</string>
-    
+
     <!-- Passkey Settings -->
     <string name="passkey_settings">通行密钥提供者嗷呜</string>
     <string name="passkey_settings_subtitle">无需密码即可登录应用和网站嗷呜</string>
@@ -1819,13 +1819,13 @@
     <string name="passkey_diagnostics_clear">清空诊断嗷呜</string>
     <string name="passkey_diagnostics_copied">已复制通行密钥诊断报告嗷呜</string>
     <string name="passkey_diagnostics_cleared">已清空通行密钥诊断数据嗷呜</string>
-    
+
     <!-- Passkey 生物识别认证 -->
     <string name="biometric_title_passkey_auth">验明正身再进门嗷呜</string>
     <string name="biometric_subtitle_passkey_auth">用通行密钥进 %1$s 的门嗷呜</string>
     <string name="biometric_title_passkey_create">验明正身，再配通行密钥嗷呜</string>
     <string name="biometric_subtitle_passkey_create">给 %1$s 配一把通行密钥嗷呜</string>
-    
+
     <string name="autofill_save_password">存进储物罐嗷呜</string>
     <string name="autofill_save_to_monica">把密码存进 Monica 嗷呜</string>
     <string name="autofill_title">标题嗷呜</string>
@@ -1851,7 +1851,7 @@
     <string name="search_apps">搜索应用嗷呜…</string>
     <string name="clear_app_selection">清除嗷呜</string>
     <string name="app_icon">应用图标嗷呜</string>
-    
+
     <!-- Clear All Data -->
     <string name="clear_all_data">雪豹闭嘴</string>
     <string name="clear_all_data_subtitle">删除所有密码、验证器、银行卡和证件数据嗷呜</string>
@@ -1865,7 +1865,7 @@
     <string name="data_type_documents">证件嗷呜</string>
     <string name="data_type_bank_cards">银行卡嗷呜</string>
     <string name="data_type_generator_history">密码生成历史记录嗷呜</string>
-    
+
     <!-- Security Analysis -->
     <string name="security_analysis">安全体检嗷呜</string>
     <string name="security_analysis_description">给所有密码做个体检嗷呜：结不结实、有没有被泄露、两步验证齐不齐全嗷呜。</string>
@@ -1927,12 +1927,12 @@
     <!-- Phase 8: 生物识别自动填充 -->
     <string name="biometric_auth_failed">没认出来嗷呜，再试一次嗷呜</string>
     <string name="biometric_auth_error">认证出错了嗷呜： %s</string>
-    
+
     <!-- 自动填充设置 - 通用 -->
     <string name="autofill_settings_title">自动填充嗷呜</string>
     <string name="autofill_settings_refresh">刷新状态嗷呜</string>
     <string name="autofill_settings_back">返回嗷呜</string>
-    
+
     <!-- 自动填充设置 - 系统设置 -->
     <string name="autofill_system_settings_title">系统设置嗷呜</string>
     <string name="autofill_system_set_provider">设置凭据提供商嗷呜</string>
@@ -1941,11 +1941,11 @@
     <string name="autofill_system_passkey_settings_desc">管理通行密钥、密码和数据服务嗷呜</string>
     <string name="autofill_system_chrome_settings">Chrome自动填充设置嗷呜</string>
     <string name="autofill_system_chrome_settings_desc">在Chrome中启用第三方填充服务支持嗷呜</string>
-    
+
     <!-- 自动填充设置 - 匹配设置 -->
     <string name="autofill_match_settings_title">匹配设置嗷呜</string>
     <string name="autofill_domain_strategy_title">域名匹配策略嗷呜</string>
-    
+
     <!-- 自动填充设置 - 填充行为 -->
     <string name="autofill_fill_behavior_title">填充行为嗷呜</string>
     <string name="autofill_active_fill_notification_title">主动填充通知嗷呜</string>
@@ -1962,7 +1962,7 @@
     <string name="autofill_fill_manual_selection">手动选择嗷呜</string>
     <string name="autofill_fill_manual_selection_desc">允许手动选择要填充的密码嗷呜</string>
     <string name="autofill_password_suggestion_setting_desc">在注册和修改密码表单中显示生成强密码选项嗷呜</string>
-    
+
     <!-- 自动填充设置 - 保存行为 -->
     <string name="autofill_save_behavior_title">保存行为嗷呜</string>
     <string name="autofill_save_enable">启用自动保存嗷呜</string>
@@ -1977,7 +1977,7 @@
     <string name="autofill_save_app_info_desc">自动记录应用包名到密码条目嗷呜</string>
     <string name="autofill_save_website_info">自动保存网站信息嗷呜</string>
     <string name="autofill_save_website_info_desc">自动记录网站域名到密码条目嗷呜</string>
-    
+
     <!-- 自动填充设置 - 黑名单 -->
     <string name="autofill_blacklist_title">禁足名单嗷呜</string>
     <string name="autofill_blacklist_enable">开启禁足名单嗷呜</string>
@@ -1999,14 +1999,14 @@
     <string name="autofill_blacklist_dialog_done">完成嗷呜</string>
     <string name="autofill_blacklist_no_apps">没找到装好的应用嗷呜</string>
     <string name="autofill_blacklist_no_match">没有应用能对上「%s」嗷呜</string>
-    
+
     <!-- 自动填充设置 - 信息卡片 -->
     <string name="autofill_info_card_text">自动填充功能需要Android 8.0及以上版本嗷呜。启用后，Monica将在您访问应用和网站时自动填充保存的密码嗷呜。</string>
-    
+
     <!-- 自动填充状态 -->
     <string name="autofill_status_enabled">自动填充上岗啦嗷呜</string>
     <string name="autofill_status_disabled">自动填充还没上岗嗷呜</string>
-    
+
     <!-- OTP Notification Settings -->
     <string name="autofill_otp_settings_title">验证器嗷呜</string>
     <string name="autofill_show_otp_notification">通知栏显示验证码嗷呜</string>
@@ -2017,10 +2017,10 @@
     <string name="autofill_otp_notification_duration_desc">通知保留的时间 (秒)嗷呜</string>
     <string name="autofill_otp_copy_action">复制 %s嗷呜</string>
     <string name="autofill_otp_notification_channel">自动填充验证码嗷呜</string>
-    
+
     <string name="autofill_respect_disabled_flag_title">尊重禁止自动填充标识嗷呜</string>
     <string name="autofill_respect_disabled_flag_desc">对标记了禁用自动填充的输入框不进行填充嗷呜</string>
-    
+
 
     <string name="autofill_status_enabled_desc">Monica 已是默认的自动填充服务嗷呜</string>
     <string name="autofill_status_disabled_desc">请去系统设置把 Monica 请上岗嗷呜</string>
@@ -2037,7 +2037,7 @@
     <string name="autofill_status_summary_no_permissions">缺少必要权限嗷呜</string>
     <string name="autofill_status_summary_compatibility_issues">存在兼容性问题嗷呜</string>
     <string name="autofill_status_summary_abnormal">服务状态异常嗷呜</string>
-    
+
     <!-- 域名匹配策略 -->
     <string name="autofill_domain_strategy_base_domain">主域名嗷呜</string>
     <string name="autofill_domain_strategy_base_domain_desc">匹配主域名及所有子域名 (推荐)嗷呜</string>
@@ -2053,7 +2053,7 @@
     <string name="autofill_domain_strategy_never_desc">禁用自动填充嗷呜</string>
     <string name="autofill_domain_strategy_dialog_title">选择域名匹配策略嗷呜</string>
     <string name="autofill_domain_strategy_dialog_close">关闭嗷呜</string>
-    
+
     <!-- 故障排查对话框 -->
     <string name="autofill_troubleshoot_title">自动填充诊断嗷呜</string>
     <string name="autofill_troubleshoot_device_info">设备信息嗷呜</string>
@@ -2090,7 +2090,7 @@
     <string name="autofill_troubleshoot_recommendations">解决建议嗷呜</string>
     <string name="autofill_troubleshoot_export_logs">导出日志嗷呜</string>
     <string name="autofill_troubleshoot_close">关闭嗷呜</string>
-    
+
     <!-- 黑名单应用名称 -->
     <string name="autofill_blacklist_app_wechat">微信嗷呜</string>
     <string name="autofill_blacklist_app_alipay">支付宝嗷呜</string>
@@ -2159,7 +2159,7 @@
     <string name="strength_strong">很强嗷呜</string>
     <string name="strength_very_strong">非常强嗷呜</string>
     <string name="improvement_suggestions">改进建议嗷呜:</string>
-    
+
     <!-- Password Strength Suggestions -->
     <string name="suggestion_enter_password">请输入密码嗷呜</string>
     <string name="suggestion_too_short">密码太短，建议至少 6 个字符嗷呜</string>
@@ -2238,21 +2238,21 @@
     <string name="pin_length">PIN码长度: %d嗷呜</string>
     <string name="length_label">长度: %d嗷呜</string>
     <string name="length_chars">长度: %d 字符嗷呜</string>
-    
+
     <!-- Generator - Minimum Characters -->
     <string name="minimum_characters_requirement">最小字符数要求嗷呜</string>
     <string name="min_uppercase">最少大写字母: %d嗷呜</string>
     <string name="min_lowercase">最少小写字母: %d嗷呜</string>
     <string name="min_numbers">最少数字: %d嗷呜</string>
     <string name="min_symbols">最少符号: %d嗷呜</string>
-    
+
     <!-- Generator - Actions -->
     <string name="regenerate">重新生成嗷呜</string>
     <string name="save_to_vault">存进储物罐嗷呜</string>
     <string name="already_in_vault">已存在于密码库嗷呜</string>
     <string name="saved_to_vault">已经存进储物罐嗷呜</string>
     <string name="username_label">用户名: %s嗷呜</string>
-    
+
     <!-- Generator History Filter -->
     <string name="filter_history">筛选历史嗷呜</string>
     <string name="history_type_symbol">符号密码嗷呜</string>
@@ -2262,7 +2262,7 @@
     <string name="history_type_autofill">自动填充密码嗷呜</string>
     <string name="select_history_types">选择历史记录类型嗷呜</string>
     <string name="history_filter_description">选择要在历史记录中显示的密码类型嗷呜</string>
-    
+
     <!-- Clear All Data -->
     <string name="select_data_types_to_clear">选择要清除的数据类型嗷呜：</string>
     <string name="clear_passwords">密码嗷呜</string>
@@ -2388,7 +2388,7 @@
     <string name="zip_backup_password_required">请输入备份密码嗷呜</string>
     <string name="zip_backup_password_mismatch">两次输入的密码不一致嗷呜</string>
     <string name="zip_backup_password_export">加密并导出嗷呜</string>
-    
+
     <!-- 功能拓展页面 -->
     <string name="extensions_title">功能拓展嗷呜</string>
     <string name="extensions_description">管理各类扩展功能与系统集成嗷呜</string>
@@ -2425,7 +2425,7 @@
     <string name="bitwarden_not_logged_in">未登录 Bitwarden嗷呜</string>
     <string name="bitwarden_folder_empty">暂无 Bitwarden 文件夹嗷呜</string>
     <string name="bitwarden_create_folder_not_supported">暂不支持创建新文件夹嗷呜</string>
-    
+
     <!-- 本地 KeePass 数据库 -->
     <string name="local_keepass_section_title">KeePass 数据库嗷呜</string>
     <string name="local_keepass_database">本地 KeePass 数据库嗷呜</string>
@@ -2515,7 +2515,7 @@
     <string name="keepass_operation_refresh_hint">手动刷新嗷呜</string>
     <string name="keepass_remote_path">远端路径嗷呜</string>
     <string name="keepass_remote_path_placeholder">示例：vault/main.kdbx嗷呜</string>
-    
+
     <!-- Vault Selector -->
     <string name="vault_monica_only">仅 Monica 本地存储嗷呜</string>
     <string name="vault_monica_only_desc">安全存储在 Monica 中嗷呜</string>
@@ -2523,7 +2523,7 @@
     <string name="vault_sync_hint">本地保留备份嗷呜</string>
     <string name="vault_no_folder">暂无文件夹嗷呜</string>
     <string name="vault_select_storage">选择存储位置嗷呜</string>
-    
+
     <string name="deselect_all">全不选嗷呜</string>
     <string name="backup_validation_error">请至少选择一种备份内容嗷呜</string>
 
@@ -2535,7 +2535,7 @@
     <string name="notification_validator_disabled">已禁用嗷呜</string>
     <string name="select_validator_to_display">选择要显示的验证器嗷呜</string>
     <string name="no_validators_available">暂无验证器嗷呜</string>
-    
+
     <!-- Support Author Page -->
     <string name="support_author_page_title">给人家投喂小鱼干嗷呜</string>
     <string name="support_author_page_description">谢谢您住进 Monica 嗷呜！如果这个储物罐对您有用，欢迎用下面的方式给人家投喂小鱼干嗷呜：</string>
@@ -2556,7 +2556,7 @@
     <string name="select_password_to_bind">选择要绑定的密码嗷呜</string>
     <string name="link_example">https://example.com</string>
     <string name="app_name_placeholder">应用名称嗷呜</string>
-    
+
     <!-- Password Detail Screen -->
     <string name="password_details">密码详情嗷呜</string>
     <string name="delete_password">删除密码嗷呜</string>
@@ -2567,7 +2567,7 @@
     <string name="password_detail_open_location">打开位置嗷呜</string>
     <string name="password_detail_time_info">时间信息嗷呜</string>
     <string name="password_detail_last_modified">最后修改嗷呜</string>
-    
+
     <!-- Common Account / Quick Fill -->
     <string name="common_account_title">常用账号信息嗷呜</string>
     <string name="common_account_configured">已经安排好嗷呜</string>
@@ -2617,7 +2617,7 @@
     <string name="username_suggestions_unique_title">唯一匹配的已有账号嗷呜</string>
     <string name="username_suggestions_no_match">没有与“%1$s”匹配的已有账号嗷呜</string>
     <string name="username_suggestions_more_count">还有 %1$d 条匹配嗷呜</string>
-    
+
     <!-- SSO / Third-party Login -->
     <string name="login_type_label">登录方式嗷呜</string>
     <string name="login_type_password">密码登录嗷呜</string>
@@ -2632,7 +2632,7 @@
     <string name="sso_login_using">使用嗷呜</string>
     <string name="sso_login_suffix">登录嗷呜</string>
     <string name="sso_linked_account">关联账号嗷呜</string>
-    
+
     <!-- Multi Password Dialog -->
     <string name="common_info">共同信息嗷呜</string>
     <string name="password_list">密码列表 (%d)嗷呜</string>
@@ -2641,7 +2641,7 @@
     <string name="label_username">用户名嗷呜</string>
     <string name="label_notes">备注嗷呜</string>
     <string name="copied_text">已复制 %s嗷呜</string>
-    
+
     <!-- Quick Actions Panel -->
     <string name="quick_actions_title">快捷操作嗷呜</string>
     <string name="quick_action_add_password">添加密码嗷呜</string>
@@ -2656,7 +2656,7 @@
     <string name="quick_action_backup">备份嗷呜</string>
     <string name="quick_action_security">安全分析嗷呜</string>
     <string name="quick_action_import">导入数据嗷呜</string>
-    
+
     <!-- Quick Add -->
     <string name="quick_add_not_supported">暂时没想过这里有啥用嗷呜</string>
 
@@ -2735,7 +2735,7 @@
     <string name="folder_create_new">创建新文件夹嗷呜</string>
     <string name="folder_no_folder_root">不关联文件夹（根目录）嗷呜</string>
     <string name="storage_picker_keepass_root">数据库根目录嗷呜</string>
-    
+
     <!-- Bitwarden Unlock -->
     <string name="bitwarden_unlock_title">解锁 Bitwarden嗷呜</string>
     <string name="bitwarden_unlock_message">输入主密码解锁 %1$s嗷呜</string>
@@ -2768,7 +2768,7 @@
     <string name="multi_select">多选嗷呜</string>
     <string name="storage_picker_edit_single_move_hint">单选会将此项目移动到选定位置嗷呜。</string>
     <string name="storage_picker_edit_multi_copy_hint">多选会复制到选定位置，已有副本会保留嗷呜。</string>
-    
+
     <!-- 自动填充硬编码修复 -->
     <string name="autofill_view_all_passwords">查看所有密码嗷呜</string>
     <string name="autofill_open_full_list">点击打开完整列表嗷呜</string>
@@ -2812,7 +2812,7 @@
     <string name="autofill_structured_fill_unavailable">自动填充不可用嗷呜</string>
     <string name="autofill_structured_copy_message">当前页面被识别为%1$s，不能直接填入%2$s嗷呜。您可以复制需要的字段嗷呜。</string>
     <string name="password_strength_label">密码强度嗷呜</string>
-    
+
     <!-- Send 页面 -->
     <string name="send_screen_title">安全发送嗷呜</string>
     <string name="send_search_hint">搜索 Send嗷呜</string>
@@ -2859,7 +2859,7 @@
     <string name="send_hide_email_desc">收件方不会看到发送者邮箱嗷呜</string>
     <string name="send_hide_text">隐藏文本内容嗷呜</string>
     <string name="send_hide_text_desc">首次查看后隐藏明文（Bitwarden 标准）嗷呜</string>
-    
+
     <!-- 回收站设置 -->
     <string name="trash_enable">启用纸箱嗷呜</string>
     <string name="trash_enable_desc">叼走的猫猫先在纸箱里住几天嗷呜</string>
@@ -2869,7 +2869,7 @@
     <string name="trash_status_enabled_auto_clear">已启用 · %1$d天后自动清空嗷呜</string>
     <string name="trash_status_enabled_no_auto_clear">已启用 · 不自动清空嗷呜</string>
     <string name="trash_status_disabled_permanent_delete">已禁用 · 删除将永久删除嗷呜</string>
-    
+
     <!-- 通用/组件硬编码修复 -->
     <string name="topbar_search_hint">搜索嗷呜...</string>
     <string name="topbar_close_search">关闭搜索嗷呜</string>
@@ -2932,7 +2932,7 @@
     <string name="time_minutes_ago">%1$d 分钟前嗷呜</string>
     <string name="time_hours_ago">%1$d 小时前嗷呜</string>
     <string name="time_days_ago">%1$d 天前嗷呜</string>
-    
+
     <!-- 时间线/回收站硬编码修复 -->
     <string name="timeline_title">时间线嗷呜</string>
     <string name="timeline_and_trash_title">时间线/纸箱嗷呜</string>
@@ -3065,7 +3065,7 @@
     <string name="timeline_trash_disabled_hint">启用纸箱后，删除的条目会在这里保留一段时间嗷呜</string>
     <string name="timeline_trash_empty_title">纸箱空空，猫猫都出去玩啦嗷呜</string>
     <string name="timeline_trash_empty_hint">被叼走的猫猫先在纸箱里打盹嗷呜，随时能捞回来嗷呜</string>
-    
+
     <!-- 应用选择器 / 自定义字段 / 照片选择器 / TOTP 菜单 -->
     <string name="app_selector_manual_input_cd">手动输入应用信息嗷呜</string>
     <string name="app_selector_total_apps">共 %1$d 个应用嗷呜</string>
@@ -3120,7 +3120,7 @@
     <string name="no_image">无图片嗷呜</string>
     <string name="view_image">查看图片嗷呜</string>
     <string name="save_to_gallery">保存到相册嗷呜</string>
-    
+
     <!-- Bitwarden 文件夹选择器 -->
     <string name="bitwarden_linked_status">已关联到 Bitwarden嗷呜</string>
     <string name="bitwarden_not_linked_status">未关联到 Bitwarden嗷呜</string>
@@ -3158,7 +3158,7 @@
     <string name="bitwarden_all_types">全部类型嗷呜</string>
     <string name="sync_type_note">笔记嗷呜</string>
     <string name="sync_type_identity">身份信息嗷呜</string>
-    
+
     <!-- 分区标题 / 二维码 / 复制提示 -->
     <string name="section_basic_info">基本信息嗷呜</string>
     <string name="section_photos">照片嗷呜</string>
@@ -3204,7 +3204,7 @@
     <string name="copied_field_name">已复制: %1$s嗷呜</string>
     <string name="dynamic_verification_code">动态验证码嗷呜</string>
     <string name="verification_code">验证码嗷呜</string>
-    
+
     <!-- 添加/编辑密码页面 -->
     <string name="section_credentials">凭据嗷呜</string>
     <string name="section_security_verification">安全验证嗷呜</string>

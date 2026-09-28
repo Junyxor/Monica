@@ -22,6 +22,8 @@ object AppLauncherIconManager {
     private const val VISIBLE_MODERN_MONICA_ALIAS = "takagi.ru.monica.ModernVisibleLauncherAliasMonica"
     private const val VISIBLE_CLASSIC_MONICA_ALIAS = "takagi.ru.monica.ClassicVisibleLauncherAliasMonica"
     private const val VISIBLE_SNOW_LEOPARD_ALIAS = "takagi.ru.monica.SnowLeopardVisibleLauncherAlias"
+    private const val VISIBLE_BLUE_STAR_PASS_ALIAS = "takagi.ru.monica.BlueStarVisibleLauncherAlias"
+    private const val VISIBLE_BLUE_STAR_MONICA_ALIAS = "takagi.ru.monica.BlueStarVisibleLauncherAliasMonica"
 
     private data class BiometricPromptBrandingMethods(
         val logoRes: Method?,
@@ -31,26 +33,32 @@ object AppLauncherIconManager {
     private val biometricPromptBrandingMethods =
         ConcurrentHashMap<Class<*>, BiometricPromptBrandingMethods>()
 
+    @Synchronized
     fun apply(context: Context, icon: AppLauncherIcon, label: AppLauncherLabel) {
         repairCompatibilityLaunchTargets(context)
-        applyVisibleLauncherSelection(context, label)
+        applyVisibleLauncherSelection(context, icon, label)
     }
 
     fun repairLegacyDisabledComponents(context: Context) {
         repairCompatibilityLaunchTargets(context)
     }
 
+    @Synchronized
     fun repairLaunchEntryPointsAfterUpgrade(
         context: Context,
         icon: AppLauncherIcon,
         label: AppLauncherLabel
     ) {
         repairCompatibilityLaunchTargets(context)
-        applyVisibleLauncherSelection(context, label)
+        applyVisibleLauncherSelection(context, icon, label)
     }
 
     fun getCurrentSelection(context: Context): AppLauncherIcon {
-        return AppLauncherIcon.MODERN
+        val packageManager = context.packageManager
+        return if (listOf(VISIBLE_BLUE_STAR_PASS_ALIAS, VISIBLE_BLUE_STAR_MONICA_ALIAS).any { alias ->
+                packageManager.getComponentEnabledSetting(ComponentName(context, alias)) ==
+                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+            }) AppLauncherIcon.BLUE_STAR else AppLauncherIcon.MODERN
     }
 
     fun resolveBrandingIconRes(context: Context): Int {
@@ -103,15 +111,20 @@ object AppLauncherIconManager {
 
     private fun applyVisibleLauncherSelection(
         context: Context,
+        icon: AppLauncherIcon,
         label: AppLauncherLabel
     ) {
         val packageManager = context.packageManager
-        // The snow leopard language swaps the launcher icon for an easter egg. Exactly
-        // one visible alias stays enabled; the alias that is about to take over is
-        // enabled before the others are disabled so the launcher never shows an
-        // empty spot for this package.
+        // Explicit icon choices survive language changes. The default selection
+        // retains the snow leopard Easter egg. Enable the replacement first so
+        // older Android versions always retain a working launcher entry.
         val snowLeopardMode = StartupLanguageCache.read(context) == Language.SNOW_LEOPARD
         val enabledAlias = when {
+            icon == AppLauncherIcon.BLUE_STAR -> if (label == AppLauncherLabel.MONICA_PASS) {
+                VISIBLE_BLUE_STAR_PASS_ALIAS
+            } else {
+                VISIBLE_BLUE_STAR_MONICA_ALIAS
+            }
             snowLeopardMode -> VISIBLE_SNOW_LEOPARD_ALIAS
             label == AppLauncherLabel.MONICA_PASS -> VISIBLE_MODERN_PASS_ALIAS
             else -> VISIBLE_MODERN_MONICA_ALIAS
@@ -123,6 +136,8 @@ object AppLauncherIconManager {
                 PackageManager.COMPONENT_ENABLED_STATE_ENABLED
         )
         listOf(
+            VISIBLE_BLUE_STAR_PASS_ALIAS,
+            VISIBLE_BLUE_STAR_MONICA_ALIAS,
             VISIBLE_SNOW_LEOPARD_ALIAS,
             VISIBLE_MODERN_PASS_ALIAS,
             VISIBLE_MODERN_MONICA_ALIAS

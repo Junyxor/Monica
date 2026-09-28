@@ -1,5 +1,7 @@
 package takagi.ru.monica.ui.screens
 
+import androidx.compose.foundation.text.selection.SelectionContainer
+
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
@@ -87,6 +89,7 @@ import takagi.ru.monica.utils.StringResolver
 import takagi.ru.monica.data.LocalMdbxDatabase
 import takagi.ru.monica.data.MdbxCapability
 import takagi.ru.monica.data.MdbxEngineType
+import takagi.ru.monica.data.isUsable
 import takagi.ru.monica.data.MdbxSourceType
 import takagi.ru.monica.data.MdbxTigaMode
 import takagi.ru.monica.data.MdbxSyncStatus
@@ -202,7 +205,7 @@ fun MdbxManagerScreen(
         }
     }
     LaunchedEffect(selectedDatabase?.id) {
-        selectedDatabase?.let { database ->
+        selectedDatabase?.takeIf { it.isUsable }?.let { database ->
             viewModel.activateMdbxDatabase(database.id)
         }
     }
@@ -214,6 +217,13 @@ fun MdbxManagerScreen(
         }
     }
     LaunchedEffect(page, selectedDatabase?.id, deltaDialogState) {
+        if (selectedDatabase?.isUsable == false) {
+            val current = page as? MdbxManagerPage.DatabasePage
+            if (current != null && current !is MdbxManagerPage.Detail) {
+                page = MdbxManagerPage.Detail(current.databaseId, current.source)
+            }
+            return@LaunchedEffect
+        }
         when (val currentPage = page) {
             is MdbxManagerPage.Conflict -> viewModel.dismissDeltaDialog()
             is MdbxManagerPage.Snapshots -> {
@@ -456,7 +466,7 @@ fun MdbxManagerScreen(
                     displayedDatabase?.let { db ->
                         MdbxVaultDetailPage(
                             database = db,
-                            isDefault = db.isDefault,
+                            isDefault = db.isDefault && db.isUsable,
                             conflictCount = conflictCounts[db.id] ?: 0,
                             diagnostics = vaultDiagnostics[db.id],
                             onSync = { viewModel.syncVault(db.id) },
@@ -485,11 +495,7 @@ fun MdbxManagerScreen(
                                 page = MdbxManagerPage.Maintenance(db.id, current.source)
                             },
                             onMigrate = if (
-                                db.engineTypeEnum == MdbxEngineType.KOTLIN_MDBX1 &&
-                                db.sourceTypeEnum in setOf(
-                                    MdbxSourceType.LOCAL_INTERNAL,
-                                    MdbxSourceType.LOCAL_EXTERNAL
-                                )
+                                db.engineTypeEnum == MdbxEngineType.KOTLIN_MDBX1
                             ) {
                                 { viewModel.prepareMdbx2Migration(db.id) }
                             } else {
@@ -1019,6 +1025,7 @@ private fun migrationWarningText(strings: StringResolver, kind: MdbxMigrationWar
     MdbxMigrationWarningKind.UNKNOWN_ENTRY_TYPES_COPIED -> strings.get(R.string.mdbx_ui_migration_unknown_types, count)
     MdbxMigrationWarningKind.DELETED_ENTRIES_COPIED -> strings.get(R.string.mdbx_ui_migration_deleted_entries, count)
     MdbxMigrationWarningKind.DELETED_ATTACHMENTS_IGNORED -> strings.get(R.string.mdbx_ui_migration_deleted_attachments, count)
+    MdbxMigrationWarningKind.REMOTE_LOCAL_COPY_ONLY -> strings.get(R.string.mdbx_legacy_remote_copy_warning)
 }
 
 private fun migrationBlockerText(strings: StringResolver, kind: MdbxMigrationBlockerKind, count: Int): String = when (kind) {
@@ -1227,7 +1234,7 @@ internal fun MdbxSourceManagementPage(
                 gridItems(items = databases, key = { it.id }, contentType = { "database" }) { db ->
                     MdbxVaultTile(
                         database = db,
-                        isDefault = db.isDefault,
+                        isDefault = db.isDefault && db.isUsable,
                         conflictCount = conflictCounts[db.id] ?: 0,
                         diagnostics = diagnostics[db.id],
                         metrics = tileMetrics,
@@ -1288,6 +1295,10 @@ internal fun MdbxVaultDetailPage(
 ) {
     val strings = rememberScreenStrings()
     val context = LocalContext.current
+    if (!database.isUsable) {
+        MdbxLegacyUnavailablePage(database, onMigrate, onDelete)
+        return
+    }
     val supportsSync = database.supports(MdbxCapability.REMOTE_SYNC)
     val supportsConflicts = database.supports(MdbxCapability.CONFLICTS)
     val supportsSnapshots = database.supports(MdbxCapability.SNAPSHOTS)
@@ -1367,6 +1378,60 @@ internal fun MdbxVaultDetailPage(
                 }
                 MdbxDetailActionList(isDefault, onMigrate, onSetDefault, onDelete)
             }
+        }
+    }
+}
+
+@Composable
+internal fun MdbxLegacyUnavailablePage(
+    database: LocalMdbxDatabase,
+    onMigrate: (() -> Unit)?,
+    onDelete: () -> Unit
+) {
+    val strings = rememberScreenStrings()
+    val context = LocalContext.current
+    LazyColumn(
+        modifier = Modifier.fillMaxSize().testTag("mdbx_legacy_unavailable"),
+        contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 32.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        item {
+            MdbxDetailHeroCard(
+                icon = Icons.Default.Warning,
+                title = strings.get(R.string.mdbx_legacy_unavailable_title),
+                subtitle = strings.get(R.string.mdbx_legacy_unavailable_description),
+                warning = true
+            )
+        }
+        item {
+            MdbxActionGroup(buildList {
+                onMigrate?.let { action ->
+                    add(MdbxAction(
+                        icon = Icons.Default.SwapHoriz,
+                        title = strings.get(R.string.mdbx_legacy_upgrade_action),
+                        onClick = action
+                    ))
+                }
+            })
+        }
+        if (database.isRemoteSource()) {
+            item {
+                Text(strings.get(R.string.mdbx_legacy_remote_copy_warning),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+        item {
+            DiagnosticLine(Icons.Default.Folder, strings.get(R.string.storage_location), database.displayPath(context, strings))
+        }
+        item {
+            MdbxActionGroup(listOf(MdbxAction(
+                icon = Icons.Default.Delete,
+                title = strings.get(R.string.mdbx_delete),
+                onClick = onDelete,
+                warning = true,
+                showChevron = false
+            )))
         }
     }
 }
@@ -1478,7 +1543,7 @@ internal fun MdbxConflictPage(
     val selectedConflict = state?.conflicts?.firstOrNull { it.conflictId == selectedConflictId }
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(MdbxGroupSpacing)
     ) {
         item {
@@ -1549,47 +1614,79 @@ private fun ConflictSummaryRow(conflict: MdbxConflictSummary, index: Int, count:
 }
 
 @Composable
-private fun ConflictDiffDetail(
+internal fun ConflictDiffDetail(
     conflict: MdbxConflictSummary,
     enabled: Boolean,
     onResolve: (String, MdbxConflictResolution) -> Unit
 ) {
     val strings = rememberScreenStrings()
-    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+    var pendingChoice by remember(conflict.conflictId) { mutableStateOf<MdbxConflictResolution?>(null) }
+    val choice = pendingChoice
+    if (choice != null) {
+        val label = stringResource(if (choice == MdbxConflictResolution.LOCAL_WINS)
+            R.string.mdbx_conflict_local_wins else R.string.mdbx_conflict_incoming_wins)
+        AlertDialog(
+            onDismissRequest = { pendingChoice = null },
+            title = { Text(label) },
+            text = { Text(stringResource(R.string.mdbx_conflict_choice_effect)) },
+            confirmButton = {
+                TextButton(enabled = enabled, onClick = {
+                    pendingChoice = null
+                    onResolve(conflict.conflictId, choice)
+                }) { Text(stringResource(R.string.mdbx_conflict_confirm_choice)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingChoice = null }) { Text(stringResource(R.string.cancel)) }
+            }
+        )
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         MdbxDetailHeroCard(
             icon = Icons.AutoMirrored.Filled.CallMerge,
             title = strings.get(R.string.mdbx_ui_conflict_details),
             subtitle = strings.get(R.string.mdbx_ui_conflicts_review_description),
             warning = true
         )
-        FieldDiffPanel(title = "", subtitle = "", changes = conflict.toFieldChanges(strings))
+        if (conflict.localPayloadPreview == null && conflict.incomingPayloadPreview == null &&
+            conflict.localTitle == null && conflict.incomingTitle == null) {
+            MdbxCard(modifier = Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(objectTypeLabel(strings, conflict.objectType), style = MaterialTheme.typography.titleSmall)
+                    TechnicalInfoLine(strings.get(R.string.mdbx_ui_conflicting_fields), conflict.conflictingFields)
+                    Text(stringResource(R.string.mdbx_conflict_values_unavailable), style = MaterialTheme.typography.bodyMedium)
+                }
+            }
+        } else {
+            MdbxExpandableSection(title = stringResource(R.string.mdbx_conflict_show_values)) {
+                FieldDiffPanel(title = "", subtitle = "", changes = conflict.toFieldChanges(strings))
+            }
+        }
         MdbxCard(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(stringResource(R.string.mdbx_conflict_version_help), style = MaterialTheme.typography.bodyMedium)
                 FilledTonalButton(
-                    onClick = { onResolve(conflict.conflictId, MdbxConflictResolution.LOCAL_WINS) },
+                    onClick = { pendingChoice = MdbxConflictResolution.LOCAL_WINS },
                     enabled = enabled,
                     modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)
                 ) { Text(stringResource(R.string.mdbx_conflict_local_wins)) }
                 FilledTonalButton(
-                    onClick = { onResolve(conflict.conflictId, MdbxConflictResolution.INCOMING_WINS) },
+                    onClick = { pendingChoice = MdbxConflictResolution.INCOMING_WINS },
                     enabled = enabled,
                     modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)
                 ) { Text(stringResource(R.string.mdbx_conflict_incoming_wins)) }
-                TextButton(
-                    onClick = { onResolve(conflict.conflictId, MdbxConflictResolution.MARK_RESOLVED) },
-                    enabled = enabled,
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
-                ) { Text(stringResource(R.string.mdbx_conflict_mark_resolved)) }
             }
         }
         MdbxExpandableSection(title = strings.get(R.string.mdbx_ui_technical_details)) {
-            if (conflict.conflictingFields.isNotBlank()) {
-                DiagnosticLine(Icons.Default.Info, strings.get(R.string.mdbx_ui_conflicting_fields), conflict.conflictingFields)
-            }
-            Text(strings.get(R.string.mdbx_ui_conflict_object_baseline, objectTypeLabel(strings, conflict.objectType),
-                shortId(conflict.objectId), shortId(conflict.baseCommitId)), style = MaterialTheme.typography.bodySmall)
-            Text(strings.get(R.string.mdbx_ui_conflict_commit_ids, shortId(conflict.localCommitId),
-                shortId(conflict.incomingCommitId), conflict.createdAt), style = MaterialTheme.typography.bodySmall)
+            MdbxTechnicalParameters(listOf(
+                "conflictId" to conflict.conflictId,
+                "objectType" to conflict.objectType,
+                "objectId" to conflict.objectId,
+                "baseCommitId" to conflict.baseCommitId,
+                "localCommitId" to conflict.localCommitId,
+                "incomingCommitId" to conflict.incomingCommitId,
+                "conflictingFields" to conflict.conflictingFields,
+                "createdAt" to conflict.createdAt
+            ))
         }
     }
 }
@@ -2326,8 +2423,9 @@ private fun MdbxVaultTile(
     val status = diagnostics?.lastSyncStatus ?: database.lastSyncStatus
     val healthIssueCount = diagnostics?.healthIssueCount ?: 0
     val warning = conflictCount > 0 || healthIssueCount > 0 || diagnostics?.isReadable == false ||
-        status == MdbxSyncStatus.FAILED.name || status == MdbxSyncStatus.CONFLICT.name
+        status == MdbxSyncStatus.FAILED.name || status == MdbxSyncStatus.CONFLICT.name || !database.isUsable
     val statusText = when {
+        !database.isUsable -> strings.get(R.string.mdbx_legacy_unavailable_badge)
         conflictCount > 0 -> strings.get(R.string.mdbx_ui_conflict_count_badge, conflictCount)
         healthIssueCount > 0 -> strings.get(R.string.mdbx_ui_health_count_badge, healthIssueCount)
         diagnostics?.isReadable == false -> strings.get(R.string.mdbx_ui_details_unavailable)
@@ -2859,6 +2957,7 @@ private fun SnapshotRow(
 ) {
     val strings = rememberScreenStrings()
     var actionMenuExpanded by remember { mutableStateOf(false) }
+    var showTechnical by rememberSaveable(snapshot.snapshotId) { mutableStateOf(false) }
     MdbxCard(
         onClick = onOpenStructure,
         enabled = enabled,
@@ -2922,6 +3021,13 @@ private fun SnapshotRow(
                     Text(strings.get(R.string.mdbx_ui_verification_failed), style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.error)
                 }
+            }
+            TextButton(onClick = { showTechnical = !showTechnical }) {
+                Text(strings.get(R.string.mdbx_ui_technical_details))
+                MonicaExpansionChevron(expanded = showTechnical, contentDescription = null)
+            }
+            if (showTechnical) {
+                MdbxSnapshotTechnicalParameters(snapshot)
             }
         }
     }
@@ -3212,22 +3318,25 @@ private fun CommitTechnicalInfoCard(
                         modifier = Modifier.padding(14.dp),
                         verticalArrangement = Arrangement.spacedBy(7.dp)
                     ) {
-                        TechnicalInfoLine("Commit ID", commitId)
-                        delta?.operationId?.takeIf { it.isNotBlank() }?.let {
-                            TechnicalInfoLine(strings.get(R.string.mdbx_ui_operation_id), it)
-                        }
-                        delta?.operationKind?.takeIf { it.isNotBlank() }?.let {
-                            TechnicalInfoLine(strings.get(R.string.mdbx_ui_operation_type), it)
-                        }
-                        delta?.let {
-                            TechnicalInfoLine(strings.get(R.string.mdbx_ui_commit_type), "${it.commitKind} / ${it.changeScope}")
-                            TechnicalInfoLine(strings.get(R.string.steam_device_label), it.deviceId)
-                            TechnicalInfoLine(strings.get(R.string.mdbx_ui_sequence), it.localSeq.toString())
-                            TechnicalInfoLine(strings.get(R.string.mdbx_ui_parent_commits), it.parentCount.toString())
-                            it.branchName?.takeIf(String::isNotBlank)?.let { branch ->
-                                TechnicalInfoLine(strings.get(R.string.mdbx_ui_branch), branch)
+                        MdbxTechnicalParameters(buildList {
+                            add("commitId" to commitId)
+                            delta?.let {
+                                add("operationId" to it.operationId.orEmpty())
+                                add("operationKind" to it.operationKind.orEmpty())
+                                add("commitKind" to it.commitKind)
+                                add("changeScope" to it.changeScope)
+                                add("deviceId" to it.deviceId)
+                                add("localSeq" to it.localSeq.toString())
+                                add("parentCount" to it.parentCount.toString())
+                                add("branchName" to it.branchName.orEmpty())
+                                add("createdAt" to it.createdAt)
+                                add("changedObjectIds" to it.changedObjectIds)
+                                add("changedObjectPreview" to it.changedObjectPreview)
+                                add("changedFieldSummary" to it.changedFieldSummary)
+                                add("message" to it.message.orEmpty())
+                                add("legacy" to it.legacy.toString())
                             }
-                        }
+                        })
                     }
                 }
             }
@@ -3238,17 +3347,12 @@ private fun CommitTechnicalInfoCard(
 @Composable
 private fun TechnicalInfoLine(label: String, value: String) {
     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        Text(
-            label,
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Text(
-            value,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface,
-            overflow = TextOverflow.Ellipsis
-        )
+        Text(label, style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        SelectionContainer {
+            Text(value.ifEmpty { "—" }, style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurface)
+        }
     }
 }
 
