@@ -3,7 +3,7 @@
   "status": "preview",
   "source": {
     "repository": "https://github.com/Monica-Pass/Mdbx",
-    "commit": "d1d3cc4fdff4e33fcb70099b3e7df36eeae43ba4",
+    "commit": "90005c8c608c952093a4522ffa507a562e2e39a4",
     "tree": "15559f82628560cb4020a2b54aa9aa16651add9e",
     "build_script_fix": "90005c8c608c952093a4522ffa507a562e2e39a4",
     "local_overlay": {
@@ -12,9 +12,14 @@
       "patch_sha256": "1790361321be909a7f176ae705e25511ee6f001a163d2a5c91f918aaccb44882",
       "files": {
         "crates/mdbx-storage/src/tiga_policy.rs": "d8be71de5d7d82bda6a2ee1655de78b6bdfaed4931786088ea1c29f1b14abf2a",
+        "crates/mdbx-ffi/src/security_facade.rs": "86b94d1bba13201c5df6759e4ccc59ac6b6999b8504c015bf2f20a316277af77"
+      },
+      "description": "Policy-bounded disclosure read-session reuse; no storage or payload format changes",
+      "previous_recorded_files": {
+        "crates/mdbx-storage/src/tiga_policy.rs": "d8be71de5d7d82bda6a2ee1655de78b6bdfaed4931786088ea1c29f1b14abf2a",
         "crates/mdbx-ffi/src/security_facade.rs": "5862f92dfaa120b9c30805ff5919e684955e2903a5b78d97e63c180a4feb8c01"
       },
-      "description": "Policy-bounded disclosure read-session reuse; no storage or payload format changes"
+      "hash_encoding": "UTF-8, LF-normalized"
     },
     "additional_overlays": [
       {
@@ -22,13 +27,29 @@
         "patch": "patches/90005c8-sync-delta-limits.patch",
         "patch_sha256": "d47d75cf49ed6d19870e8c61984ff642e906c7cc956fd03a1bfa8fb52d02e7bf",
         "files": {
+          "crates/mdbx-storage/src/sync_delta.rs": "e942ce267cc54a392b79d5ec3fc4f7d137a7133b9d4cdc7e448fb91b03573415",
+          "crates/mdbx-storage/src/repo/operation_coordinator.rs": "0f4613571ac70e936f953abc387cbc78a1008d8c32d51134784bf35e6e7e2ce4",
+          "crates/mdbx-ffi/src/sync_facade.rs": "4f9c26be3da688e1851fac01685bef236a8e6275bdf7511a19142c6d1283cd35"
+        },
+        "description": "Check encoded sync-delta limits before commit using a bounded counting writer; buffer incremental file exports in 64 KiB and flush before fsync/publish; preserve rollback, storage format and FFI contracts",
+        "previous_recorded_files": {
           "crates/mdbx-storage/src/sync_delta.rs": "8a57347af5016c990ecafa076f459ac2d1de269df3b292231245564c2d8ade33",
           "crates/mdbx-storage/src/repo/operation_coordinator.rs": "1e729e00255f030ea201556029ae7d1427faf4c9aa1ea8f259001d94d164fe73",
           "crates/mdbx-ffi/src/sync_facade.rs": "2c4db43550b8f3b81cc4d16c733fc635013e8b9d070b1bfaf17f6b40695fbfc3"
         },
-        "description": "Check encoded sync-delta limits before commit using a bounded counting writer; buffer incremental file exports in 64 KiB and flush before fsync/publish; preserve rollback, storage format and FFI contracts"
+        "hash_encoding": "UTF-8, LF-normalized"
+      },
+      {
+        "base_commit": "90005c8c608c952093a4522ffa507a562e2e39a4",
+        "patch": "patches/90005c8-json-precision.patch",
+        "patch_sha256": "e0fb20c6c44a8a9237fb5e9cd6a011673303188073ef115f8ffadd1d94233d37",
+        "files": {
+          "Cargo.toml": "a957865c151120d18f527c861c7c457f9c24ebeab75bf0b5579c6be08600af37"
+        },
+        "description": "Enable serde_json arbitrary_precision so FFI reads and writes preserve JSON integer and decimal lexemes. No FFI or storage schema change."
       }
-    ]
+    ],
+    "reconstruction_note": "git archive of exact base plus listed overlays. Source content matches vendored F-Droid files after LF normalization. Prior main-runtime overlay hashes are retained separately; current file hashes use LF-normalized bytes. No claim of byte-identical reproduction of prior binaries."
   },
   "runtime": {
     "name": "MDBX3",
@@ -45,25 +66,17 @@
     "ndk": "28.2.13676358",
     "rust": "1.86.0",
     "cargo_ndk": "4.1.2",
-    "strip": "llvm-strip --strip-all --keep-section=.note.gnu.build-id"
+    "strip": "llvm-strip --strip-all --keep-section=.note.gnu.build-id",
+    "rustflags": "-C link-arg=-Wl,--build-id=sha1",
+    "cargo_lock_sha256": "d1cdc3da22787e147daf0708046742b2b67e54768eb7006726d2dff0b2c60855"
   },
   "abi": {
     "required_symbols": 539,
     "verified_checksums": 239,
     "uniffi_contract_version": 30,
-    "release_gate": "passed-android-sync-limit-validation",
+    "release_gate": "passed-scoped-android-cli-compatibility-validation",
     "static_android_validation": "passed-all-three-abis",
     "previous_android_runtime_validation": {
-      "environment": "Monica_Issue136_API_32 shared emulator",
-      "api_level": 32,
-      "avd_abi": "x86_64",
-      "app_abi": "arm64-v8a",
-      "native_session_tests": 4,
-      "api_token_ui_tests": 6,
-      "performance_scenarios": 2,
-      "physical_device_validation": "not-run"
-    },
-    "android_runtime_validation": {
       "validated_at_utc": "2026-09-16T08:38:32.918857+00:00",
       "environment": "Monica_Issue136_API_32 shared emulator",
       "api_level": 32,
@@ -78,23 +91,49 @@
       "authenticated_sync_segments": 10,
       "physical_device_validation": "not-run",
       "live_bitwarden_validation": "not-run"
+    },
+    "android_runtime_validation": {
+      "validated_at": "2026-09-28",
+      "environment": "Monica_Issue136_API_32 shared emulator",
+      "api_level": 32,
+      "avd_abi": "x86_64",
+      "app_abi": "arm64-v8a",
+      "runner": "isolated native harness plus actual main APK on shared emulator",
+      "synthetic_contract_tests": 1,
+      "portable_outputs": 2,
+      "cli_return_verification": "passed",
+      "verified_api_checksums": 239,
+      "full_application_build": "passed debug APK and instrumentation APK",
+      "jvm_and_ui_regressions": {
+        "jvm_tests": 210,
+        "actual_app_device_tests": 5,
+        "failures": 0,
+        "skipped": 0,
+        "unknown_object_ui_screenshot": "checked"
+      },
+      "arm_device_validation": "arm64-v8a actual APK on x86_64 emulator native bridge; no physical ARM device",
+      "physical_device_validation": "not-run",
+      "live_cloud_validation": "not-run",
+      "native_engine_smoke_tests": 3,
+      "isolated_harness_abi": "x86_64",
+      "app_version": "1.0.314-26092812-13"
     }
   },
   "artifacts": {
     "arm64-v8a": {
-      "bytes": 7402680,
-      "sha256": "c70dbb048840b1f0009b18f627d258f9a5dc589d27a3db41ad74fd06e2c4f923",
-      "build_id": "0c3e6fba5e85a827188d31c02e898e5d987710e9"
+      "bytes": 7469384,
+      "sha256": "b13091d1dec341bde6366e074ce68f5d419cf97f5d839d57afb33a7ee6657134",
+      "build_id": "ff97cb74941960ee33de14a59811b38a009b4c82"
     },
     "armeabi-v7a": {
-      "bytes": 5731664,
-      "sha256": "02c300ee70216a49fdd278f6b31a4390502c01c8b01ac34632aaf0265f001484",
-      "build_id": "47f05e18803c5505e89d991668bc70efb5992669"
+      "bytes": 5745696,
+      "sha256": "e7d4e03fd4c325f87af6df4926f362f3210d69fe5221272ff2d1ae7276c4540b",
+      "build_id": "1613c1039bb78c35cff1ed908510b2131d6ec8f3"
     },
     "x86_64": {
-      "bytes": 8795600,
-      "sha256": "346bfc6d95e054aaf9974824fa7ebcea576976fab0e225966727b1379f573417",
-      "build_id": "48300dca96b8a18a1eb5be71ddb7ae20eba7bdee"
+      "bytes": 8860080,
+      "sha256": "ed1434e7d5399d0cea59f57d441ef60ca28c4b16e9410b2b3f769687494bebc8",
+      "build_id": "c28d752f6ddb5c039dd7dced864e8065b960572b"
     }
   }
 }
