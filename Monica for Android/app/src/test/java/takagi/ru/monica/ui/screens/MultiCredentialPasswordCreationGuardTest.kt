@@ -18,9 +18,9 @@ class MultiCredentialPasswordCreationGuardTest {
 
         assertTrue(screen.contains("val isMultiCredentialMode = usesCredentialCards && credentialUsernames.size > 1"))
         assertTrue(screen.contains("multiCredentialEditorSectionName"))
-        assertTrue(screen.contains("credentialMenuExpanded"))
+        assertTrue(screen.contains("PasswordCredentialPickerSheet("))
         assertTrue(screen.contains("showCommonCredentialEditor"))
-        assertTrue(screen.contains("showCredentialEditor(index)"))
+        assertTrue(screen.contains("onSelect = ::showCredentialEditor"))
         assertTrue(screen.contains("if (usesCredentialCards)"))
         assertTrue(screen.contains("R.string.add_credential"))
         assertTrue(screen.contains("viewModel.saveCredentialsAcrossTargets("))
