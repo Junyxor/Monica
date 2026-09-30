@@ -64,18 +64,32 @@
         },
         "hash_encoding": "UTF-8, LF-normalized",
         "description": "Shared lossless JSON parser preserves literal internal-marker keys and precise numbers in FFI, writes, merges, exports and sync extensions. No FFI or database schema change."
+      },
+      {
+        "base_commit": "90005c8c608c952093a4522ffa507a562e2e39a4",
+        "patch": "patches/90005c8-composite-commit-kind.patch",
+        "patch_sha256": "7647cd15f565e932f4f0010b350409042cf3d81561ac08521556a5e85d95a945",
+        "files": {
+          "crates/mdbx-storage/src/repo/operation_coordinator.rs": "15718ee932ec2dfba5dfc6902cae9f08f7add0dcb28664e6e538946217605136",
+          "crates/mdbx-ffi/src/write_facade.rs": "5f0966f978332b186d8de4be6c432bf644b8a73a2def26c6018919b2cb21ebe6",
+          "crates/mdbx-ffi/src/tests.rs": "a5f06ec5a98b110aab3613cdf1577318264fb02c4de98eef226c3c153ce492ca"
+        },
+        "hash_encoding": "UTF-8, LF-normalized",
+        "description": "Derive composite commit kind from the prepared generic commands plus attachment change commands; move/restore mixtures use multi and remain one transaction/commit. Regression checks true bytes, native object identity, TIGA override, retry idempotence and late failure rollback. No FFI or storage schema changes."
       }
     ],
-    "reconstruction_note": "git archive of exact base plus listed overlays. Source content matches vendored F-Droid files after LF normalization. Prior main-runtime overlay hashes are retained separately; current file hashes use LF-normalized bytes. No claim of byte-identical reproduction of prior binaries.",
+    "reconstruction_note": "Exact git archive 90005c8 plus all five listed overlays. The pre-fix 166 Rust/Cargo files match the existing F-Droid vendored source after LF normalization. Original runtime source repository and its unrelated dirty changes were not modified.",
     "final_overlay_files": {
       "Cargo.toml": "8e4cfc3d0da2b1b182a62d33611dead8da92db5f3c678cf1a021cebe9f3ef931",
       "crates/mdbx-core/src/lib.rs": "87f151875952e1ad8fff19111208f8da90fd08b7fe31267c4d4dfd89c9bcf6d2",
       "crates/mdbx-core/src/json.rs": "0c87f40be5b85a69528e1c9f6f5e60f4a4af531fa2259e722b5a8f90258e90ec",
       "crates/mdbx-ffi/src/object_facade.rs": "8ddb80eb7e7499884161bef1909c3203391a5f3b64a0e19266bf3b110f3436a7",
       "crates/mdbx-storage/src/import/kdbx_export.rs": "e27f426b61b79bd4568facc3776a1750bededa121131a58a7429ce7afaab8a92",
-      "crates/mdbx-storage/src/repo/operation_coordinator.rs": "9fddbfe35e468225962c9811ed53de65dfe1a4d30697d434beed9018cea9854a",
+      "crates/mdbx-storage/src/repo/operation_coordinator.rs": "15718ee932ec2dfba5dfc6902cae9f08f7add0dcb28664e6e538946217605136",
       "crates/mdbx-storage/src/sync_apply/entry.rs": "9ea4e7db177add6da77be6db60d63ba9c2a3fd53b5556767a2b75a1465d686c7",
-      "crates/mdbx-storage/src/sync_state.rs": "667b29478f4faf5e6fb92a3d724fecc06fd6b6ee9385c7b94309608c456502f9"
+      "crates/mdbx-storage/src/sync_state.rs": "667b29478f4faf5e6fb92a3d724fecc06fd6b6ee9385c7b94309608c456502f9",
+      "crates/mdbx-ffi/src/write_facade.rs": "5f0966f978332b186d8de4be6c432bf644b8a73a2def26c6018919b2cb21ebe6",
+      "crates/mdbx-ffi/src/tests.rs": "a5f06ec5a98b110aab3613cdf1577318264fb02c4de98eef226c3c153ce492ca"
     }
   },
   "runtime": {
@@ -96,32 +110,65 @@
     "strip": "llvm-strip --strip-all --keep-section=.note.gnu.build-id",
     "rustflags": "-C link-arg=-Wl,--build-id=sha1",
     "cargo_lock_sha256": "d1cdc3da22787e147daf0708046742b2b67e54768eb7006726d2dff0b2c60855",
-    "source_directory": "F-Droid vendored Mdbx-ffi, verified against exact archive plus four overlays"
+    "source_directory": "Isolated exact source archive plus five overlays; rebuild script retained with pending-content-315/native-composite-move evidence"
   },
   "abi": {
     "required_symbols": 539,
     "verified_checksums": 239,
     "uniffi_contract_version": 30,
-    "release_gate": "passed-scoped-review-fix-validation",
-    "static_android_validation": "passed-all-three-abis",
+    "release_gate": "passed-selected-android32-regressions",
+    "static_android_validation": "passed-all-three-abis-current-android-bindings",
     "android_runtime_validation": {
-      "validated_at": "2026-09-28",
-      "status": "passed-scoped-review-fix-validation",
-      "environment": "Monica_Issue136_API_32, API 32, x86_64; actual ARM64 APK via native bridge",
-      "app_version": "1.0.314-26092812-23",
-      "packaged_native_sha256": "11f9cbb9dd82e5928211ff4a144fab2ec7fbb5038128d3a0842e5a38fd9b8c0f",
-      "jvm_tests": 210,
-      "actual_app_device_regressions": 5,
-      "default_contract_repeat": 1,
-      "dynamic_contract_test": 1,
-      "cli_return_verification": "passed, two outputs, each with three corruption rejection controls",
-      "shared_core_rust_tests": 965,
-      "verified_api_checksums": 239,
-      "isolated_harness_tests": 5,
-      "physical_device_validation": "not-run",
-      "live_cloud_validation": "not-run",
-      "source_reconstruction": "167 Rust/Cargo files match exact archive plus four overlays after LF normalization",
-      "scope_limits": "Not a full historical Android Adapter audit; no independent clean-build reproducibility claim."
+      "status": "passed-selected-android-regressions",
+      "date": "2026-09-30T19:28:38.611725+08:00",
+      "device": "Monica_Issue136_API_32 / emulator-5554 / Android32 / x86_64",
+      "app_validation": {
+        "acceptance": {
+          "passed": 25,
+          "receipt": {
+            "startedAt": "2026-09-30T19:16:44.4330127+08:00",
+            "classes": [
+              "takagi.ru.monica.credentialexchange.EmbeddedDocumentAssetsInstrumentedTest,takagi.ru.monica.credentialexchange.EmbeddedDocumentUiTest,takagi.ru.monica.repository.NativeApiTokenAssetsInstrumentedTest,takagi.ru.monica.ui.screens.NativeApiTokenAssetsUiTest,takagi.ru.monica.credentialexchange.NativeTokenArchiveManifestInstrumentedTest,takagi.ru.monica.ui.PasswordQrTemplateUiTest,takagi.ru.monica.ui.PasswordContentBlocksUiTest,takagi.ru.monica.credentialexchange.NativePasswordContentStorageInstrumentedTest,takagi.ru.monica.ui.PasswordOtpEditorTest#defaultInlineAuthenticatorPreviewsSavesReopensAndClears"
+            ],
+            "finishedAt": "2026-09-30T19:20:07.1322601+08:00",
+            "edition": "Main",
+            "appSha256": "2CB3F7BADDBF0F7ACB7BDCFA2DFB0FFE063978AF4AD3A4B5F90877A14356154F",
+            "testSha256": "3286E505C6B56090EACCD194DCB3AE9A41C042953CF943776375A4A0552876F4",
+            "packageId": "takagi.ru.monica",
+            "completed": true,
+            "suite": "Acceptance",
+            "testPackageId": "takagi.ru.monica.test"
+          },
+          "logSha256": "438bbd914131b55e1d7571cf11ba6e46e30e26f03fd0514c7681b11b2e031ca3"
+        },
+        "realwebdav": {
+          "passed": 1,
+          "receipt": {
+            "startedAt": "2026-09-30T19:20:08.3158711+08:00",
+            "classes": [
+              "takagi.ru.monica.repository.Mdbx2RealWebDavInstrumentedTest"
+            ],
+            "finishedAt": "2026-09-30T19:20:29.0390282+08:00",
+            "edition": "Main",
+            "appSha256": "2CB3F7BADDBF0F7ACB7BDCFA2DFB0FFE063978AF4AD3A4B5F90877A14356154F",
+            "testSha256": "3286E505C6B56090EACCD194DCB3AE9A41C042953CF943776375A4A0552876F4",
+            "packageId": "takagi.ru.monica",
+            "completed": true,
+            "suite": "RealWebDav",
+            "testPackageId": "takagi.ru.monica.test"
+          },
+          "logSha256": "2325d22418b28bde0b7261bee2157f873b683f4571d5fe6ee832d3fc493b8db4"
+        }
+      },
+      "native_abi": "x86_64",
+      "limits": [
+        "Only Android32 x86_64 executed; ARM64/ARM32 build/export checks are not device tests",
+        "WebDAV used a real isolated local WsgiDAV server and synthetic data, not a customer provider",
+        "No live authenticated OneDrive transfer in this task",
+        "Database ZIP export is distinct from whole-app backup; old clients may ignore new attachments",
+        "Authenticator arbitrary custom fields cancelled; Bitwarden SSO/Passkey account login excluded"
+      ],
+      "report": "../docs/pending-content-315-verification.json"
     },
     "validation_history": [
       {
@@ -165,24 +212,70 @@
         "native_engine_smoke_tests": 3,
         "isolated_harness_abi": "x86_64",
         "app_version": "1.0.314-26092812-13"
+      },
+      {
+        "validated_at": "2026-09-28",
+        "status": "passed-scoped-review-fix-validation",
+        "environment": "Monica_Issue136_API_32, API 32, x86_64; actual ARM64 APK via native bridge",
+        "app_version": "1.0.314-26092812-23",
+        "packaged_native_sha256": "11f9cbb9dd82e5928211ff4a144fab2ec7fbb5038128d3a0842e5a38fd9b8c0f",
+        "jvm_tests": 210,
+        "actual_app_device_regressions": 5,
+        "default_contract_repeat": 1,
+        "dynamic_contract_test": 1,
+        "cli_return_verification": "passed, two outputs, each with three corruption rejection controls",
+        "shared_core_rust_tests": 965,
+        "verified_api_checksums": 239,
+        "isolated_harness_tests": 5,
+        "physical_device_validation": "not-run",
+        "live_cloud_validation": "not-run",
+        "source_reconstruction": "167 Rust/Cargo files match exact archive plus four overlays after LF normalization",
+        "scope_limits": "Not a full historical Android Adapter audit; no independent clean-build reproducibility claim."
       }
-    ]
+    ],
+    "binding_baseline": {
+      "source": "Packaged Android src/main/java/uniffi/mdbx_ffi/mdbx_ffi.kt",
+      "evidence": "current-android-bindings.json",
+      "sha256": "d6e49b00ae20f2fe62ecb6beb8abfe86931aa57e78a99aeec5c509ff5c8b8842",
+      "required_symbols": 539,
+      "verified_checksums": 239,
+      "uniffi_contract_version": 30
+    },
+    "native_composite_validation": {
+      "host_ffi_tests": 59,
+      "failures": 0,
+      "targeted_regression_repeated": 1,
+      "red_before_fix": "operation commit kind change cannot contain move",
+      "late_failure": "missing-parent after entry move and attachment create/delete; all writes rolled back",
+      "single_commit": true,
+      "object_id_and_tiga_override_preserved": true,
+      "idempotent_retry": true,
+      "current_android_symbols": 539,
+      "dynamic_host_checksums": 239,
+      "test_logs": [
+        "host-red.log",
+        "host-green.log",
+        "host-final-regression.log",
+        "host-current-abi-checksums.json",
+        "native-current-abi-exports.json"
+      ]
+    }
   },
   "artifacts": {
     "x86_64": {
-      "bytes": 8989328,
-      "sha256": "78c0badc8839559d8c019d4b0965c09c502ceda48e3c9e5a9ef7f3f5e1678e15",
-      "build_id": "185ab72e5e54d0e96560c052b6700622bc0b55f5"
+      "bytes": 8989232,
+      "sha256": "604c99e0b09467da09a9282b7b3a049b2a0eac7aeeb6b49cbc681d2791e6ab0c",
+      "build_id": "5781807ed31cde91aea1578f80e477f7b27df232"
     },
     "arm64-v8a": {
-      "bytes": 7549944,
-      "sha256": "11f9cbb9dd82e5928211ff4a144fab2ec7fbb5038128d3a0842e5a38fd9b8c0f",
-      "build_id": "5db91bf4d7700eb0c5d981ad7bacb8a303434591"
+      "bytes": 7550440,
+      "sha256": "e99dedd860fe10b2c49bd328645b42ed1d2f706d407aec7088296c7aaf2d5f4f",
+      "build_id": "c8254959e04e79d8c71a9d25754ddcc955c92820"
     },
     "armeabi-v7a": {
-      "bytes": 5808696,
-      "sha256": "471776c55fdcdfefab053ef43dff6cc43bdd1808f5a73a1d9d68a5d7524ce6cd",
-      "build_id": "2cfec824a0998edb38c8c84086aad0c78b1b76e4"
+      "bytes": 5808936,
+      "sha256": "1e80db6a7b7e67502e4a63bd1996fb182297c0cb9db19fac4c6b33ee7836db08",
+      "build_id": "fa59790d2602232b2b0a38ba3b2e1eecc29e4d3e"
     }
   }
 }

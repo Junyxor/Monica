@@ -168,9 +168,17 @@ private class OneDriveBackupScreenState(
         loadingEntries = true
         browserError = null
         runCatching {
-            backupHelper.listDirectory(activeSession.accountId, targetPath)
-        }.onSuccess { entries ->
-            browserEntries = entries.filter { it.isDirectory }
+            backupHelper.loadBackupDirectory(activeSession.accountId, targetPath)
+        }.onSuccess { directory ->
+            if (session?.accountId != activeSession.accountId) return@onSuccess
+            browserEntries = directory.folders
+            // The configured folder's response already includes every backup file.
+            // Browsing a different folder must not replace the saved backup history.
+            if (currentSessionBackupConfig()?.folderPath ==
+                OneDriveKeePassFileSource.normalizeOptionalRemotePath(targetPath)
+            ) {
+                backupList = directory.backups
+            }
             currentPath = targetPath
             connectionState = OneDriveBackupConnectionState.Connected
             Log.d(
@@ -178,7 +186,13 @@ private class OneDriveBackupScreenState(
                 "OneDrive directory loaded, folders=${browserEntries.size}, targetIsRoot=${targetPath.isBlank()}"
             )
         }.onFailure { error ->
+            if (session?.accountId != activeSession.accountId) return@onFailure
             browserEntries = emptyList()
+            if (currentSessionBackupConfig()?.folderPath ==
+                OneDriveKeePassFileSource.normalizeOptionalRemotePath(targetPath)
+            ) {
+                backupList = emptyList()
+            }
             browserError = error.toOneDriveUserMessage(AppLocaleStringResolver(context), context.getString(R.string.keepass_onedrive_load_files_failed))
             connectionState = OneDriveBackupConnectionState.Failed
             Log.w(
@@ -246,7 +260,6 @@ private class OneDriveBackupScreenState(
                         .orEmpty()
                     loadDirectory(configuredPath)
                     if (currentSessionBackupConfig() == null) showFolderPicker = true
-                    else if (connectionState == OneDriveBackupConnectionState.Connected) refreshBackups()
                 }
                 .onFailure { error ->
                     browserEntries = emptyList()
@@ -548,7 +561,9 @@ fun OneDriveBackupScreen(
             )
             val configuredSessionResult = runCatching { backupHelper.getConfiguredSession() }
             val configuredSession = configuredSessionResult.getOrNull()
-            val cachedSession = runCatching { authManager.getCachedSession() }.getOrNull()
+            val cachedSession = if (configuredSession == null) {
+                runCatching { authManager.getCachedSession() }.getOrNull()
+            } else null
 
             session = configuredSession ?: cachedSession
             if (configuredSessionResult.isFailure) {
@@ -580,12 +595,6 @@ fun OneDriveBackupScreen(
                 connectionState = OneDriveBackupConnectionState.Connected
                 val initialPath = currentSessionBackupConfig()?.folderPath.orEmpty()
                 loadDirectory(initialPath)
-            }
-            if (session != null &&
-                connectionState == OneDriveBackupConnectionState.Connected &&
-                currentSessionBackupConfig() != null
-            ) {
-                refreshBackups()
             }
         }
 

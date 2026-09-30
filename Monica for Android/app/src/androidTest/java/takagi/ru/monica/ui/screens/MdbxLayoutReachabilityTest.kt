@@ -324,6 +324,18 @@ class MdbxLayoutReachabilityTest {
             }
             repeat(6) { index ->
                 compose.runOnIdle { page.intValue = index }
+                // Remote creation settings are gated on WebDAV connection / OneDrive sign-in.
+                // This fixture is deliberately offline; only local creation exposes the slider.
+                if (index % 2 == 0) compose.onNodeWithText(label(R.string.mdbx_ui_database_options)).assertDoesNotExist()
+                if (index == 0) {
+                    compose.onNodeWithTag("tiga_selector").performScrollTo().assertIsDisplayed()
+                    compose.onNodeWithText(label(R.string.mdbx_ui_database_options)).assertDoesNotExist()
+                    MdbxTigaMode.entries.forEach { mode ->
+                        compose.onNodeWithTag("tiga_mode_${mode.name}").performClick()
+                        compose.onNodeWithTag("tiga_selected_mode").assertTextEquals(mode.label)
+                        capture("tiga-create-$index-${mode.name}.png")
+                    }
+                }
                 val action = compose.onNode(hasClickAction() and hasAnyAncestor(hasTestTag("mdbx_form_actions")))
                 action.assertIsDisplayed().assertIsNotEnabled()
                 val before = action.fetchSemanticsNode().boundsInRoot

@@ -16,6 +16,7 @@ import takagi.ru.monica.data.model.PermissionInfo
 import takagi.ru.monica.data.model.PermissionStats
 import takagi.ru.monica.data.model.PermissionStatus
 import takagi.ru.monica.service.MonicaAccessibilityService
+import takagi.ru.monica.notifications.LiveUpdateNotifications
 
 /**
  * 权限管理Repository
@@ -53,7 +54,7 @@ class PermissionRepository(private val context: Context) {
      * Load all permissions and check their status
      */
     private fun loadPermissions(): List<PermissionInfo> {
-        return listOf(
+        return listOfNotNull(
             createBiometricPermission(),
             createCameraPermission(),
             createStoragePermission(),
@@ -61,6 +62,7 @@ class PermissionRepository(private val context: Context) {
             createNetworkStatePermission(),
             createVibratePermission(),
             createNotificationPermission(),
+            if (LiveUpdateNotifications.isSupported()) createLiveUpdatePermission() else null,
             createPhoneStatePermission(),
             createAutofillPermission(),
             createAccessibilityPermission()
@@ -84,6 +86,9 @@ class PermissionRepository(private val context: Context) {
             "BIOMETRIC" -> checkBiometricStatus()
             "AUTOFILL" -> checkAutofillStatus()
             "ACCESSIBILITY" -> checkAccessibilityStatus()
+            "LIVE_UPDATES" -> if (LiveUpdateNotifications.canPostPromotedNotifications(context)) {
+                PermissionStatus.GRANTED
+            } else PermissionStatus.DENIED
             "INTERNET", "NETWORK_STATE", "VIBRATE" -> {
                 // 这些权限在安装时自动授予
                 PermissionStatus.GRANTED
@@ -284,6 +289,16 @@ class PermissionRepository(private val context: Context) {
         descriptionResId = R.string.permission_notification_description,
         category = PermissionCategory.DEVICE,
         importance = PermissionImportance.RECOMMENDED
+    )
+
+    private fun createLiveUpdatePermission() = PermissionInfo(
+        id = "LIVE_UPDATES",
+        androidPermission = "android.permission.POST_PROMOTED_NOTIFICATIONS",
+        icon = Icons.Default.NotificationsActive,
+        nameResId = R.string.permission_live_updates_name,
+        descriptionResId = R.string.permission_live_updates_description,
+        category = PermissionCategory.DEVICE,
+        importance = PermissionImportance.OPTIONAL
     )
 
     private fun createPhoneStatePermission() = PermissionInfo(

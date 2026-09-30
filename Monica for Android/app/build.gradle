@@ -9,7 +9,7 @@ plugins {
 
 android {
     namespace 'takagi.ru.monica'
-    compileSdk 35
+    compileSdk 36
 
     def previewVersionSuffix = project.findProperty('previewVersionSuffix')?.toString()?.trim()
     // Intentionally frozen: same-signature sideloaded builds must remain mutually replaceable

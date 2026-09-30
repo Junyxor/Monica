@@ -4692,4 +4692,5 @@
     <string name="field_barcode_linear_too_wide">This barcode needs more screen width. Rotate your device or use a QR code.</string>
     <string name="language_snow_leopard" translatable="false">芝士雪豹语</string>
     <string name="qs_lang_snow_leopard" translatable="false">芝士雪豹语</string>
+    <string name="cg_vault_frequent">Frequently used in vault</string>
 </resources>

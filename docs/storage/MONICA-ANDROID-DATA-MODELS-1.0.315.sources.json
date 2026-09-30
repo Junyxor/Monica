@@ -1,0 +1,30 @@
+{
+  "date": "2026-09-30",
+  "version": "1.0.315-unreleased",
+  "androidHead": "a19912fb3a521a930400d8a1461f81eb8f65595d",
+  "note": "Working tree is modified; per-file SHA256 identifies inspected content. Not a test pass report.",
+  "sourceSha256": {
+    "data/PasswordEntry.kt": "2c9b0b0c88773ca8a285fe8cc9f59bac8438e168da274ffbd0689ccd32074b42",
+    "data/SecureItem.kt": "d601363d528fb0f54f7c02ec4c53f4900c45acbb1c4cd63b23df4deb861732d1",
+    "data/PasskeyEntry.kt": "e16ed333716dda2a03db5629b8a3a4688269bee0f4e656a397965754170f491a",
+    "data/model/SecureItemModels.kt": "c57c89546aab9d834b634bb5469595f5c2ac33ea2302d9d892f8c9002a60fb9e",
+    "data/model/WifiData.kt": "61d1fc6c19e8e7d171e90147527e2a1a0c39ba3dcd0f7dcdfe60dd4c25e1be86",
+    "data/model/SshKeyModels.kt": "50c3b7d5705b2968615386a0089a3da4c4ed5c92824f7f403ee3632721366d80",
+    "data/model/EmbeddedWalletContent.kt": "3434eb61ce9d8f551ee83dc6b2a3b44d6b2a43c461cb278067b0a6c4ab1da40e",
+    "data/model/EntryContentFields.kt": "60fa98ba0238753110fa57d54df1234fdec233b97fdcf42fd5f1830cdf84995a",
+    "data/model/ApiKeyEntryFields.kt": "83319264cb76be17e1163309a654a98997b0d2964e71e1aefc219e00387e061f",
+    "data/model/GpgEntryFields.kt": "4f193536e018acb77b09994ab606a16dfc6038ad920d2095370fd14105501427",
+    "data/ApiTokenPayload.kt": "0adc9de5e9a17df1635d61e2dce341a3dc6408ffb21a290e537a7fc2a3ba98df",
+    "ui/components/EntrySupplementalFields.kt": "02d620893a0d152a598c51f1bb0674e5fccc34953d229975eba9b00f99694129",
+    "ui/components/PasswordContentMenu.kt": "eea47a52cfec0f024dfcb204facbcb972e0d57ee83998e8bdfbed153b9333015",
+    "repository/Mdbx2Repository.kt": "9daf216d58dde9bb37283cfeb5dc15677b9f730f5c8a674e4c88fdaf9b52ac53",
+    "repository/MdbxPasswordContentFields.kt": "c78d4ac4620fdd245930276c5cf921d91f64de79ecdedbaed3472c44fabd81da",
+    "repository/MdbxAttachmentCekPayload.kt": "03226b0c4053a2e2a27cb2c0141bffe70a1f11bd09fbda04c0b85da636e558cd",
+    "data/CustomField.kt": "8752611ecbe7c919325d5ad321ef8951d7e9ec7a93be6819ef11ff8ded0b8221",
+    "data/PasswordHistoryEntry.kt": "a8cbe8e224e108d5bee03068bb8dfdad9d7e40f74d414eedb8a8a316f73ed558",
+    "data/model/PasskeyBinding.kt": "f0369d7bc46257a448506bfd5d2ae65302a49b1aab9f3f8ad1b5361464017d2c",
+    "attachments/model/Attachment.kt": "af13dc81274997ce97cdfe38e06dcb35eed4dd6f99d95bcde814925a24a1bc78",
+    "data/model/PasswordContentBlocks.kt": "ba0e662f809f576700ff75078a8c97290bfa6b76bc2fbc81ad117989f8ce5d68",
+    "data/model/PasswordQrTemplate.kt": "e9c3141433b469deb7f053fe99358ce89ebcc0f58eaa2370986dda6685baa50b"
+  }
+}
