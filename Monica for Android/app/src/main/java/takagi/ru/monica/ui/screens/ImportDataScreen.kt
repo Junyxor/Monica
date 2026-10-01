@@ -8,7 +8,6 @@ import androidx.credentials.providerevents.ProviderEventsManager
 import androidx.credentials.providerevents.transfer.ImportCredentialsRequest
 import androidx.credentials.providerevents.exception.ImportCredentialsCancellationException
 import kotlinx.coroutines.CancellationException
-import androidx.activity.compose.BackHandler
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
@@ -38,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import takagi.ru.monica.transfer.*
 import takagi.ru.monica.R
 import takagi.ru.monica.data.PasswordDatabase
 import takagi.ru.monica.ui.components.PasswordEntryPickerBottomSheet
@@ -143,7 +143,13 @@ fun ImportDataScreen(
     
     var selectedFileName by remember { mutableStateOf<String?>(null) }
     var selectedFileUri by remember { mutableStateOf<Uri?>(null) }
-    var isImporting by remember { mutableStateOf(false) }
+    val dataJob by DatabaseExportJobs.state.collectAsState()
+    val activeImport = dataJob?.takeIf { it.kind == DataTaskKind.IMPORT }
+    val backgroundImporter = remember(context, destination.key) { BackgroundImportExecutor(context, destination.key) }
+    LaunchedEffect(Unit) { DatabaseExportJobs.recoverInterrupted(context.applicationContext) }
+    LaunchedEffect(activeImport?.id) { activeImport?.let { onDestinationChange(ImportDestination.fromKey(it.sourceKey)) } }
+    var localImporting by remember { mutableStateOf(false) }
+    val isImporting = localImporting || dataJob?.status == ExportJobStatus.RUNNING
     LaunchedEffect(isImporting) { if (isImporting) scrollState.animateScrollTo(0) }
     var applicationSource by rememberSaveable(initialApplicationSource) { mutableStateOf(initialApplicationSource) }
     var showFormatChooser by remember { mutableStateOf(false) }
@@ -151,13 +157,12 @@ fun ImportDataScreen(
     // Private credentials live only in memory; never save them into a Bundle or log them.
     var received by remember { mutableStateOf<CxfCredentialCodec.Decoded?>(null) }
     var sourceApp by remember { mutableStateOf("") }
-    BackHandler(enabled = isImporting) { /* Keep a single write session attached to its UI. */ }
     // Retry registration when this page is reopened after a temporary service failure.
     // Receiving credentials does not depend on this independent export registration succeeding.
     LaunchedEffect(context) { CredentialExchangeRegistrar.register(context.applicationContext) }
     val receiveCredentials: () -> Unit = receive@{
         if (isImporting) return@receive
-        isImporting = true
+        localImporting = true
         snackbarHostState.currentSnackbarData?.dismiss()
         scope.launch {
             received = null
@@ -181,7 +186,7 @@ fun ImportDataScreen(
             } catch (error: Exception) {
                 errorMessage = CredentialExchangeErrors.message(error)
                 CredentialExchangeErrors.record(context, CredentialExchangeErrors.Operation.IMPORT, error)
-            } finally { isImporting = false }
+            } finally { localImporting = false }
             // A Snackbar suspends until dismissed; release the busy state before waiting for it.
             errorMessage?.let { snackbarHostState.showSnackbar(context.getString(it)) }
         }
@@ -276,7 +281,7 @@ fun ImportDataScreen(
                         } catch (e: Exception) {
                             if (e is CancellationException) throw e
                             android.util.Log.e("ImportDataScreen", "文件选择异常", e)
-                            isImporting = false
+                            localImporting = false
                             snackbarHostState.showSnackbar(
                                 context.getString(
                                     R.string.import_data_file_select_failed,
@@ -297,7 +302,7 @@ fun ImportDataScreen(
             TopAppBar(
                 title = { Text(stringResource(R.string.import_data_title)) },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack, enabled = !isImporting) {
+                    IconButton(onClick = onNavigateBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.go_back))
                     }
                 },
@@ -314,13 +319,13 @@ fun ImportDataScreen(
                         onClick = {
                             val draft = received
                             if (draft == null) receiveCredentials() else scope.launch {
-                                isImporting = true
+                                localImporting = true
                                 try {
-                                    onImportExchange(draft).onSuccess { received = null }.onFailure {
-                                        isImporting = false
+                                    backgroundImporter.run(onImportExchange, draft).onSuccess { received = null }.onFailure {
+                                        localImporting = false
                                         snackbarHostState.showSnackbar(context.getString(R.string.exchange_failed))
                                     }
-                                } finally { isImporting = false }
+                                } finally { localImporting = false }
                             }
                         },
                         enabled = !isImporting && (received == null || received!!.passwordCount + received!!.passkeyCount > 0),
@@ -350,7 +355,7 @@ fun ImportDataScreen(
                         onClick = {
                             if (isSteamLoginMode) {
                                 scope.launch {
-                                    isImporting = true
+                                    localImporting = true
                                     try {
                                         val customName = steamCustomNameInput.trim().takeIf { it.isNotBlank() }
                                         val loginState = if (steamLoginPendingSessionId.isNullOrBlank()) {
@@ -375,7 +380,7 @@ fun ImportDataScreen(
                                                 steamLoginChallengeHint = loginState.challenges.firstOrNull()?.associatedMessage.orEmpty()
                                                 // 每次进入挑战阶段都清空输入框，避免二次提交用到旧验证码
                                                 steamLoginChallengeCodeInput = ""
-                                                isImporting = false
+                                                localImporting = false
                                                 snackbarHostState.showSnackbar(
                                                     loginState.message
                                                         ?: context.getString(R.string.import_type_steam_login_challenge_required)
@@ -387,7 +392,7 @@ fun ImportDataScreen(
                                                 steamLoginChallengeType = 0
                                                 steamLoginChallengeCodeInput = ""
                                                 steamLoginChallengeHint = ""
-                                                isImporting = false
+                                                localImporting = false
                                                 handleImportResult(
                                                     Result.success(loginState.count),
                                                     context,
@@ -398,14 +403,14 @@ fun ImportDataScreen(
                                             }
 
                                             is DataExportImportViewModel.SteamLoginImportState.Failure -> {
-                                                isImporting = false
+                                                localImporting = false
                                                 snackbarHostState.showSnackbar(loginState.message)
                                             }
                                         }
                                     } catch (e: Exception) {
                             if (e is CancellationException) throw e
                                         android.util.Log.e("ImportDataScreen", "导入异常", e)
-                                        isImporting = false
+                                        localImporting = false
                                         snackbarHostState.showSnackbar(
                                             context.getString(
                                                 R.string.import_data_error_exception,
@@ -413,17 +418,17 @@ fun ImportDataScreen(
                                             )
                                         )
                                     } finally {
-                                        isImporting = false
+                                        localImporting = false
                                     }
                                 }
                             } else {
                                 selectedFileUri?.let { uri ->
                                     scope.launch {
-                                        isImporting = true
+                                        localImporting = true
                                         try {
                                             when (effectiveImportType) {
                                                 "monica_zip" -> {
-                                                    isImporting = false
+                                                    localImporting = false
                                                     showZipRestoreConfirmDialog = true
                                                     return@launch
                                                 }
@@ -433,91 +438,91 @@ fun ImportDataScreen(
                                                     val isEncrypted = isEncryptedResult.getOrDefault(false)
                                                     if (isEncrypted) {
                                                         // 是加密文件，显示密码输入对话框
-                                                        isImporting = false
+                                                        localImporting = false
                                                         showPasswordDialog = true
                                                         passwordError = null
                                                         aegisPassword = ""
                                                         return@launch
                                                     } else {
                                                         // 不是加密文件，直接导入
-                                                        val result = onImportAegis(uri)
-                                                        isImporting = false
+                                                        val result = backgroundImporter.run(onImportAegis, uri)
+                                                        localImporting = false
                                                         handleImportResult(result, context, snackbarHostState, effectiveImportType, onNavigateBack)
                                                     }
                                                 }
                                                 "stratum" -> {
-                                                    val result = onImportStratum(uri, null)
-                                                    isImporting = false
+                                                    val result = backgroundImporter.run(onImportStratum, uri, null)
+                                                    localImporting = false
                                 result.onSuccess { count ->
-                                                        isImporting = false
+                                                        localImporting = false
                                                         handleImportResult(Result.success(count), context, snackbarHostState, effectiveImportType, onNavigateBack)
                                                     }.onFailure { error ->
                                                         val errorMsg = error.message ?: ""
                                                         if (isPasswordRequiredError(errorMsg, AppLocaleStringResolver(context))) {
-                                                            isImporting = false
+                                                            localImporting = false
                                                             showPasswordDialog = true
                                                             passwordError = null
                                                             aegisPassword = ""
                                                         } else {
-                                                            isImporting = false
+                                                            localImporting = false
                                                             handleImportResult(Result.failure(error), context, snackbarHostState, effectiveImportType, onNavigateBack)
                                                         }
                                                     }
                                                 }
                                                 "steam" -> {
                                                     // Steam maFile导入
-                                                    val result = onImportSteamMaFile(uri)
-                                                    isImporting = false
+                                                    val result = backgroundImporter.run(onImportSteamMaFile, uri)
+                                                    localImporting = false
                                                     handleImportResult(result, context, snackbarHostState, effectiveImportType, onNavigateBack)
                                                 }
                                                 "kdbx" -> {
                                                     // KDBX 导入需要密码
                                                     if (isLikelyLegacyKdbFile(selectedFileName, uri)) {
-                                                        isImporting = false
+                                                        localImporting = false
                                                         snackbarHostState.showSnackbar(
                                                             context.getString(R.string.import_data_keepass_legacy_kdb_unsupported)
                                                         )
                                                         return@launch
                                                     }
-                                                    isImporting = false
+                                                    localImporting = false
                                                     showKdbxPasswordDialog = true
                                                     kdbxPassword = ""
                                                     kdbxKeyFileUri = null
                                                     kdbxKeyFileName = ""
                                                 }
                                                 "keepass_csv" -> {
-                                                    val result = onImportKeePassCsv(uri)
-                                                    isImporting = false
+                                                    val result = backgroundImporter.run(onImportKeePassCsv, uri)
+                                                    localImporting = false
                                                     handleImportResult(result, context, snackbarHostState, effectiveImportType, onNavigateBack)
                                                 }
                                                 "bitwarden_csv" -> {
-                                                    val result = onImportBitwardenCsv(uri)
-                                                    isImporting = false
+                                                    val result = backgroundImporter.run(onImportBitwardenCsv, uri)
+                                                    localImporting = false
                                                     handleImportResult(result, context, snackbarHostState, effectiveImportType, onNavigateBack)
                                                 }
                                                 "proton_pass_csv" -> {
-                                                    val result = onImportProtonPassCsv(uri)
-                                                    isImporting = false
+                                                    val result = backgroundImporter.run(onImportProtonPassCsv, uri)
+                                                    localImporting = false
                                                     handleImportResult(result, context, snackbarHostState, effectiveImportType, onNavigateBack)
                                                 }
                                                 "chrome_csv" -> {
-                                                    val result = onImportChromeCsv(uri)
-                                                    isImporting = false
+                                                    val result = backgroundImporter.run(onImportChromeCsv, uri)
+                                                    localImporting = false
                                                     handleImportResult(result, context, snackbarHostState, effectiveImportType, onNavigateBack)
                                                 }
                                                 "password_keyboard_csv" -> {
                                                     val shouldPrompt = shouldPromptPasswordKeyboardTagDialog(context, uri)
                                                     if (shouldPrompt) {
-                                                        isImporting = false
+                                                        localImporting = false
                                                         showPasswordKeyboardTagDialog = true
                                                         return@launch
                                                     }
 
-                                                    val result = onImportPasswordKeyboardCsv(
+                                                    val result = backgroundImporter.run(onImportPasswordKeyboardCsv,
                                                         uri,
                                                         DataExportImportManager.PasswordKeyboardTagHandling.CONVERT_TO_CUSTOM_FIELD
                                                     )
-                                                    isImporting = false
+                                                    localImporting = false
                                                     handleImportResult(
                                                         result,
                                                         context,
@@ -528,15 +533,15 @@ fun ImportDataScreen(
                                                 }
                                                 else -> {
                                                     // 普通CSV导入
-                                                    val result = onImport(uri)
-                                                    isImporting = false
+                                                    val result = backgroundImporter.run(onImport, uri)
+                                                    localImporting = false
                                                     handleImportResult(result, context, snackbarHostState, effectiveImportType, onNavigateBack)
                                                 }
                                             }
                                         } catch (e: Exception) {
                             if (e is CancellationException) throw e
                                             android.util.Log.e("ImportDataScreen", "导入异常", e)
-                                            isImporting = false
+                                            localImporting = false
                                             snackbarHostState.showSnackbar(
                                                 context.getString(
                                                     R.string.import_data_error_exception,
@@ -544,7 +549,7 @@ fun ImportDataScreen(
                                                 )
                                             )
                                         } finally {
-                                            isImporting = false
+                                            localImporting = false
                                         }
                                     }
                                 }
@@ -602,9 +607,12 @@ fun ImportDataScreen(
         ) {
             if (applicationSource || effectiveImportType !in listOf("kdbx", "steam")) {
                 TransferDestinationField(destination, onDestinationChange, enabled = !isImporting)
+                activeImport?.takeIf { it.status != ExportJobStatus.RUNNING }?.let { BackgroundTaskResultCard(it) }
+
                 if (isImporting) {
                     takagi.ru.monica.transfer.TransferProgressCard(
-                        importProgress ?: takagi.ru.monica.transfer.TransferProgress())
+                        dataJob?.progress ?: importProgress ?: takagi.ru.monica.transfer.TransferProgress(),
+                        background = dataJob?.status == ExportJobStatus.RUNNING)
                 }
             }
             SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
@@ -616,7 +624,7 @@ fun ImportDataScreen(
                     ) { Text(stringResource(label)) }
                 }
             }
-            importSummary?.let { TransferSummary(it) }
+            (activeImport?.importSummary ?: importSummary)?.let { TransferSummary(it) }
             if (applicationSource) {
                 Surface(shape = RoundedCornerShape(28.dp), color = MaterialTheme.colorScheme.surfaceContainerLow) {
                     Column(Modifier.fillMaxWidth().padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -815,7 +823,7 @@ fun ImportDataScreen(
                             }
                         } ?: run {
                             scope.launch {
-                                isImporting = false
+                                localImporting = false
                                 snackbarHostState.showSnackbar(
                                     context.getString(
                                         R.string.error_launch_export,
@@ -911,13 +919,13 @@ fun ImportDataScreen(
                 } else {
                     showPasswordKeyboardTagDialog = false
                     scope.launch {
-                        isImporting = true
+                        localImporting = true
                         try {
-                            val result = onImportPasswordKeyboardCsv(
+                            val result = backgroundImporter.run(onImportPasswordKeyboardCsv,
                                 uri,
                                 DataExportImportManager.PasswordKeyboardTagHandling.CONVERT_TO_CUSTOM_FIELD
                             )
-                            isImporting = false
+                            localImporting = false
                             handleImportResult(
                                 result,
                                 context,
@@ -928,7 +936,7 @@ fun ImportDataScreen(
                         } catch (e: Exception) {
                             if (e is CancellationException) throw e
                             android.util.Log.e("ImportDataScreen", "密码键盘 CSV 导入异常", e)
-                            isImporting = false
+                            localImporting = false
                             snackbarHostState.showSnackbar(
                                 context.getString(
                                     R.string.import_data_error_exception,
@@ -936,7 +944,7 @@ fun ImportDataScreen(
                                 )
                             )
                         } finally {
-                            isImporting = false
+                            localImporting = false
                         }
                     }
                 }
@@ -948,13 +956,13 @@ fun ImportDataScreen(
                 } else {
                     showPasswordKeyboardTagDialog = false
                     scope.launch {
-                        isImporting = true
+                        localImporting = true
                         try {
-                            val result = onImportPasswordKeyboardCsv(
+                            val result = backgroundImporter.run(onImportPasswordKeyboardCsv,
                                 uri,
                                 DataExportImportManager.PasswordKeyboardTagHandling.DROP
                             )
-                            isImporting = false
+                            localImporting = false
                             handleImportResult(
                                 result,
                                 context,
@@ -965,7 +973,7 @@ fun ImportDataScreen(
                         } catch (e: Exception) {
                             if (e is CancellationException) throw e
                             android.util.Log.e("ImportDataScreen", "密码键盘 CSV 导入异常", e)
-                            isImporting = false
+                            localImporting = false
                             snackbarHostState.showSnackbar(
                                 context.getString(
                                     R.string.import_data_error_exception,
@@ -973,7 +981,7 @@ fun ImportDataScreen(
                                 )
                             )
                         } finally {
-                            isImporting = false
+                            localImporting = false
                         }
                     }
                 }
@@ -991,12 +999,12 @@ fun ImportDataScreen(
                 if (uri != null) {
                     showZipRestoreConfirmDialog = false
                     scope.launch {
-                        isImporting = true
+                        localImporting = true
                         try {
-                            val result = onImportZip(uri, null)
-                            isImporting = false
+                            val result = backgroundImporter.run(onImportZip, uri, null)
+                            localImporting = false
                             result.onSuccess { count ->
-                                isImporting = false
+                                localImporting = false
                                 handleImportResult(
                                     Result.success(count),
                                     context,
@@ -1006,12 +1014,12 @@ fun ImportDataScreen(
                                 )
                             }.onFailure { error ->
                                 if (error is takagi.ru.monica.utils.WebDavHelper.PasswordRequiredException) {
-                                    isImporting = false
+                                    localImporting = false
                                     showPasswordDialog = true
                                     passwordError = null
                                     aegisPassword = ""
                                 } else {
-                                    isImporting = false
+                                    localImporting = false
                                     handleImportResult(
                                         Result.failure(error),
                                         context,
@@ -1024,7 +1032,7 @@ fun ImportDataScreen(
                         } catch (e: Exception) {
                             if (e is CancellationException) throw e
                             android.util.Log.e("ImportDataScreen", "ZIP导入异常", e)
-                            isImporting = false
+                            localImporting = false
                             snackbarHostState.showSnackbar(
                                 context.getString(
                                     R.string.import_data_error_exception,
@@ -1032,7 +1040,7 @@ fun ImportDataScreen(
                                 )
                             )
                         } finally {
-                            isImporting = false
+                            localImporting = false
                         }
                     }
                 }
@@ -1061,18 +1069,18 @@ fun ImportDataScreen(
                     passwordError = context.getString(R.string.import_data_password_cannot_be_empty)
                 } else {
                     scope.launch {
-                        isImporting = true
+                        localImporting = true
                         showPasswordDialog = false
                         try {
                             selectedFileUri?.let { uri ->
                                 // 使用加密导入回调
                                 val result = when (importType) {
-                                    "monica_zip" -> onImportZip(uri, aegisPassword)
-                                    "stratum" -> onImportStratum(uri, aegisPassword)
-                                    else -> onImportEncryptedAegis(uri, aegisPassword)
+                                    "monica_zip" -> backgroundImporter.run(onImportZip, uri, aegisPassword)
+                                    "stratum" -> backgroundImporter.run(onImportStratum, uri, aegisPassword)
+                                    else -> backgroundImporter.run(onImportEncryptedAegis, uri, aegisPassword)
                                 }
 
-                                isImporting = false
+                                localImporting = false
                                 result.onSuccess { count ->
                                     val message = if (importType == "monica_zip") {
                                         context.getString(R.string.import_data_zip_restore_success_count, count)
@@ -1081,7 +1089,7 @@ fun ImportDataScreen(
                                     } else {
                                         context.getString(R.string.import_data_aegis_import_success_count, count)
                                     }
-                                    isImporting = false
+                                    localImporting = false
                                     snackbarHostState.showSnackbar(message)
                                 }.onFailure { error ->
                                     val errorMsg = error.message ?: context.getString(R.string.import_data_unknown_error)
@@ -1089,7 +1097,7 @@ fun ImportDataScreen(
                                         passwordError = context.getString(R.string.import_data_password_incorrect_retry)
                                         showPasswordDialog = true
                                     } else {
-                                        isImporting = false
+                                        localImporting = false
                                         snackbarHostState.showSnackbar(
                                             context.getString(R.string.import_data_failed_with_reason, errorMsg)
                                         )
@@ -1099,7 +1107,7 @@ fun ImportDataScreen(
                         } catch (e: Exception) {
                             if (e is CancellationException) throw e
                             android.util.Log.e("ImportDataScreen", "加密导入异常", e)
-                            isImporting = false
+                            localImporting = false
                             snackbarHostState.showSnackbar(
                                 context.getString(
                                     R.string.import_data_failed_with_reason,
@@ -1107,7 +1115,7 @@ fun ImportDataScreen(
                                 )
                             )
                         } finally {
-                            isImporting = false
+                            localImporting = false
                         }
                     }
                 }
@@ -1136,11 +1144,11 @@ fun ImportDataScreen(
                 showKdbxPasswordDialog = false
                 selectedFileUri?.let { uri ->
                     scope.launch {
-                        isImporting = true
+                        localImporting = true
                         try {
-                            val result = onImportKdbx(uri, kdbxPassword, kdbxKeyFileUri)
+                            val result = backgroundImporter.run(onImportKdbx, uri, kdbxPassword, kdbxKeyFileUri)
                             result.onSuccess { count ->
-                                isImporting = false
+                                localImporting = false
                                 snackbarHostState.showSnackbar(
                                     context.getString(R.string.import_data_kdbx_import_success_count, count)
                                 )
@@ -1149,7 +1157,7 @@ fun ImportDataScreen(
                                     keepassImportError = error
                                     showKeepassImportErrorDialog = true
                                 } else {
-                                    isImporting = false
+                                    localImporting = false
                                     snackbarHostState.showSnackbar(
                                         formatImportErrorMessage(
                                             error,
@@ -1164,7 +1172,7 @@ fun ImportDataScreen(
                                 keepassImportError = e
                                 showKeepassImportErrorDialog = true
                             } else {
-                                isImporting = false
+                                localImporting = false
                                 snackbarHostState.showSnackbar(
                                     formatImportErrorMessage(
                                         e,
@@ -1176,7 +1184,7 @@ fun ImportDataScreen(
                                 )
                             }
                         } finally {
-                            isImporting = false
+                            localImporting = false
                             kdbxPassword = ""
                             kdbxKeyFileUri = null
                             kdbxKeyFileName = ""
