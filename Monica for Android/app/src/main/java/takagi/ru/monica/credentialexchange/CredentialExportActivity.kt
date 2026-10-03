@@ -138,6 +138,7 @@ class CredentialExportActivity : FragmentActivity() {
                     enabled = !busy, forExport = true)
                 prepared?.let {
                     TransferCredentialCounts(it.passwordCount, it.passkeyCount, it.skippedPasskeys, exporting = true)
+                    if (it.skippedOtps > 0) Text(stringResource(R.string.exchange_export_otp_skipped, it.skippedOtps))
                     if (it.skippedSharedItems > 0) Text(stringResource(R.string.exchange_export_shared, it.skippedSharedItems))
                     if (it.passwordCount + it.passkeyCount == 0) Text(stringResource(R.string.exchange_empty))
                 }

@@ -27,7 +27,7 @@ class MultiCredentialPasswordCreationGuardTest {
         assertTrue(screen.contains("selectedAuthenticatorCredentialIndex"))
         assertTrue(screen.contains("credentialAttachmentDrafts"))
         assertFalse(screen.contains("selectedAttachmentCredentialIndex"))
-        assertTrue(screen.contains("return \"replica:\$replicaGroupId|target:\${entry.toStorageTarget().stableKey}\""))
+        assertTrue(screen.contains("entry.passwordProjectKey()"))
         assertTrue(viewModel.contains("fun saveCredentialsAcrossTargets("))
         assertTrue(viewModel.contains("SavedPasswordCredential"))
         assertFalse(screen.contains("passwords = credentialDrafts.map { it.password }"))
@@ -66,13 +66,13 @@ class MultiCredentialPasswordCreationGuardTest {
         assertTrue(screen.contains("firstCredential.notes = notes"))
         assertTrue(screen.contains("showCredentialEditorContent && shouldShowCategoryAndNotes()"))
         assertTrue(screen.contains("showCredentialEditorContent && shouldShowPersonalInfo()"))
-        assertTrue(screen.contains("showCredentialEditorContent && shouldShowAddressInfo()"))
+        assertTrue(screen.contains("PasswordContentSection.ADDRESS -> shouldShowAddressInfo() || shouldShowPersonalInfo()"))
         assertTrue(screen.contains("showCredentialEditorContent && shouldShowPaymentInfo()"))
         assertTrue(screen.contains("isMultiCredentialMode && showCredentialEditorContent"))
         assertTrue(screen.contains("credentialCustomFields"))
         assertTrue(screen.contains("mergePasswordCredentialCustomFields("))
         assertTrue(viewModel.contains("credentialFields = credentials[credentialIndex].customFields"))
-        assertTrue(viewModel.contains("customFields = credentialCustomFields"))
+        assertTrue(viewModel.contains("requestedCustomFields = credentialCustomFields"))
     }
 
     private fun projectFile(relativePath: String): File {
