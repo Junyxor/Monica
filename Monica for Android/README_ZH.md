@@ -343,6 +343,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ## 🤝 友情链接
 
+- [Linux.do](https://linux.do)
 - [TinadecOffice](https://github.com/Tinadec/TinadecOffice)
 
 ---

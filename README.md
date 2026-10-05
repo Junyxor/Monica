@@ -10,14 +10,6 @@
 <p>Android · Local Vault · TOTP · WebDAV Backup</p>
 
 
-<p>
-	友情链接：
-	<a href="https://linux.do" title="Linux.do">
-		<img src="https://www.google.com/s2/favicons?domain=linux.do&sz=64" alt="Linux.do" width="22" />
-		Linux.do
-	</a>
-</p>
-
 [![Release](https://img.shields.io/github/v/release/Monica-Pass/Monica-for-Android?style=flat-square)](https://github.com/Monica-Pass/Monica-for-Android/releases)
 [![Downloads](https://img.shields.io/github/downloads/Monica-Pass/Monica-for-Android/total?style=flat-square)](https://github.com/Monica-Pass/Monica-for-Android/releases)
 [![Last Commit](https://img.shields.io/github/last-commit/Monica-Pass/Monica-for-Android?style=flat-square)](https://github.com/Monica-Pass/Monica-for-Android/commits)
@@ -193,6 +185,7 @@ Monica 的设计、兼容性适配与部分功能方向，受到了以下优秀�
 
 ## 友情链接
 
+- [Linux.do](https://linux.do)
 - [TinadecOffice](https://github.com/Tinadec/TinadecOffice)
 
 ---

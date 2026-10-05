@@ -158,6 +158,13 @@ Monica is an open-source labor of love. If this app helps you secure your digita
 
 ---
 
+## 🤝 Friend Links
+
+- [Linux.do](https://linux.do)
+- [TinadecOffice](https://github.com/Tinadec/TinadecOffice)
+
+---
+
 ## Contributors
 
 ![Contributors](../.github/assets/contributor-flag.svg)
