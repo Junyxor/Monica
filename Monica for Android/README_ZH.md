@@ -341,6 +341,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ---
 
+## 🤝 友情链接
+
+- [TinadecOffice](https://github.com/Tinadec/TinadecOffice)
+
+---
+
 ## 📞 支持
 
 如果您觉得这个项目有帮助,请给一个 ⭐️ Star!

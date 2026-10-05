@@ -191,6 +191,12 @@ Monica 的设计、兼容性适配与部分功能方向，受到了以下优秀�
 
 ---
 
+## 友情链接
+
+- [TinadecOffice](https://github.com/Tinadec/TinadecOffice)
+
+---
+
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=Monica-Pass/Monica-for-Android&type=Date)](https://star-history.com/#Monica-Pass/Monica-for-Android&Date)
