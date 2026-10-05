@@ -376,3 +376,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 [回到顶部](#-monica-password-manager)
 
 </div>
+
+
+### Shizuku default password manager / 默认密码管理器
+
+The Android 14+ helper in developer and autofill settings adapts the secure-settings transaction logic from [cr-zhichen/password-manager-switch](https://github.com/cr-zhichen/password-manager-switch) (MIT, copyright 2026 cr-zhichen). It targets the installed Monica edition for the current Android user, verifies writes, and supports restoring the previous configuration. The original MIT notice is included in `app/src/main/assets/licenses/password-manager-switch.txt`.
+
+开发者设置与自动填充设置中的 Shizuku 入口参考上述原项目（MIT），用于 HyperOS 隐藏第三方密码管理器设置入口的情况。仅设置当前 Monica 版本，不导入原项目的自更新等功能；系统设置读回成功不代表所有 HyperOS 通行密钥流程均已验证。
+
+On multi-user devices, Shizuku may also require Monica to be installed for the owner user before starting the helper for a secondary user. Only the calling user settings are changed.
+多用户设备上，Shizuku 可能需要主用户也安装 Monica 才能启动副用户的辅助服务；实际更改仍限定于调用用户。

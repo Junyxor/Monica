@@ -347,7 +347,7 @@ class OneDriveKeePassFileSource private constructor(
         runCatching {
             val token = accessToken()
             val relativeUrl = if (normalizedRemotePath.isBlank()) {
-                "${driveBaseRelativeUrl()}/root/children"
+                "${driveBaseRelativeUrl()}/root?\$select=id"
             } else {
                 val item = resolveItemByPath(normalizedRemotePath)
                 if (item.folder != null) {
@@ -808,7 +808,7 @@ class OneDriveKeePassFileSource private constructor(
         private const val GRAPH_BASE_URL = "https://graph.microsoft.com/v1.0"
         private const val LARGE_UPLOAD_THRESHOLD_BYTES = 2 * 1024 * 1024
         private const val UPLOAD_CHUNK_SIZE_BYTES = 320 * 1024 * 16
-        private val sharedHttpClient = OkHttpClient()
+        private val sharedHttpClient = OkHttpClient.Builder().addInterceptor(OneDriveRequestMonitor()).build()
 
         internal fun encodePathSegment(value: String): String = buildString {
             value.toByteArray(Charsets.UTF_8).forEach { byte ->

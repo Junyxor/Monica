@@ -115,12 +115,9 @@ class OneDriveBackupHelper internal constructor(
                 TAG,
                 "Uploading OneDrive backup: sizeBytes=${file.length()}, permanent=$isPermanent"
             )
-            val entry = source(config.accountId).createFileInDirectory(
-                parentPath = config.folderPath,
-                name = targetName,
-                bytes = file.readBytes()
-            )
-            cleanupBackups(protectedBackupName = entry.name)
+            val targetPath = OneDriveKeePassFileSource.buildChildPath(config.folderPath, targetName, strings = strings)
+            val written = source(config.accountId, targetPath).writeFrom(file, MdbxRemoteWriteMode.CREATE_ONLY)
+            cleanupBackups(protectedBackupName = targetName)
                 .onSuccess { deleted ->
                     Log.i(TAG, "OneDrive backup cleanup completed after upload: deleted=$deleted")
                 }
@@ -128,10 +125,10 @@ class OneDriveBackupHelper internal constructor(
                     Log.w(TAG, "OneDrive backup cleanup failed after upload: ${error.message}", error)
                 }
             BackupFile(
-                name = entry.name,
-                path = entry.path,
-                size = entry.sizeBytes ?: file.length(),
-                modified = Date(entry.lastModified ?: System.currentTimeMillis())
+                name = targetName,
+                path = targetPath,
+                size = file.length(),
+                modified = Date(written.lastModified ?: System.currentTimeMillis())
             )
         }
     }
@@ -139,8 +136,7 @@ class OneDriveBackupHelper internal constructor(
     suspend fun downloadBackup(backupFile: BackupFile, destFile: File): Result<File> = withContext(Dispatchers.IO) {
         runCatching {
             val config = getConfig() ?: throw IllegalStateException(strings.get(R.string.cloud_message_onedrive_backup_unconfigured))
-            val bytes = source(config.accountId, backupFile.path).read()
-            writeBackupAtomically(destFile) { it.write(bytes) }
+            source(config.accountId, backupFile.path).readTo(destFile)
             destFile
         }
     }

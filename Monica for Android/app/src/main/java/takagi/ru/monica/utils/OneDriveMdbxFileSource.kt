@@ -6,16 +6,18 @@ import android.content.Context
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.sync.withLock
 
-class OneDriveMdbxFileSource(
-    private val context: Context,
-    private val accountId: String
+class OneDriveMdbxFileSource internal constructor(
+    private val strings: StringResolver,
+    private val sourceFactory: (String?) -> OneDriveKeePassFileSource
 ) : MdbxFileSource {
+    constructor(context: Context, accountId: String) : this(AppLocaleStringResolver(context),
+        { path -> OneDriveKeePassFileSource(context, accountId, remotePath = path) })
 
-    private val strings = AppLocaleStringResolver(context)
-
-    private fun delegate(remotePath: String? = null) =
-        OneDriveKeePassFileSource(context, accountId, remotePath = remotePath)
+    private val directoryMutex = kotlinx.coroutines.sync.Mutex()
+    private val confirmedDirectories = mutableSetOf<String>()
+    private fun delegate(remotePath: String? = null) = sourceFactory(remotePath)
 
     override suspend fun testConnection(): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching { delegate().testConnection().getOrThrow() }
@@ -94,22 +96,34 @@ class OneDriveMdbxFileSource(
     ): FileSourceWriteResult = withContext(Dispatchers.IO) {
         val parent = OneDriveKeePassFileSource.parentPathOf(path, strings = strings)
         if (parent.isNotBlank()) ensureDirectoryPath(parent)
-        delegate(path).writeFrom(source, mode, expectedVersion)
+        try {
+            delegate(path).writeFrom(source, mode, expectedVersion)
+        } catch (error: OneDriveHttpException) {
+            // A folder removed remotely invalidates this session cache. Keep the original
+            // conditional write intent and let the durable job retry, never overwrite blindly.
+            if (error.statusCode == 404) directoryMutex.withLock { confirmedDirectories.clear() }
+            throw error
+        }
     }
 
     suspend fun ensureDirectoryPath(path: String) = withContext(Dispatchers.IO) {
+      directoryMutex.withLock {
         val segments = OneDriveKeePassFileSource.normalizeOptionalRemotePath(path)
             .split('/')
             .filter(String::isNotBlank)
         var current = ""
         for (segment in segments) {
             val next = OneDriveKeePassFileSource.buildChildPath(current, segment, strings = strings)
-            val existing = statPath(next)
-            when {
-                existing == null -> createDirectory(current.ifBlank { null }, segment)
-                !existing.isDirectory -> error(strings.get(R.string.cloud_message_not_directory, next))
+            if (next !in confirmedDirectories) {
+                val existing = statPath(next)
+                when {
+                    existing == null -> createDirectory(current.ifBlank { null }, segment)
+                    !existing.isDirectory -> error(strings.get(R.string.cloud_message_not_directory, next))
+                }
+                confirmedDirectories += next
             }
             current = next
         }
+      }
     }
 }

@@ -3,6 +3,7 @@ package takagi.ru.monica.repository
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import java.util.UUID
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.Assume.assumeTrue
@@ -16,6 +17,24 @@ import takagi.ru.monica.utils.OneDriveMdbxRemoteTransport
 
 @RunWith(AndroidJUnit4::class)
 class Mdbx2RealOneDriveInstrumentedTest {
+    @Test
+    fun interactiveSignIn() = runBlocking {
+        assumeTrue("Interactive login explicitly enabled", InstrumentationRegistry.getArguments().getString("interactiveOneDriveLogin") == "true")
+        val result = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val scenario = androidx.test.core.app.ActivityScenario.launch(androidx.activity.ComponentActivity::class.java)
+        try {
+            scenario.onActivity { activity ->
+                activity.setShowWhenLocked(true)
+                activity.setTurnScreenOn(true)
+                kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main).launch {
+                    try { OneDriveAuthManager(activity).signIn(activity); result.complete(Unit) }
+                    catch (e: Exception) { result.completeExceptionally(e) }
+                }
+            }
+            withTimeout(600_000L) { result.await() }
+        } finally { scenario.close() }
+    }
+
     @Test
     fun realOneDriveBootstrapSyncAttachmentConflictAndReopen() = runBlocking {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -64,6 +83,6 @@ class Mdbx2RealOneDriveInstrumentedTest {
 
     companion object {
         private const val ARG_ACCOUNT_ID = "mdbxOneDriveAccountId"
-        private const val REAL_PROVIDER_TIMEOUT_MS = 300_000L
+        private const val REAL_PROVIDER_TIMEOUT_MS = 600_000L
     }
 }

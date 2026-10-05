@@ -79,12 +79,16 @@ class CloudFullBackupSafetyInstrumentedTest {
                 val helper = OneDriveBackupHelper(context) { id, path -> OneDriveKeePassFileSource(base, id, remotePath = path) }
                 helper.saveConfig(account, directory)
                 val codec = WebDavHelper(context)
+                // Incompressible synthetic content exercises the file/chunk upload path (>2 MiB).
+                val largeNotes = android.util.Base64.encodeToString(
+                    kotlin.random.Random(317).nextBytes(3 * 1024 * 1024), android.util.Base64.NO_WRAP)
                 val (archive, report) = codec.createBackupZip(listOf(PasswordEntry(title = "live-onedrive-fixture",
-                    username = "synthetic", password = "synthetic-secret", website = "https://example.invalid")),
+                    username = "synthetic", password = "synthetic-secret", website = "https://example.invalid", notes = largeNotes)),
                     emptyList(), prefs, backupEncryptionPassword = "synthetic-password").getOrThrow()
                 val downloaded = File.createTempFile("live-onedrive-", ".zip", base.cacheDir)
                 try {
                     assertTrue(report.success)
+                    assertTrue("Fixture must exercise chunked OneDrive upload", archive.length() > 2 * 1024 * 1024)
                     val uploaded = helper.uploadBackup(archive, true).getOrThrow()
                     val listed = helper.listBackups().getOrThrow().single { it.name == uploaded.name }
                     helper.downloadBackup(listed, downloaded).getOrThrow()
@@ -92,6 +96,7 @@ class CloudFullBackupSafetyInstrumentedTest {
                     val restored = codec.restoreFromBackupFile(downloaded, "synthetic-password",
                         restoreMonicaConfig = false, importDataOnly = true).getOrThrow()
                     assertEquals("synthetic-secret", restored.content.passwords.single().password)
+                    assertEquals(largeNotes, restored.content.passwords.single().notes)
                 } finally { archive.delete(); downloaded.delete() }
             }
         } finally { source.deleteEntry(directory) }
