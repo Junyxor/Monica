@@ -4,8 +4,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import java.util.UUID
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
+import org.junit.Assert.assertNull
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,16 +43,27 @@ class Mdbx2RealOneDriveInstrumentedTest {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val context = instrumentation.targetContext
         val arguments = InstrumentationRegistry.getArguments()
+        // A cached personal account must never opt ordinary test runs into cloud writes.
+        assumeTrue("Real OneDrive test explicitly enabled", arguments.getString("mdbxRealOneDrive") == "true")
         val authManager = OneDriveAuthManager(context)
         val requestedAccountId = arguments.getString(ARG_ACCOUNT_ID)?.trim().orEmpty()
-        val cachedSession = runCatching { authManager.getCachedSession() }.getOrNull()
+        val cachedSession = authManager.getCachedSession()
         val accountId = (requestedAccountId.takeIf(String::isNotBlank) ?: cachedSession?.accountId).orEmpty()
-        assumeTrue("A cached OneDrive account was not available", accountId.isNotBlank())
+        check(accountId.isNotBlank()) { "Explicit OneDrive test requires an authenticated account" }
 
         val accessToken = authManager.acquireAccessToken(accountId).accessToken
             ?: error("OneDrive access token unavailable")
         val remoteRoot = "monica-mdbx2-real-onedrive"
         val runId = UUID.randomUUID().toString()
+        val runPath = "$remoteRoot/$runId"
+        val transport = OneDriveMdbxRemoteTransport(context, accountId)
+        fun stage(name: String) = instrumentation.sendStatus(2, android.os.Bundle().apply {
+            putString("onedriveStage", name)
+            // Only the synthetic path, never account identifiers or authentication data.
+            putString("onedriveTestDirectory", runPath)
+        })
+        var primaryFailure: Throwable? = null
+        stage("cached_login_ready")
         try {
             withTimeout(REAL_PROVIDER_TIMEOUT_MS) {
                 Mdbx2RealWebDavInstrumentedTest().exerciseRealProvider(
@@ -57,7 +71,7 @@ class Mdbx2RealOneDriveInstrumentedTest {
                     providerName = "OneDrive",
                     remoteRoot = remoteRoot,
                     runId = runId,
-                    transport = OneDriveMdbxRemoteTransport(context, accountId),
+                    transport = transport,
                     sourceType = MdbxSourceType.REMOTE_ONEDRIVE,
                     sourceFactory = { remoteSourceDao, securityManager, displayName, remotePath ->
                         remoteSourceDao.insertSource(
@@ -70,13 +84,33 @@ class Mdbx2RealOneDriveInstrumentedTest {
                                 passwordEncrypted = securityManager.encryptData(accessToken)
                             )
                         )
+                    },
+                    onSyncTiming = { name, elapsedMillis ->
+                        instrumentation.sendStatus(2, android.os.Bundle().apply {
+                            putString("onedriveSyncStep", name)
+                            putLong("onedriveSyncElapsedMillis", elapsedMillis)
+                        })
                     }
                 )
+                stage("native_roundtrip_attachment_recovery_conflict_reopen_complete")
             }
+        } catch (failure: Throwable) {
+            primaryFailure = failure
+            throw failure
         } finally {
-            runCatching {
-                OneDriveKeePassFileSource(context, accountId)
-                    .deleteEntry("$remoteRoot/$runId")
+            try {
+                withContext(NonCancellable) {
+                    withTimeout(90_000L) {
+                        if (transport.stat(runPath) != null) {
+                            OneDriveKeePassFileSource(context, accountId).deleteEntry(runPath)
+                        }
+                        assertNull("Synthetic OneDrive directory remains after cleanup", transport.stat(runPath))
+                        stage("synthetic_directory_cleanup_verified")
+                    }
+                }
+            } catch (cleanupFailure: Throwable) {
+                stage("synthetic_directory_cleanup_failed")
+                primaryFailure?.addSuppressed(cleanupFailure) ?: throw cleanupFailure
             }
         }
     }

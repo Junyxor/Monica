@@ -81,10 +81,8 @@ fun MdbxOneDriveCreateScreen(
     val passwordRequired = selectedEngine == MdbxEngineType.RUST_MDBX2 ||
         unlockMethod == MdbxUnlockMethod.MASTER_PASSWORD ||
         unlockMethod == MdbxUnlockMethod.MASTER_PASSWORD_AND_KEY_FILE
-    val keyFileRequired = selectedEngine == MdbxEngineType.KOTLIN_MDBX1 &&
-        (unlockMethod == MdbxUnlockMethod.KEY_FILE ||
+    val keyFileRequired = unlockMethod == MdbxUnlockMethod.KEY_FILE ||
         unlockMethod == MdbxUnlockMethod.MASTER_PASSWORD_AND_KEY_FILE
-        )
 
     val keyFilePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
@@ -195,25 +193,30 @@ fun MdbxOneDriveCreateScreen(
                                 java.text.Normalizer.normalize(confirmPassword, java.text.Normalizer.Form.NFC)
                         )) &&
                     (!keyFileRequired || keyFile != null) &&
-                    operationState !is MdbxViewModel.OperationState.Loading
+                    operationState !is MdbxViewModel.OperationState.Loading &&
+                    selectedTigaMode != MdbxTigaMode.GLITTER
 
                 Button(
                     onClick = {
-                        session?.let { s ->
-                            submitted = true
-                            viewModel.createOneDriveVault(
-                                name = vaultName,
-                                masterPassword = masterPassword,
-                                unlockMethod = unlockMethod,
-                                keyFile = keyFile,
-                                tigaMode = selectedTigaMode,
-                                accountId = s.accountId,
-                                accountLabel = s.displayName.ifBlank { s.username },
-                                directoryPath = currentPath.ifBlank { null },
-                                description = null,
-                                engineType = selectedEngine
-                            )
+                        val submit: () -> Unit = submit@ {
+                            requireMdbxTigaCreationMode(selectedTigaMode)
+                            session?.let { s ->
+                                submitted = true
+                                viewModel.createOneDriveVault(
+                                    name = vaultName,
+                                    masterPassword = masterPassword,
+                                    unlockMethod = unlockMethod,
+                                    keyFile = keyFile,
+                                    tigaMode = selectedTigaMode,
+                                    accountId = s.accountId,
+                                    accountLabel = s.displayName.ifBlank { s.username },
+                                    directoryPath = currentPath.ifBlank { null },
+                                    description = null,
+                                    engineType = selectedEngine
+                                )
+                            }
                         }
+                        submit()
                     },
                     enabled = isFormValid,
                     modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)
@@ -291,7 +294,10 @@ fun MdbxOneDriveCreateScreen(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    MdbxTigaModeSelector(selectedTigaMode, { selectedTigaMode = it })
+                    MdbxTigaModeSelector(selectedTigaMode, {
+                        selectedTigaMode = it
+                        if (selectedEngine == MdbxEngineType.RUST_MDBX2) unlockMethod = MdbxUnlockMethod.MASTER_PASSWORD
+                    })
 
                     MdbxCard(
                         modifier = Modifier.fillMaxWidth(),

@@ -114,7 +114,8 @@ class Mdbx2RealWebDavInstrumentedTest {
             SecurityManager,
             String,
             String
-        ) -> Long
+        ) -> Long,
+        onSyncTiming: (String, Long) -> Unit = { _, _ -> }
     ) {
         val room = PasswordDatabase.getDatabase(context)
         val databaseDao = room.localMdbxDatabaseDao()
@@ -123,6 +124,19 @@ class Mdbx2RealWebDavInstrumentedTest {
         val stateStore = MdbxSyncStateStore(room.mdbxSyncStateDao())
         val providerKey = providerName.lowercase()
         val remotePath = "$remoteRoot/$runId/vault.mdbx"
+        suspend fun syncStep(
+            name: String,
+            coordinator: Mdbx2RemoteSyncCoordinator,
+            databaseId: Long,
+            stepTransport: takagi.ru.monica.utils.MdbxRemoteTransport = transport
+        ): Mdbx2RemoteSyncReport {
+            val started = android.os.SystemClock.elapsedRealtime()
+            return try {
+                coordinator.synchronize(databaseId, remotePath, stepTransport)
+            } finally {
+                onSyncTiming(name, android.os.SystemClock.elapsedRealtime() - started)
+            }
+        }
         val vaultPassword = "real-$providerKey-$runId"
         val sessionPreferences = context.getSharedPreferences(
             SESSION_PREFERENCES,
@@ -253,7 +267,7 @@ class Mdbx2RealWebDavInstrumentedTest {
                 }
             )
 
-            val uploadReport = coordinatorA.synchronize(databaseA, remotePath, transport)
+            val uploadReport = syncStep("attachment_upload", coordinatorA, databaseA)
             assertTrue(uploadReport.uploadedSegments > 0)
             assertTrue(uploadReport.uploadedBlobs > 0)
             assertFalse(
@@ -272,7 +286,7 @@ class Mdbx2RealWebDavInstrumentedTest {
                 }
             }
             val interrupted = runCatching {
-                coordinatorB.synchronize(databaseB, remotePath, interruptedTransport)
+                syncStep("interrupted_attachment_receive", coordinatorB, databaseB, interruptedTransport)
             }.exceptionOrNull()
             assertTrue("Must interrupt the real Blob download", interrupted is java.net.SocketTimeoutException)
             val missingBlob = repositoryB.withVaultForSync(databaseB) { _, vault ->
@@ -285,7 +299,7 @@ class Mdbx2RealWebDavInstrumentedTest {
             val recoveredCoordinator = Mdbx2RemoteSyncCoordinator(clientBRoot,
                 Mdbx2RepositorySyncSessionProvider(Mdbx2Repository(context, databaseDao, securityManager)),
                 MdbxSyncStateStore(room.mdbxSyncStateDao()))
-            val downloadReport = recoveredCoordinator.synchronize(databaseB, remotePath, transport)
+            val downloadReport = syncStep("attachment_recovery_and_local_edit", recoveredCoordinator, databaseB)
             assertTrue("Local edit must publish after attachment recovery", downloadReport.uploadedSegments > 0)
             assertTrue(downloadReport.downloadedSegments > 0)
             val replicaBlobReferences = repositoryB.withVaultForSync(databaseB) { _, vault ->
@@ -339,14 +353,14 @@ class Mdbx2RealWebDavInstrumentedTest {
                 """{"schema":"monica.gateway.credential.v1","provider":"gitlab","api_base":"https://example.test/api/v4/","token":"synthetic-remote-native-token"}""",
                 uploads = listOf(takagi.ru.monica.data.NativeApiTokenUpload("native-file.txt", "text/plain",
                     tokenBytes.size.toLong()) { tokenBytes.inputStream() }))
-            coordinatorA.synchronize(databaseA, remotePath, transport)
-            coordinatorB.synchronize(databaseB, remotePath, transport)
+            syncStep("native_token_upload", coordinatorA, databaseA)
+            syncStep("native_token_receive", coordinatorB, databaseB)
             val receivedToken = repositoryB.readNativeApiToken(databaseB, nativeToken.entryId)
             org.junit.Assert.assertArrayEquals(tokenBytes, repositoryB.readNativeApiTokenAttachment(
                 receivedToken, receivedToken.attachments.single().id))
             repositoryA.transferNativeApiToken(nativeToken, databaseA, sharedFolder.folderId, false)
-            coordinatorA.synchronize(databaseA, remotePath, transport)
-            coordinatorB.synchronize(databaseB, remotePath, transport)
+            syncStep("native_token_move_upload", coordinatorA, databaseA)
+            syncStep("native_token_move_receive", coordinatorB, databaseB)
             val movedToken = repositoryB.readNativeApiToken(databaseB, nativeToken.entryId)
             assertEquals(sharedFolder.folderId, movedToken.summary.collectionId)
             org.junit.Assert.assertArrayEquals(tokenBytes, repositoryB.readNativeApiTokenAttachment(
@@ -354,8 +368,8 @@ class Mdbx2RealWebDavInstrumentedTest {
 
             repositoryA.renameFolder(databaseA, sharedFolder.folderId, "Client A name")
             repositoryB.renameFolder(databaseB, sharedFolder.folderId, "Client B name")
-            coordinatorA.synchronize(databaseA, remotePath, transport)
-            val divergentReport = coordinatorB.synchronize(databaseB, remotePath, transport)
+            syncStep("folder_conflict_upload", coordinatorA, databaseA)
+            val divergentReport = syncStep("folder_conflict_receive", coordinatorB, databaseB)
             assertTrue(divergentReport.conflicts > 0)
             assertTrue(repositoryB.listConflicts(databaseB).isNotEmpty())
 
@@ -365,7 +379,7 @@ class Mdbx2RealWebDavInstrumentedTest {
                 sessions = Mdbx2RepositorySyncSessionProvider(reopenedB),
                 stateStore = MdbxSyncStateStore(room.mdbxSyncStateDao())
             )
-            val retryReport = reopenedCoordinatorB.synchronize(databaseB, remotePath, transport)
+            val retryReport = syncStep("reopen_retry", reopenedCoordinatorB, databaseB)
             assertEquals(0, retryReport.blockedStreams)
             assertTrue(reopenedB.listConflicts(databaseB).isNotEmpty())
             assertEquals(
@@ -415,7 +429,7 @@ class Mdbx2RealWebDavInstrumentedTest {
                             vault.hasExternalBlob(sourceBlob.blobId, requireNotNull(sourceBlob.totalSize))
                         })
                     assertEquals(MdbxSyncStatus.IN_SYNC.name, databaseDao.getDatabaseById(databaseA)?.lastSyncStatus)
-                    reopenedCoordinatorB.synchronize(databaseB, remotePath, transport)
+                    syncStep("receive_automatic_worker_edits", reopenedCoordinatorB, databaseB)
                     assertTrue("An edit during the running upload must also arrive",
                         reopenedB.readStoredEntries(databaseB).any { it.title == "Saved during upload" && !it.deleted })
                     assertTrue("Other replica must receive the automatically uploaded edit",

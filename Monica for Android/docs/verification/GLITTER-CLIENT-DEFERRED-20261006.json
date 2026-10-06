@@ -1,0 +1,148 @@
+{
+  "date": "2026-10-06",
+  "avd": "Monica_Issue136_API_32",
+  "api": 32,
+  "testsPassed": 84,
+  "runs": [
+    {
+      "completed": true,
+      "finishedAt": "2026-10-06T16:22:49.6834826+08:00",
+      "abi": "x86_64",
+      "testCount": 32,
+      "artifacts": [
+        {
+          "sha256": "61E2FEF301542FF21D5755A393B362874CB47E1A3E28D07F397877F87F263EFD",
+          "package": "takagi.ru.monica"
+        },
+        {
+          "sha256": "15D31BB5EFE063D03131BC5542F9B16B1C8228CAB9AE68A886F4CF63126FBF0C",
+          "package": "takagi.ru.monica.test"
+        }
+      ],
+      "edition": "main",
+      "serial": "emulator-5554",
+      "startedAt": "2026-10-06T16:20:04.0238271+08:00",
+      "classes": "takagi.ru.monica.ui.screens.MdbxTigaSliderTest,takagi.ru.monica.ui.screens.MdbxLayoutReachabilityTest#allSixProductionFormsKeepSubmissionVisibleWithLargeText,takagi.ru.monica.ui.screens.MdbxLayoutReachabilityTest#remoteGlitterIsUnavailableWhileSkyMultiPowerRemainSelectable,takagi.ru.monica.ui.screens.MdbxLayoutReachabilityTest#staleModeMetadataCannotDisableTheGlitterEnvelopeGate,takagi.ru.monica.ui.screens.MdbxLayoutReachabilityTest#oldGlitterCreationTargetShowsUnavailableInsteadOfIndependentEditor,takagi.ru.monica.repository.MdbxClientModePolicyTest,takagi.ru.monica.repository.MdbxNativeCredentialInstrumentedTest,takagi.ru.monica.ui.screens.MdbxNativeEditorUiTest,takagi.ru.monica.repository.Mdbx2IdleSyncStatusInstrumentedTest",
+      "userRestored": true,
+      "screenTimeoutRestored": true,
+      "jvmSuites": [
+        {
+          "name": "takagi.ru.monica.ui.screens.MdbxTigaModeAvailabilityTest",
+          "tests": "2",
+          "skipped": "0",
+          "failures": "0",
+          "errors": "0",
+          "timestamp": "2026-10-06T08:18:21",
+          "hostname": "JOYIN",
+          "time": "0.004"
+        },
+        {
+          "name": "takagi.ru.monica.repository.MdbxAppReplicaPolicyTest",
+          "tests": "3",
+          "skipped": "0",
+          "failures": "0",
+          "errors": "0",
+          "timestamp": "2026-10-06T08:18:19",
+          "hostname": "JOYIN",
+          "time": "0.012"
+        },
+        {
+          "name": "takagi.ru.monica.workers.MdbxAutoSyncEligibilityTest",
+          "tests": "3",
+          "skipped": "0",
+          "failures": "0",
+          "errors": "0",
+          "timestamp": "2026-10-06T08:18:23",
+          "hostname": "JOYIN",
+          "time": "0.107"
+        },
+        {
+          "name": "takagi.ru.monica.localization.MdbxLocaleResourceTest",
+          "tests": "2",
+          "skipped": "0",
+          "failures": "0",
+          "errors": "0",
+          "timestamp": "2026-10-06T08:18:18",
+          "hostname": "JOYIN",
+          "time": "0.344"
+        }
+      ],
+      "buildLog": "main-final-build.log",
+      "sourceSha256": {
+        "app/src/main/java/takagi/ru/monica/repository/MdbxClientModePolicy.kt": "58487c4e32915c5b0a8c15a312844c970d1b357a10512a54c1f1a70e04bbe848",
+        "app/src/main/java/takagi/ru/monica/ui/screens/MdbxTigaModeSelector.kt": "9e09d21466617ddcbea4a2a922c414b9e47fc97254f3d3b5b9f7c03baf0f5af2",
+        "app/src/main/java/takagi/ru/monica/data/LocalMdbxDatabase.kt": "24fb98d7e1aa3743d8b5d8855f8b6ddebff45c952d8be0ee2475ba83f3de95d1"
+      }
+    },
+    {
+      "screenTimeoutRestored": true,
+      "userRestored": true,
+      "abi": "x86_64",
+      "completed": true,
+      "edition": "fdroid",
+      "finishedAt": "2026-10-06T16:25:23.1934152+08:00",
+      "testCount": 32,
+      "artifacts": [
+        {
+          "package": "takagi.ru.monica.fdroid",
+          "sha256": "1E5D6FFC985055EF4DB5B76E487B6BBB240C0D8F0E548FCF45586C499AD0FB0A"
+        },
+        {
+          "package": "takagi.ru.monica.fdroid.test",
+          "sha256": "649F0E7E453261633079C96C9A5D4402A977D6701E38E0C557D32BED97792D82"
+        }
+      ],
+      "startedAt": "2026-10-06T16:23:14.2082210+08:00",
+      "classes": "takagi.ru.monica.ui.screens.MdbxTigaSliderTest,takagi.ru.monica.ui.screens.MdbxLayoutReachabilityTest#allSixProductionFormsKeepSubmissionVisibleWithLargeText,takagi.ru.monica.ui.screens.MdbxLayoutReachabilityTest#remoteGlitterIsUnavailableWhileSkyMultiPowerRemainSelectable,takagi.ru.monica.ui.screens.MdbxLayoutReachabilityTest#staleModeMetadataCannotDisableTheGlitterEnvelopeGate,takagi.ru.monica.ui.screens.MdbxLayoutReachabilityTest#oldGlitterCreationTargetShowsUnavailableInsteadOfIndependentEditor,takagi.ru.monica.repository.MdbxClientModePolicyTest,takagi.ru.monica.repository.MdbxNativeCredentialInstrumentedTest,takagi.ru.monica.ui.screens.MdbxNativeEditorUiTest,takagi.ru.monica.repository.Mdbx2IdleSyncStatusInstrumentedTest",
+      "serial": "emulator-5554",
+      "jvmSuites": [
+        {
+          "name": "takagi.ru.monica.ui.screens.MdbxTigaModeAvailabilityTest",
+          "tests": "2",
+          "skipped": "0",
+          "failures": "0",
+          "errors": "0",
+          "timestamp": "2026-10-06T08:20:01",
+          "hostname": "JOYIN",
+          "time": "0.002"
+        },
+        {
+          "name": "takagi.ru.monica.repository.MdbxAppReplicaPolicyTest",
+          "tests": "3",
+          "skipped": "0",
+          "failures": "0",
+          "errors": "0",
+          "timestamp": "2026-10-06T08:20:00",
+          "hostname": "JOYIN",
+          "time": "0.008"
+        },
+        {
+          "name": "takagi.ru.monica.workers.MdbxAutoSyncEligibilityTest",
+          "tests": "3",
+          "skipped": "0",
+          "failures": "0",
+          "errors": "0",
+          "timestamp": "2026-10-06T08:20:01",
+          "hostname": "JOYIN",
+          "time": "0.068"
+        },
+        {
+          "name": "takagi.ru.monica.localization.MdbxLocaleResourceTest",
+          "tests": "2",
+          "skipped": "0",
+          "failures": "0",
+          "errors": "0",
+          "timestamp": "2026-10-06T08:20:00",
+          "hostname": "JOYIN",
+          "time": "0.203"
+        }
+      ],
+      "buildLog": "fdroid-build.log",
+      "sourceSha256": {
+        "app/src/main/java/takagi/ru/monica/repository/MdbxClientModePolicy.kt": "76ee84f5eb1aac8a170740ec84874379e2b28e2fa9f43542428a35d978cc2f85",
+        "app/src/main/java/takagi/ru/monica/ui/screens/MdbxTigaModeSelector.kt": "9e09d21466617ddcbea4a2a922c414b9e47fc97254f3d3b5b9f7c03baf0f5af2",
+        "app/src/main/java/takagi/ru/monica/data/LocalMdbxDatabase.kt": "24fb98d7e1aa3743d8b5d8855f8b6ddebff45c952d8be0ee2475ba83f3de95d1"
+      }
+    }
+  ]
+}
