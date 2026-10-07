@@ -48,7 +48,17 @@ internal object CredentialExchangeErrors {
         }
     }
 
-    fun record(context: Context, operation: Operation, error: Exception? = null) {
+    fun decodeDiagnostic(decoded: CxfCredentialCodec.Decoded): String = buildString {
+        append(" decodedPasswords=").append(decoded.passwordCount)
+        append(" decodedPasskeys=").append(decoded.passkeyCount)
+        for (reason in CxfCredentialCodec.SkipReason.entries) {
+            val count = decoded.skipped[reason] ?: 0
+            if (count > 0) append(" skipped_").append(reason.name).append('=').append(count)
+        }
+    }
+
+    fun record(context: Context, operation: Operation, error: Exception? = null,
+        decoded: CxfCredentialCodec.Decoded? = null) {
         // Diagnostics must never turn a completed transfer into an error.
         runCatching {
             val gmsVersion = runCatching {
@@ -56,7 +66,8 @@ internal object CredentialExchangeErrors {
                 val info = context.packageManager.getPackageInfo("com.google.android.gms", 0)
                 if (Build.VERSION.SDK_INT >= 28) info.longVersionCode else info.versionCode.toLong()
             }.getOrNull()
-            val line = "${diagnostic(operation, error)} api=${Build.VERSION.SDK_INT} gms=${gmsVersion ?: "unknown"}"
+            val line = "${diagnostic(operation, error)} api=${Build.VERSION.SDK_INT} gms=${gmsVersion ?: "unknown"}" +
+                (decoded?.let(::decodeDiagnostic) ?: "")
             if (error == null) Log.i("CredentialExchange", line) else Log.w("CredentialExchange", line)
             SecurityDiagLogger.initialize(context.applicationContext)
             SecurityDiagLogger.append(line)

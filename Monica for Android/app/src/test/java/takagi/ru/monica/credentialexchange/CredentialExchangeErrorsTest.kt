@@ -6,6 +6,16 @@ import org.junit.Test
 import takagi.ru.monica.R
 
 class CredentialExchangeErrorsTest {
+    @Test fun decodeDiagnosticsContainOnlyCountsAndFixedReasonNames() {
+        val sensitive = "private-key account@example.invalid payload-secret"
+        val decoded = CxfCredentialCodec.Decoded(listOf(CxfCredentialCodec.Item(sensitive, sensitive,
+            logins = listOf(CxfCredentialCodec.Login(sensitive, sensitive)), createdAt = 0, notes = sensitive)),
+            mapOf(CxfCredentialCodec.SkipReason.PASSKEY_BLOB to 4, CxfCredentialCodec.SkipReason.UNSUPPORTED_TOTP to 2))
+        assertEquals(" decodedPasswords=1 decodedPasskeys=0 skipped_UNSUPPORTED_TOTP=2 skipped_PASSKEY_BLOB=4",
+            CredentialExchangeErrors.decodeDiagnostic(decoded))
+        assertFalse(CredentialExchangeErrors.decodeDiagnostic(decoded).contains(sensitive))
+    }
+
     @Test fun missingSourceAndSystemErrorsDoNotClaimTheDeviceIsUnsupported() {
         assertEquals(R.string.exchange_no_sources,
             CredentialExchangeErrors.message(ImportCredentialsNoExportOptionException()))

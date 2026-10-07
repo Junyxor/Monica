@@ -1,97 +1,35 @@
-# Monica for Android 1.0.317
+# Monica for Android 1.0.318
+
+> 未发布 / Unreleased
 
 ## 中文
 
-- Android 客户端仅提供 Sky、Multi、Power 三档，暂不接入 Glitter；MDBX 底层格式能力保留。已有 Glitter 数据库保留文件与记录并提示暂不支持，不自动降档或转换。
+- 自动填充新增“保持解锁两分钟”设置，默认关闭；开启后同一应用及网站可复用验证，支持账号与密码分步填写及手动选择，连续填充不延长有效期。关闭此项、锁屏、手动锁定、移除 Monica 最近任务或进程重启均撤销临时授权。修复主应用清理后台后仍可恢复旧解锁会话的问题，自动填充操作不再延长主应用解锁时间；普通切换应用仍遵循自动锁定设置。
 
-- 修复 Passkey 跨端标识与备注兼容；认证取消会真正退出，选择账户时不显示私人备注。
+- 新增常用信息输入建议：银行名称、分行代码、客服电话、凭据分组标签、网站网址及证件签发机关可匹配已保存的同类值，点击即可填入；支持项目内嵌银行卡和证件，最多显示三项，锁定或不可访问的数据源不参与建议。
 
-- 移除拖拽导航栏，统一使用普通导航；保留标签排序、显示隐藏、FAB 和最近使用入口。
+- 修复从其他应用接收 Passkey 时对空扩展和未启用支付扩展的过度拒绝，保留原始凭据及私钥；按验证码、无效数据、私钥及不支持的扩展显示跳过原因，诊断日志仅记录分类计数。含 PRF、Blob 或启用支付扩展的 Passkey 仍明确提示暂不支持，不丢弃扩展强行导入。
 
-- 新增 Shizuku 默认密码管理器入口（Android 14+），可从开发者设置和自动填充设置将 Monica 设为默认，并选择同步设置自动填充、保留其他凭据提供方或恢复上次配置；取代旧的 Passkey HyperOS 兼容开关。
+- 修复导入条目中应用关联元数据被显示为普通自定义字段的问题；保留签名约束及再次导出能力，编辑或移除普通字段分组不会删除这些关联信息。
 
-- MDBX2 远程数据库可单独选择手动或自动同步，默认手动；同步开关采用独立圆角设置行与简短说明。
+- 优化去重合并到 Monica 本地：无附件的密码与无附件、无照片的安全条目按小批次事务写入，减少完整列表反复查询；进度在提交后更新，失败批次回滚并逐条定位，取消时停止后续处理。保留附件、MDBX 与 Passkey 的原有写入和回滚流程，减少重复分析读取及无附件条目的空查询。
 
-- 银行卡和证件照片支持导入时裁剪，并统一裁剪页操作样式。
+- 优化设置中的清空数据：按批次删除，减少逐条写库与列表刷新；显示当前阶段和实际已清空数量，完成或失败时保留结果提示，防止重复确认，并在页面重建后继续显示进度。保留原有类型选择及删除范围。
 
-- 优化 MDBX 档位选择：星光缓慢闪烁且仅显示在已填充区域；滑块连续跟随手指，松手吸附最近档位，点击切档平滑过渡并提供跨档触感反馈，遵循减少动画和触感设置。
-
-- 保留 UUID、Base64URL 与 Bitwarden `b64.` 格式的原始凭据字节；允许列表无匹配时不再改用其他凭据，并在认证前再次校验所选账户与实际请求。
-- Bitwarden 原生 Passkey 备注保留完整正文、分隔线与空白，支持清空；旧引用条目仍保留可恢复的元数据，不改写既有私钥。
-
-- 原生数据库管理页支持直接新增登录信息、保留未知字段的编辑、删除及附件添加/移除；附件在内存中验证并预览文字或图片，不导出解密文件。
-
-- 整理 Android 版 README 与多语言说明，移除浏览器插件安装、技术栈和其他平台状态说明，明确 Android 应用及手机浏览器的自动填充范围。
-
-- 修复卡包多选拖动排序时卡片互相遮挡、换位不连贯的问题；整行置顶拖动并即时更新独立卡片顺序，保留卡叠分组和排序保存。
-
-- 补齐筛选菜单数据库列表的展开与收起高度动效，保留横向滚动、大量数据库按需加载及底部操作入口。
-
-- 修复后台自动同步已经开始时，面包屑路径上的同步按钮不转圈的问题；普通列表与新版密码库均按当前库的实际执行状态显示动画，结束后停止。
-
-- 修复 MDBX2 已有附件尚未下载时，本地修改会使手动与自动同步卡在“Blob 没有大小信息”的问题；先验证并补齐附件，再上传修改，传输中断后可重试。云端附件缺失或损坏时仍保留未同步状态。
-
-- 升级时仅清理拖拽导航与旧 HyperOS Passkey 旁路设置，不改变其他偏好或密码库；旧备份仍可导入，新备份不再包含拖拽选项。
-- 完整删除旧 HyperOS Passkey 验证旁路，保留正常生物识别验证与主密码回退流程；创建通行密钥时，生物识别不可用或报错可使用已设置的主密码验证。
-
-- 开启自动同步后，保存通过持久任务上传增量；应用在前台且已解锁时检查远端更新，空闲检查间隔逐步延长至 5 分钟。连续保存合并排队，上传期间的新修改仍会继续送达。关闭自动同步不会中断已经开始的上传。
-- 自动同步与手动同步共用队列；失败保留本地修改并退避重试，避免连续保存取消正在进行的上传。
-- 修复外部数据库写回失败后刷新可能遗漏未发布修改的问题。
-
-- 拍照或从图库导入正反面照片后，可以裁剪、旋转、翻转，也可以选择“不裁剪”后继续原有的质量确认流程。
-- 自定义卡面仍须裁剪，不提供“不裁剪”选项。
-- 裁剪页底部统一使用旋转、翻转、重置控件及确认按钮。
-
-- OneDrive 同步复用已确认的目录，减少重复请求；连接检查更轻量，并遵循限流后的等待时间。
-
-- 修复 WebDAV 条件上传的 503／429 分类，保留等待时间和写入条件后再重试。
-
-- OneDrive 全量备份复用文件传输和分块上传，下载完成后再替换本地文件，减少大归档内存占用。
+- Monica CLI 同样暂不接入 Glitter：不创建、打开、编辑、导出或同步该档位，仅保留只读格式识别；即使提供正确密码和密钥也不会放行，原有数据库不变。
 
 ## English
 
-- Android offers Sky, Multi and Power only; Glitter integration is deferred while the MDBX engine retains format support. Existing Glitter files and records are preserved with an unsupported-mode message, without automatic downgrade or conversion.
+- Add an optional “Keep unlocked for two minutes” autofill setting, off by default. When enabled, verification is reused within the same app and website across separate username/password steps and the manual picker, without extending the window. Turning it off, screen-off, explicit locking, removing Monica from Recents or restarting the process revokes access. Fix old main-app sessions being restored after task removal; autofill interaction no longer extends the main-app unlock timer. Normal background switching still follows the auto-lock setting.
 
-- Fix Passkey ID and note compatibility across clients; cancellation exits authentication, and account selection keeps private notes hidden.
+- Suggest saved values while typing bank names, branch codes, customer service phone numbers, credential group labels, website URLs and issuing authorities. Tap to fill from up to three matches, including embedded cards and identity documents; locked or inaccessible sources are excluded.
 
-- Remove draggable navigation and use the standard bar, retaining tab order/visibility, FAB and recent items.
+- Accept transferred passkeys with absent extension data or disabled payment extensions without replacing their original credentials or private keys. Show categorized skip reasons and log only aggregate counts. Passkeys requiring PRF, blob, or enabled payment extensions remain explicitly unsupported; their extension state is never silently discarded.
 
-- Set Monica as the default password manager with Shizuku (Android 14+) from developer or autofill settings. Optionally set autofill, keep other credential providers, or restore the previous configuration. Replaces the old Passkey HyperOS compatibility toggle.
+- Keep imported application-scope metadata out of ordinary custom-field displays while preserving signature constraints and re-export support. Editing or removing a user-field section retains this metadata.
 
-- Each MDBX2 remote vault can use manual or automatic sync; manual is the default. A separate rounded settings row keeps the switch and explanation compact.
+- Speed up deduplication into Monica Local with small transactions for passwords without attachments and secure items without attachments or photos, reducing repeated full-list queries. Update progress after commit, roll back failed batches and retry entries individually, and stop subsequent work on cancellation. Preserve existing attachment, MDBX, and Passkey write and rollback paths while reducing redundant analysis reads and empty attachment queries.
 
-- Crop bank-card and document photos during import, with consistent crop controls.
+- Speed up Clear data in Settings with batched deletion and fewer database writes and list refreshes. Show the current stage and committed entry count, retain completion or failure feedback, prevent duplicate confirmation, and preserve progress across activity recreation. Existing type selections and deletion boundaries remain unchanged.
 
-- Improve the MDBX mode slider with twinkling stars only on the filled track, continuous finger tracking, nearest-mode snapping, smooth tap transitions and detent feedback; respect reduced-motion and haptic settings.
-
-- Preserve original credential bytes across UUID, Base64URL and Bitwarden `b64.` formats. Unmatched allow-lists no longer fall back to other credentials; authentication rechecks the selected account against the actual request.
-- Preserve native Bitwarden Passkey notes, separators, whitespace and explicit clearing. Legacy reference-only entries retain recovery metadata without replacing existing private keys.
-
-- The native manager supports direct login creation, edits that preserve unknown fields, deletion and attachment changes. Verify and preview text/image attachments in memory without exporting decrypted files.
-
-- Scope the README and its translations to Android; remove extension installation, browser tooling and other-platform status notes, and clarify autofill in Android apps and mobile browsers.
-
-- Fix overlapping wallet cards and delayed placement during selection-mode reordering; lift the whole row and update independent-card order immediately while preserving stack groups and saved order.
-
-- Animate database list expansion and collapse in filter menus while preserving horizontal scrolling, large-list virtualization and footer actions.
-
-- Fix the breadcrumb sync icon staying still during background auto sync. Both vault views now observe the current vault's running task and stop animating when it ends.
-
-- Fix manual and automatic MDBX2 sync getting stuck on missing local attachments after an edit. Recover and verify attachments before publishing changes, and allow interrupted transfers to retry. Missing or corrupt remote attachments still leave changes unsynchronized.
-
-- Upgrade cleanup removes only the two retired settings, preserving other preferences and vault data. Old backups remain supported; new backups omit the draggable option.
-- Fully remove the old HyperOS Passkey verification bypass, preserving normal biometrics and master-password fallback. Passkey creation can use an existing master password if biometrics are unavailable or fail.
-
-- With automatic sync enabled, durable jobs upload saved changes. Idle remote checks gradually slow to once every five minutes while foregrounded and unlocked. Bursts share queued work, and edits made during an upload are delivered afterward. Disabling automatic sync lets an active upload finish.
-- Automatic and manual sync share the same queue. Failures preserve local edits and retry with backoff; consecutive saves do not cancel an active upload.
-- Preserve unpublished edits when refreshing an external vault after a failed write-back.
-
-- Camera and gallery imports for front/back photos support cropping, rotation and flipping, or skipping the crop before the existing quality confirmation.
-- Custom card artwork still requires cropping and has no skip option.
-- The crop screen uses consistent rotation, flip, reset and confirmation controls.
-
-- OneDrive sync reuses confirmed directories, reduces connection-check requests, and respects server throttling delays.
-
-- WebDAV conditional uploads preserve 503/429 retry delays and write preconditions when retrying.
-
-- OneDrive full backups use file/chunk transfers and atomic downloads to reduce memory use for large archives.
+- Monica CLI also defers Glitter integration: no creation, opening, editing, export or sync, even with the correct password and key. Read-only format detection remains available, and existing databases stay unchanged.

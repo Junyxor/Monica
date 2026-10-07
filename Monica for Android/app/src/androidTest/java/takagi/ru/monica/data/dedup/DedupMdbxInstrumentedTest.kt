@@ -42,7 +42,7 @@ class DedupMdbxInstrumentedTest {
                 keepassDatabaseId = source.databaseId, passkeyMode = PasskeyEntry.MODE_KEEPASS_COMPAT))
             val service = DedupMergeService(fixture.passwords, fixture.secureItems, fixture.passkeys,
                 CustomFieldRepository(fixture.db.customFieldDao()), fixture.db.localKeePassDatabaseDao(),
-                fixture.db.localMdbxDatabaseDao(), fixture.db.bitwardenVaultDao(), fixture.security, AppLocaleStringResolver(fixture.context))
+                fixture.db.localMdbxDatabaseDao(), fixture.db.bitwardenVaultDao(), fixture.security, AppLocaleStringResolver(fixture.context), fixture.db)
             val plan = service.buildPlan(setOf("keepass:${source.databaseId}"),
                 DedupMergeTarget.MdbxDatabase(target.databaseId!!, "Target"))
             assertEquals(3, plan.writableItems)

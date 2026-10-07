@@ -178,7 +178,7 @@ fun ImportDataScreen(
                 val decoded = withContext(Dispatchers.IO) { CxfCredentialCodec.decode(response.response.responseJson) }
                 sourceApp = label
                 received = decoded
-                CredentialExchangeErrors.record(context, CredentialExchangeErrors.Operation.IMPORT)
+                CredentialExchangeErrors.record(context, CredentialExchangeErrors.Operation.IMPORT, decoded = decoded)
             } catch (_: ImportCredentialsCancellationException) {
                 // Cancelling the system picker never writes any data.
             } catch (cancelled: CancellationException) {
@@ -635,7 +635,8 @@ fun ImportDataScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant)
                         else {
                             Text(sourceApp, style = MaterialTheme.typography.titleMedium)
-                            TransferCredentialCounts(received!!.passwordCount, received!!.passkeyCount, received!!.skippedCount)
+                            TransferCredentialCounts(received!!.passwordCount, received!!.passkeyCount, received!!.skippedCount,
+                                skippedReasons = received!!.skipped)
                             Text(stringResource(R.string.exchange_skip_hint), style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant)
                             TextButton(onClick = receiveCredentials, enabled = !isImporting) {

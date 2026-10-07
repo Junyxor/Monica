@@ -97,7 +97,7 @@ class DedupDatabaseMatrixInstrumentedTest {
 
     private fun TransferFixture.service() = DedupMergeService(passwords, secureItems, passkeys,
         CustomFieldRepository(db.customFieldDao()), db.localKeePassDatabaseDao(), db.localMdbxDatabaseDao(),
-        db.bitwardenVaultDao(), security, AppLocaleStringResolver(context), DedupAttachmentSupport(context, db))
+        db.bitwardenVaultDao(), security, AppLocaleStringResolver(context), db, DedupAttachmentSupport(context, db))
 
     private val payload = ByteArray(4097) { (it * 31).toByte() }
 
