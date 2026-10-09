@@ -4,6 +4,8 @@
 
 ## 中文
 
+- 修复仅绑定 Bitwarden／Vaultwarden 时密码库首页和搜索可能看不到已同步条目：未保存数据库范围时默认显示“全部”，旧版省略范围的设置同步采用该默认值；明确保存的本地库或具体数据库选择继续保留，锁定库仍不参与展示与搜索。
+
 - 扩展常用信息输入建议：银行卡持卡人、证件及账单姓名共享已保存姓名，姓、名和中间名分别匹配；账单和证件地址支持街道、门牌、省市、邮编及国家建议，兼容独立卡包、密码内嵌内容及旧字段。保留签发机关建议，点击仅填写当前字段，不自动拆分姓名或修改其他资料。
 
 - 修复 KDBX 密码批量删除缓慢及条目重新出现：密码页与密码库页统一按数据库一次保存，成功后整体更新列表；原生索引在后台以事务提交，拒绝过期快照。保存失败保留列表数据，不再逐条重试；外部文件完整写入后若校验失败，保留当前文件与恢复副本，避免覆盖另一会话的写入。
@@ -27,6 +29,8 @@
 - Monica CLI 同样暂不接入 Glitter：不创建、打开、编辑、导出或同步该档位，仅保留只读格式识别；即使提供正确密码和密钥也不会放行，原有数据库不变。
 
 ## English
+
+- Fixed synced entries being absent from the vault overview and search for Bitwarden/Vaultwarden users: use All when no database scope is saved, including older settings that omitted the scope. Explicitly saved local or individual database scopes are preserved, and locked vaults remain excluded from display and search.
 
 - Extend saved-value suggestions to cardholder, identity and billing names, with separate first/middle/last-name matching. Suggest street, unit, city, region, postal code and country across wallet items, embedded content and legacy fields. Keep issuing-authority suggestions; selection fills only the active field without splitting names or changing other details.
 
