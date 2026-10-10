@@ -20,7 +20,7 @@ object RustBitwardenKdfCore {
                 if (!loadAttempted) {
                     nativeAvailable = runCatching {
                         System.loadLibrary("monica_rust_jni")
-                        true
+                        nativeSelfTest()
                     }.getOrDefault(false)
                     loadAttempted = true
                 }
@@ -62,6 +62,9 @@ object RustBitwardenKdfCore {
             )
         }.getOrNull()
     }
+
+    @JvmStatic
+    private external fun nativeSelfTest(): Boolean
 
     @JvmStatic
     private external fun nativeDerivePbkdf2Sha256(
