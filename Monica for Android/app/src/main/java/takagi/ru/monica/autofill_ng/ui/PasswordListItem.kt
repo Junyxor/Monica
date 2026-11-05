@@ -26,14 +26,6 @@ import androidx.compose.ui.unit.dp
 import takagi.ru.monica.R
 import takagi.ru.monica.data.PasswordEntry
 import takagi.ru.monica.data.primaryLinkedAppPackageName
-import takagi.ru.monica.ui.icons.PASSWORD_ICON_TYPE_NONE
-import takagi.ru.monica.ui.icons.PASSWORD_ICON_TYPE_SIMPLE
-import takagi.ru.monica.ui.icons.PASSWORD_ICON_TYPE_UPLOADED
-import takagi.ru.monica.ui.icons.PASSWORD_ICON_TYPE_EMOJI
-import takagi.ru.monica.ui.icons.EmojiIconText
-import takagi.ru.monica.ui.icons.rememberAutoMatchedSimpleIcon
-import takagi.ru.monica.ui.icons.rememberSimpleIconBitmap
-import takagi.ru.monica.ui.icons.rememberUploadedPasswordIcon
 
 /**
  * 密码列表项操作类型
@@ -296,109 +288,15 @@ private fun AppIconOrFallback(
         if (!iconCardsEnabled) {
             DefaultKeyIcon()
         } else {
-            val simpleIcon = if (password.customIconType == PASSWORD_ICON_TYPE_SIMPLE) {
-                rememberSimpleIconBitmap(
-                    slug = password.customIconValue,
-                    tintColor = MaterialTheme.colorScheme.primary,
-                    enabled = true
-                )
-            } else {
-                null
-            }
-
-            val uploadedIcon = if (password.customIconType == PASSWORD_ICON_TYPE_UPLOADED) {
-                rememberUploadedPasswordIcon(password.customIconValue)
-            } else {
-                null
-            }
-            val emojiIcon = password.customIconValue.takeIf {
-                password.customIconType == PASSWORD_ICON_TYPE_EMOJI
-            }
-
-            val primaryAppPackageName = password.primaryLinkedAppPackageName()
-            val autoMatchedSimpleIcon = rememberAutoMatchedSimpleIcon(
+            takagi.ru.monica.ui.icons.VaultItemIcon(
                 website = password.website,
                 title = password.title,
-                appPackageName = primaryAppPackageName,
-                tintColor = MaterialTheme.colorScheme.primary,
-                enabled = password.customIconType == PASSWORD_ICON_TYPE_NONE
+                appPackageName = password.primaryLinkedAppPackageName(),
+                customIconType = password.customIconType,
+                customIconValue = password.customIconValue,
+                defaultIcon = Icons.Default.Key,
+                size = 48.dp
             )
-
-            val favicon = if (password.website.isNotBlank()) {
-                rememberFavicon(
-                    url = password.website,
-                    enabled = autoMatchedSimpleIcon.resolved && autoMatchedSimpleIcon.slug == null
-                )
-            } else {
-                null
-            }
-
-            val appIcon = if (
-                primaryAppPackageName.isNotBlank() &&
-                !isWebAddress(password.website)
-            ) {
-                rememberAppIcon(primaryAppPackageName)
-            } else {
-                null
-            }
-
-            when {
-                emojiIcon != null -> {
-                    EmojiIconText(
-                        emoji = emojiIcon,
-                        size = 26.dp,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-                simpleIcon != null -> {
-                    Image(
-                        bitmap = simpleIcon,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clip(RoundedCornerShape(12.dp))
-                    )
-                }
-                uploadedIcon != null -> {
-                    Image(
-                        bitmap = uploadedIcon,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clip(RoundedCornerShape(12.dp))
-                    )
-                }
-                autoMatchedSimpleIcon.bitmap != null -> {
-                    Image(
-                        bitmap = autoMatchedSimpleIcon.bitmap,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clip(RoundedCornerShape(12.dp))
-                    )
-                }
-                favicon != null -> {
-                    Image(
-                        bitmap = favicon,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clip(RoundedCornerShape(12.dp))
-                    )
-                }
-                appIcon != null -> {
-                    Image(
-                        bitmap = appIcon,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clip(RoundedCornerShape(12.dp))
-                    )
-                }
-                else -> {
-                    DefaultKeyIcon()
-                }
-            }
         }
     }
 }

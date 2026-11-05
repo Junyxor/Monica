@@ -1,10 +1,8 @@
 package takagi.ru.monica.ui.password
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -13,22 +11,30 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import takagi.ru.monica.ui.icons.EmojiIconText
 import takagi.ru.monica.R
-import takagi.ru.monica.data.PasswordCardDisplayField
-import takagi.ru.monica.data.UnmatchedIconHandlingStrategy
 import takagi.ru.monica.bitwarden.sync.SyncStatus
+import takagi.ru.monica.data.PasswordCardDisplayField
 import takagi.ru.monica.data.PasswordEntry
+import takagi.ru.monica.data.UnmatchedIconHandlingStrategy
 import takagi.ru.monica.data.primaryLinkedAppPackageName
 import takagi.ru.monica.ui.components.SyncStatusIcon
-import takagi.ru.monica.ui.icons.UnmatchedIconFallback
-import takagi.ru.monica.ui.icons.shouldShowFallbackSlot
+import takagi.ru.monica.ui.icons.VaultItemIcon
+import takagi.ru.monica.ui.theme.MonicaDesign
+import takagi.ru.monica.ui.theme.MonicaShapeTokens
+import takagi.ru.monica.ui.theme.MonicaSpacing
+import takagi.ru.monica.ui.theme.tabularNumbers
 
+/**
+ * One credential in the vault list.
+ *
+ * Layout: icon tile, then title with source markers and up to three detail
+ * lines (or the bound one-time code), then the trailing action. The trailing
+ * action is centred on the whole row so single-line and multi-line items
+ * align down the list.
+ */
 @OptIn(
     ExperimentalMaterial3Api::class,
     ExperimentalFoundationApi::class,
@@ -65,7 +71,8 @@ fun PasswordEntryCard(
     val animatedVisibilityScope = takagi.ru.monica.ui.LocalAnimatedVisibilityScope.current
     val reduceAnimations = takagi.ru.monica.ui.LocalReduceAnimations.current
     var sharedModifier: Modifier = Modifier
-    val cardShape = shape ?: if (isSingleCard) RoundedCornerShape(16.dp) else RoundedCornerShape(12.dp)
+    val nested = isInExpandedGroup && !isSingleCard
+    val cardShape = shape ?: if (nested) MonicaShapeTokens.NestedItem else MonicaShapeTokens.Item
     if (enableSharedBounds && !reduceAnimations && sharedTransitionScope != null && animatedVisibilityScope != null) {
         with(sharedTransitionScope) {
             sharedModifier = Modifier.sharedBounds(
@@ -76,25 +83,20 @@ fun PasswordEntryCard(
         }
     }
 
-    Card(
+    val surfaces = MonicaDesign.surfaces
+    val containerColor = when {
+        isSelected -> MaterialTheme.colorScheme.primaryContainer
+        nested -> surfaces.nestedItem
+        else -> surfaces.item
+    }
+
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
             .then(sharedModifier),
-        colors = if (isSelected) {
-            CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer
-            )
-        } else {
-            CardDefaults.cardColors()
-        },
-        elevation = if (isSingleCard) {
-            CardDefaults.cardElevation(defaultElevation = 3.dp, pressedElevation = 6.dp)
-        } else if (isInExpandedGroup) {
-            CardDefaults.cardElevation(defaultElevation = 2.dp)
-        } else {
-            CardDefaults.cardElevation()
-        },
-        shape = cardShape
+        shape = cardShape,
+        color = containerColor,
+        contentColor = contentColorFor(containerColor)
     ) {
         Box {
             Row(
@@ -102,212 +104,57 @@ fun PasswordEntryCard(
                     .fillMaxWidth()
                     .clip(cardShape)
                     .combinedClickable(onClick = onClick, onLongClick = onLongClick)
-                    .padding(if (isSingleCard) 20.dp else 10.dp),
+                    .heightIn(min = if (nested) 60.dp else 68.dp)
+                    .padding(
+                        start = if (nested) MonicaSpacing.Medium else MonicaSpacing.ListItemHorizontal,
+                        end = MonicaSpacing.XSmall,
+                        top = if (nested) 10.dp else MonicaSpacing.ListItemVertical,
+                        bottom = if (nested) 10.dp else MonicaSpacing.ListItemVertical
+                    ),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 if (iconCardsEnabled) {
                     if (leadingIconOverride != null) {
                         leadingIconOverride()
-                        Spacer(modifier = Modifier.width(16.dp))
+                        Spacer(modifier = Modifier.width(MonicaSpacing.LeadingGap))
                     } else {
-                        val simpleIcon = if (entry.customIconType == takagi.ru.monica.ui.icons.PASSWORD_ICON_TYPE_SIMPLE) {
-                            takagi.ru.monica.ui.icons.rememberSimpleIconBitmap(
-                                slug = entry.customIconValue,
-                                tintColor = MaterialTheme.colorScheme.primary,
-                                enabled = true
-                            )
-                        } else null
-                        val uploadedIcon = if (entry.customIconType == takagi.ru.monica.ui.icons.PASSWORD_ICON_TYPE_UPLOADED) {
-                            takagi.ru.monica.ui.icons.rememberUploadedPasswordIcon(entry.customIconValue)
-                        } else null
-                        val emojiIcon = entry.customIconValue.takeIf { entry.customIconType == takagi.ru.monica.ui.icons.PASSWORD_ICON_TYPE_EMOJI }
-                        val hasResolvedCustomIcon = simpleIcon != null || uploadedIcon != null || emojiIcon != null
-                        val primaryAppPackageName = if (hasResolvedCustomIcon) {
-                            ""
-                        } else {
-                            entry.primaryLinkedAppPackageName()
-                        }
-                        val appIcon = if (
-                            !hasResolvedCustomIcon &&
-                            primaryAppPackageName.isNotBlank() &&
-                            !takagi.ru.monica.autofill_ng.ui.isWebAddress(entry.website)
-                        ) {
-                            takagi.ru.monica.autofill_ng.ui.rememberAppIcon(primaryAppPackageName)
-                        } else null
-                        val autoMatchedSimpleIcon = takagi.ru.monica.ui.icons.rememberAutoMatchedSimpleIcon(
+                        VaultItemIcon(
                             website = entry.website,
                             title = entry.title,
-                            appPackageName = primaryAppPackageName,
-                            tintColor = MaterialTheme.colorScheme.primary,
-                            enabled = !hasResolvedCustomIcon &&
-                                entry.customIconType == takagi.ru.monica.ui.icons.PASSWORD_ICON_TYPE_NONE
+                            appPackageName = entry.primaryLinkedAppPackageName(),
+                            customIconType = entry.customIconType,
+                            customIconValue = entry.customIconValue,
+                            defaultIcon = Icons.Default.Key,
+                            unmatchedIconHandlingStrategy = unmatchedIconHandlingStrategy,
+                            size = if (nested) 36.dp else 42.dp,
+                            endSpacing = if (nested) MonicaSpacing.Medium else MonicaSpacing.LeadingGap
                         )
-
-                        val favicon = if (!hasResolvedCustomIcon && entry.website.isNotBlank()) {
-                            takagi.ru.monica.autofill_ng.ui.rememberFavicon(
-                                url = entry.website,
-                                enabled = autoMatchedSimpleIcon.resolved && autoMatchedSimpleIcon.slug == null
-                            )
-                        } else null
-
-                        if (emojiIcon != null) {
-                            EmojiIconText(emoji = emojiIcon, size = 28.dp)
-                            Spacer(modifier = Modifier.width(16.dp))
-                        } else if (simpleIcon != null) {
-                            Image(
-                                bitmap = simpleIcon,
-                                contentDescription = null,
-                                contentScale = ContentScale.Fit,
-                                modifier = Modifier.size(40.dp).padding(2.dp)
-                            )
-                            Spacer(modifier = Modifier.width(16.dp))
-                        } else if (uploadedIcon != null) {
-                            Image(
-                                bitmap = uploadedIcon,
-                                contentDescription = null,
-                                contentScale = ContentScale.Fit,
-                                modifier = Modifier.size(40.dp).padding(2.dp)
-                            )
-                            Spacer(modifier = Modifier.width(16.dp))
-                        } else if (autoMatchedSimpleIcon.bitmap != null) {
-                            Image(
-                                bitmap = autoMatchedSimpleIcon.bitmap,
-                                contentDescription = null,
-                                contentScale = ContentScale.Fit,
-                                modifier = Modifier.size(40.dp).padding(2.dp)
-                            )
-                            Spacer(modifier = Modifier.width(16.dp))
-                        } else if (favicon != null) {
-                            Image(
-                                bitmap = favicon,
-                                contentDescription = null,
-                                contentScale = ContentScale.Fit,
-                                modifier = Modifier.size(40.dp).padding(2.dp)
-                            )
-                            Spacer(modifier = Modifier.width(16.dp))
-                        } else if (appIcon != null) {
-                            Image(
-                                bitmap = appIcon,
-                                contentDescription = null,
-                                contentScale = ContentScale.Fit,
-                                modifier = Modifier.size(40.dp).padding(2.dp)
-                            )
-                            Spacer(modifier = Modifier.width(16.dp))
-                        } else if (shouldShowFallbackSlot(unmatchedIconHandlingStrategy)) {
-                            UnmatchedIconFallback(
-                                strategy = unmatchedIconHandlingStrategy,
-                                primaryText = entry.website,
-                                secondaryText = entry.title,
-                                defaultIcon = Icons.Default.Key,
-                                iconSize = 40.dp
-                            )
-                            Spacer(modifier = Modifier.width(16.dp))
-                        }
                     }
                 }
 
                 Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(if (isSingleCard) 8.dp else 4.dp)
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = MonicaSpacing.Small),
+                    verticalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = displayTitle,
-                            style = if (isSingleCard) {
-                                MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-                            } else {
-                                MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
-                            },
-                            modifier = Modifier.weight(1f),
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.weight(1f, fill = false),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
-
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            if (entry.isBitwardenEntry()) {
-                                val syncStatus = when {
-                                    entry.hasPendingBitwardenSync() -> SyncStatus.PENDING
-                                    else -> SyncStatus.SYNCED
-                                }
-                                SyncStatusIcon(status = syncStatus, size = 16.dp)
-                            } else if (entry.isKeePassEntry()) {
-                                Icon(
-                                    Icons.Default.VpnKey,
-                                    contentDescription = "KeePass",
-                                    tint = MaterialTheme.colorScheme.secondary.copy(alpha = 0.7f),
-                                    modifier = Modifier.size(16.dp)
-                                )
-                            }
-
-                            if (onToggleGroupCover != null) {
-                                Box(
-                                    modifier = Modifier.size(36.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    if (!isSelectionMode) {
-                                        IconButton(
-                                            onClick = onToggleGroupCover,
-                                            modifier = Modifier.size(36.dp),
-                                            enabled = canSetGroupCover
-                                        ) {
-                                            Icon(
-                                                if (entry.isGroupCover) Icons.Default.Star else Icons.Default.StarBorder,
-                                                contentDescription = if (entry.isGroupCover) "Remove cover" else "Set as cover",
-                                                tint = if (entry.isGroupCover) {
-                                                    MaterialTheme.colorScheme.tertiary
-                                                } else if (canSetGroupCover) {
-                                                    MaterialTheme.colorScheme.onSurfaceVariant
-                                                } else {
-                                                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-                                                },
-                                                modifier = Modifier.size(20.dp)
-                                            )
-                                        }
-                                    } else if (entry.isGroupCover) {
-                                        Icon(
-                                            Icons.Default.Star,
-                                            contentDescription = stringResource(R.string.legacy_ui_cover),
-                                            tint = MaterialTheme.colorScheme.tertiary,
-                                            modifier = Modifier.size(20.dp)
-                                        )
-                                    }
-                                }
-                            }
-
-                            Box(
-                                modifier = Modifier.size(36.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                if (isSelectionMode) {
-                                    Checkbox(
-                                        checked = isSelected,
-                                        onCheckedChange = { onClick() },
-                                        modifier = Modifier.size(36.dp)
-                                    )
-                                } else if (onToggleFavorite != null) {
-                                    IconButton(onClick = onToggleFavorite, modifier = Modifier.size(36.dp)) {
-                                        Icon(
-                                            if (entry.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                                            contentDescription = stringResource(R.string.favorite),
-                                            tint = if (entry.isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                                            modifier = Modifier.size(20.dp)
-                                        )
-                                    }
-                                }
-                            }
-                        }
+                        EntrySourceMarker(entry)
                     }
 
                     if (entry.isApiKeyEntry()) {
-                        Text(stringResource(R.string.api_key_title), style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.primary)
+                        Text(
+                            stringResource(R.string.api_key_title),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
                     }
                     val authenticatorState = if (showAuthenticator) {
                         rememberPasswordAuthenticatorDisplayState(
@@ -340,36 +187,76 @@ fun PasswordEntryCard(
                             resolvePasswordCardDisplayLines(entry, passwordCardDisplayFields).take(3)
                         }
                     }
+                    // A single detail line reads as a subtitle; icons only help
+                    // tell lines apart once there are several.
+                    val showLineIcons = displayLines.size > 1
                     displayLines.forEach { line ->
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(if (isSingleCard) 8.dp else 6.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                line.icon,
-                                contentDescription = null,
-                                modifier = Modifier.size(if (isSingleCard) 18.dp else 16.dp),
-                                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
-                            )
-                            Text(
-                                text = line.text,
-                                style = if (isSingleCard) MaterialTheme.typography.bodyLarge else MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
+                        PasswordCardDetailLine(line = line, showIcon = showLineIcons)
                     }
 
-                    if (showAuthenticator) {
-                        if (authenticatorState != null) {
-                            PasswordAuthenticatorInlineRow(
-                                state = authenticatorState,
-                                isSingleCard = isSingleCard,
-                                smoothProgress = smoothAuthenticatorProgress
+                    if (authenticatorState != null) {
+                        PasswordAuthenticatorInlineRow(
+                            state = authenticatorState,
+                            smoothProgress = smoothAuthenticatorProgress
+                        )
+                    }
+                }
+
+                if (onToggleGroupCover != null) {
+                    Box(
+                        modifier = Modifier.size(40.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (!isSelectionMode) {
+                            IconButton(
+                                onClick = onToggleGroupCover,
+                                modifier = Modifier.size(40.dp),
+                                enabled = canSetGroupCover
+                            ) {
+                                Icon(
+                                    if (entry.isGroupCover) Icons.Default.Star else Icons.Default.StarBorder,
+                                    contentDescription = if (entry.isGroupCover) "Remove cover" else "Set as cover",
+                                    tint = if (entry.isGroupCover) {
+                                        MaterialTheme.colorScheme.tertiary
+                                    } else if (canSetGroupCover) {
+                                        MaterialTheme.colorScheme.onSurfaceVariant
+                                    } else {
+                                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                                    },
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        } else if (entry.isGroupCover) {
+                            Icon(
+                                Icons.Default.Star,
+                                contentDescription = stringResource(R.string.legacy_ui_cover),
+                                tint = MaterialTheme.colorScheme.tertiary,
+                                modifier = Modifier.size(20.dp)
                             )
                         }
                     }
+                }
+
+                if (isSelectionMode) {
+                    Checkbox(
+                        checked = isSelected,
+                        onCheckedChange = { onClick() }
+                    )
+                } else if (onToggleFavorite != null) {
+                    IconButton(onClick = onToggleFavorite, modifier = Modifier.size(40.dp)) {
+                        Icon(
+                            if (entry.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                            contentDescription = stringResource(R.string.favorite),
+                            tint = if (entry.isFavorite) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                            },
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                } else {
+                    Spacer(modifier = Modifier.width(MonicaSpacing.Medium))
                 }
             }
 
@@ -385,47 +272,85 @@ fun PasswordEntryCard(
     }
 }
 
+/** Where an item lives when it is not local: Bitwarden sync state or KeePass. */
 @Composable
-private fun PasswordAuthenticatorInlineRow(
+private fun EntrySourceMarker(entry: PasswordEntry) {
+    if (entry.isBitwardenEntry()) {
+        val syncStatus = when {
+            entry.hasPendingBitwardenSync() -> SyncStatus.PENDING
+            else -> SyncStatus.SYNCED
+        }
+        Spacer(modifier = Modifier.width(6.dp))
+        SyncStatusIcon(status = syncStatus, size = 14.dp)
+    } else if (entry.isKeePassEntry()) {
+        Spacer(modifier = Modifier.width(6.dp))
+        Icon(
+            Icons.Default.VpnKey,
+            contentDescription = "KeePass",
+            tint = MaterialTheme.colorScheme.secondary.copy(alpha = 0.7f),
+            modifier = Modifier.size(14.dp)
+        )
+    }
+}
+
+@Composable
+internal fun PasswordCardDetailLine(
+    line: PasswordCardDisplayLine,
+    showIcon: Boolean,
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (showIcon) {
+            Icon(
+                line.icon,
+                contentDescription = null,
+                modifier = Modifier.size(14.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+            )
+        }
+        Text(
+            text = line.text,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@Composable
+internal fun PasswordAuthenticatorInlineRow(
     state: PasswordAuthenticatorDisplayState,
-    isSingleCard: Boolean,
     smoothProgress: Boolean
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(if (isSingleCard) 8.dp else 6.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.Default.Security,
-                contentDescription = null,
-                modifier = Modifier.size(if (isSingleCard) 18.dp else 16.dp),
-                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
-            )
-            Text(
-                text = state.code,
-                style = if (isSingleCard) {
-                    MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
-                } else {
-                    MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold)
-                },
-                color = MaterialTheme.colorScheme.primary,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f)
-            )
-            state.remainingSeconds?.let { remaining ->
-                Text(
-                    text = stringResource(R.string.password_card_authenticator_seconds, remaining),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
+    val expiring = state.remainingSeconds != null && state.remainingSeconds <= 5
+    val accent = if (expiring) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(MonicaSpacing.Small),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = state.code,
+            style = MaterialTheme.typography.titleMedium.tabularNumbers,
+            color = accent,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f, fill = false)
+        )
         if (state.progress != null) {
-            PasswordAuthenticatorProgressIndicator(
+            PasswordAuthenticatorCountdownRing(
                 state = state,
-                smoothProgress = smoothProgress
+                smoothProgress = smoothProgress,
+                color = accent
+            )
+        }
+        state.remainingSeconds?.let { remaining ->
+            Text(
+                text = stringResource(R.string.password_card_authenticator_seconds, remaining),
+                style = MaterialTheme.typography.labelMedium.tabularNumbers,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }

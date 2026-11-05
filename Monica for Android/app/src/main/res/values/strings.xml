@@ -878,18 +878,18 @@
     <string name="add">Add</string>
     
     <!-- Main Screen Bottom Navigation (Short) -->
-    <string name="nav_passwords_short">Pwd</string>
-    <string name="nav_authenticator_short">Auth</string>
+    <string name="nav_passwords_short">Logins</string>
+    <string name="nav_authenticator_short">2FA</string>
     <string name="nav_documents_short">ID</string>
     <string name="nav_bank_cards_short">Card</string>
-    <string name="nav_card_wallet_short">Card</string>
-    <string name="nav_notes_short">Note</string>
+    <string name="nav_card_wallet_short">Wallet</string>
+    <string name="nav_notes_short">Notes</string>
     <string name="nav_ledger_short">Ledger</string>
-    <string name="nav_generator_short">Gen</string>  <!-- 添加生成器导航短标签 -->
+    <string name="nav_generator_short">Generator</string>  <!-- 添加生成器导航短标签 -->
     <string name="nav_timeline_short">History</string>
-    <string name="nav_passkey_short">Pass</string>
+    <string name="nav_passkey_short">Passkeys</string>
     <string name="nav_steam_short">Steam</string>
-    <string name="nav_settings_short">Set</string>
+    <string name="nav_settings_short">Settings</string>
 
     <!-- Steam local guard -->
     <string name="steam_section_code">Code</string>

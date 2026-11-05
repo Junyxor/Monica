@@ -6,7 +6,6 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -14,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
@@ -23,7 +23,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import takagi.ru.monica.R
 import takagi.ru.monica.data.PasswordCardDisplayField
+import takagi.ru.monica.data.primaryLinkedAppPackageName
 import takagi.ru.monica.ui.haptic.rememberHapticFeedback
+import takagi.ru.monica.ui.icons.VaultItemIcon
+import takagi.ru.monica.ui.theme.MonicaDesign
+import takagi.ru.monica.ui.theme.MonicaShapeTokens
+import takagi.ru.monica.ui.theme.MonicaSpacing
+import takagi.ru.monica.ui.theme.tabularNumbers
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -237,11 +243,11 @@ fun StackedPasswordGroup(
         // ModulateAlpha avoids an offscreen buffer for every visible stack.
         val stackCount = passwords.size.coerceAtMost(3)
         for (i in (stackCount - 1) downTo 1) {
-            val offsetDp = (i * 4).dp
-            val scaleFactor = 1f - (i * 0.02f)
-            val baseLayerAlpha = 0.7f - (i * 0.2f)
+            val offsetDp = (i * 6).dp
+            val scaleFactor = 1f - (i * 0.04f)
+            val baseLayerAlpha = 1f - ((i - 1) * 0.35f)
 
-            Card(
+            Surface(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = offsetDp)
@@ -253,20 +259,19 @@ fun StackedPasswordGroup(
                         translationY = (i * 4).dp.toPx() * (1f - currentStackAlpha)
                         compositingStrategy = CompositingStrategy.ModulateAlpha
                     },
-                elevation = CardDefaults.cardElevation(defaultElevation = (i * 1.5).dp),
-                colors = CardDefaults.cardColors(),
-                shape = RoundedCornerShape(14.dp)
+                color = MonicaDesign.surfaces.stackLayer,
+                shape = MonicaShapeTokens.Item
             ) {
-                Box(modifier = Modifier.height(76.dp))
+                Box(modifier = Modifier.height(68.dp))
             }
         }
 
         // 🎯 主卡片 (持续存在，内容和属性变化)
         val isSelected = selectedPasswords.contains(leadPassword.id)
-        val cardColors = if (isSelected) {
-            CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+        val cardColor = if (isSelected) {
+            MaterialTheme.colorScheme.primaryContainer
         } else {
-            CardDefaults.cardColors()
+            MonicaDesign.surfaces.item
         }
 
         takagi.ru.monica.ui.gestures.SwipeActions(
@@ -313,7 +318,7 @@ fun StackedPasswordGroup(
                             translationY = swipeOffset * 0.5f
                         }
                     },
-                colors = cardColors
+                color = cardColor
             ) {
                 // 内容切换：收起态(Header) vs 展开态(Column)
                 AnimatedContent(
@@ -337,102 +342,91 @@ fun StackedPasswordGroup(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable { onToggleExpand() }
-                                    .padding(16.dp),
+                                    .heightIn(min = 68.dp)
+                                    .padding(
+                                        start = MonicaSpacing.ListItemHorizontal,
+                                        end = MonicaSpacing.Medium,
+                                        top = MonicaSpacing.ListItemVertical,
+                                        bottom = MonicaSpacing.ListItemVertical
+                                    ),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                            modifier = Modifier.weight(1f)
-                                        ) {
-                                            // 🏷️ 数量徽章
-                                            Surface(
-                                                shape = RoundedCornerShape(18.dp),
-                                                color = MaterialTheme.colorScheme.primaryContainer,
-                                                shadowElevation = 2.dp
-                                            ) {
-                                                Row(
-                                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
-                                                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                                    verticalAlignment = Alignment.CenterVertically
-                                                ) {
-                                                    Icon(
-                                                        Icons.Default.Layers,
-                                                        contentDescription = null,
-                                                        modifier = Modifier.size(16.dp),
-                                                        tint = MaterialTheme.colorScheme.onPrimaryContainer
-                                                    )
-                                                    Text(
-                                                        text = "${passwords.size}",
-                                                        style = MaterialTheme.typography.labelLarge,
-                                                        fontWeight = FontWeight.Bold,
-                                                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                                                    )
-                                                }
-                                            }
-                                            
-                                            Column(modifier = Modifier.weight(1f)) {
-                                                Text(
-                                                    text = collapsedTitle,
-                                                    style = MaterialTheme.typography.titleMedium,
-                                                    fontWeight = FontWeight.SemiBold,
-                                                    maxLines = 1,
-                                                    overflow = TextOverflow.Ellipsis
-                                                )
-                                                if (leadPassword.website.isNotBlank()) {
-                                                    Text(
-                                                        text = leadPassword.website,
-                                                        style = MaterialTheme.typography.bodySmall,
-                                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                        maxLines = 1,
-                                                        overflow = TextOverflow.Ellipsis
-                                                    )
-                                                }
-                                            }
-                                        }
-                                        
-                                        Row(
-                                            horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            if (isSelectionMode) {
-                                                androidx.compose.material3.Checkbox(
-                                                    checked = isSelected,
-                                                    onCheckedChange = { onGroupSwipeRight(passwords) }
-                                                )
-                                            } else {
-                                                if (isGroupFavorited) {
-                                                    Icon(
-                                                        Icons.Default.Favorite,
-                                                        contentDescription = stringResource(R.string.favorite),
-                                                        tint = MaterialTheme.colorScheme.primary,
-                                                        modifier = Modifier.size(20.dp)
-                                                    )
-                                                }
-                                                Icon(
-                                                    Icons.Default.ExpandMore,
-                                                    contentDescription = stringResource(R.string.expand),
-                                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                    modifier = Modifier.size(22.dp)
-                                                )
-                                            }
-                                        }
+                                if (iconCardsEnabled) {
+                                    Box(modifier = Modifier.padding(end = MonicaSpacing.LeadingGap)) {
+                                        VaultItemIcon(
+                                            website = leadPassword.website,
+                                            title = leadPassword.title,
+                                            appPackageName = leadPassword.primaryLinkedAppPackageName(),
+                                            customIconType = leadPassword.customIconType,
+                                            customIconValue = leadPassword.customIconValue,
+                                            defaultIcon = Icons.Default.Key,
+                                            unmatchedIconHandlingStrategy = unmatchedIconHandlingStrategy,
+                                            size = 42.dp
+                                        )
+                                        StackCountBadge(
+                                            count = passwords.size,
+                                            modifier = Modifier
+                                                .align(Alignment.TopEnd)
+                                                .offset(x = 7.dp, y = (-7).dp)
+                                        )
                                     }
+                                } else {
+                                    StackCountPill(
+                                        count = passwords.size,
+                                        modifier = Modifier.padding(end = MonicaSpacing.Medium)
+                                    )
+                                }
+
+                                Column(
+                                    modifier = Modifier.weight(1f),
+                                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                                ) {
+                                    Text(
+                                        text = collapsedTitle,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    val countLabel = stringResource(R.string.passwords_count, passwords.size)
+                                    val host = remember(leadPassword.website) { displayHost(leadPassword.website) }
+                                    Text(
+                                        text = if (host.isBlank()) countLabel else "$countLabel · $host",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+
+                                if (isSelectionMode) {
+                                    androidx.compose.material3.Checkbox(
+                                        checked = isSelected,
+                                        onCheckedChange = { onGroupSwipeRight(passwords) }
+                                    )
+                                } else {
+                                    if (isGroupFavorited) {
+                                        Icon(
+                                            Icons.Default.Favorite,
+                                            contentDescription = stringResource(R.string.favorite),
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier
+                                                .padding(end = MonicaSpacing.Small)
+                                                .size(18.dp)
+                                        )
+                                    }
+                                    Icon(
+                                        Icons.Default.ExpandMore,
+                                        contentDescription = stringResource(R.string.expand),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.size(24.dp)
+                                    )
                                 }
                             }
                         } else {
                             // --- 展开状态的内容 ---
                             val edgeInteractionSource = remember { MutableInteractionSource() }
-                            val edgeContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.52f)
-                            val edgeBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.45f)
-                            val edgeHitWidth = 14.dp
-                            val edgeHitHeight = 12.dp
+                            val edgeHitWidth = 8.dp
+                            val edgeHitHeight = 8.dp
                             val edgeTapModifier = Modifier.clickable(
                                 interactionSource = edgeInteractionSource,
                                 indication = null,
@@ -491,20 +485,13 @@ fun StackedPasswordGroup(
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(horizontal = 12.dp, vertical = 10.dp)
-                                        .clip(RoundedCornerShape(16.dp))
-                                        .background(edgeContainerColor)
-                                        .border(
-                                            width = 1.dp,
-                                            color = edgeBorderColor,
-                                            shape = RoundedCornerShape(16.dp)
-                                        )
+                                        .padding(horizontal = 4.dp, vertical = 2.dp)
                                 ) {
                                     Column(
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .padding(horizontal = edgeHitWidth, vertical = edgeHitHeight),
-                                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                                        verticalArrangement = Arrangement.spacedBy(MonicaSpacing.Small)
                                     ) {
                                         val groupedByInfo = remember(passwords) {
                                             passwords
@@ -678,30 +665,69 @@ internal data class PasswordStackSummary(
 private fun AnimatedStackCard(
     transition: Transition<Boolean>,
     modifier: Modifier,
-    colors: CardColors,
+    color: Color,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    val cardElevation by transition.animateDp(
-        transitionSpec = { tween(200) },
-        label = "elevation"
-    ) { expanded ->
-        if (expanded) 4.dp else 6.dp
-    }
-    val cardShape by transition.animateDp(
-        transitionSpec = { tween(200) },
-        label = "shape"
-    ) { expanded ->
-        if (expanded) 16.dp else 14.dp
-    }
-
-    Card(
+    Surface(
         modifier = modifier,
-        shape = RoundedCornerShape(cardShape),
-        elevation = CardDefaults.cardElevation(defaultElevation = cardElevation),
-        colors = colors,
-        content = content
-    )
+        shape = MonicaShapeTokens.Item,
+        color = color,
+        contentColor = contentColorFor(color)
+    ) {
+        Column(content = content)
+    }
 }
+
+/** The number of items in a stack, pinned to the corner of its icon tile. */
+@Composable
+private fun StackCountBadge(count: Int, modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier.defaultMinSize(minWidth = 20.dp, minHeight = 20.dp),
+        shape = MonicaShapeTokens.Pill,
+        color = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.onPrimary,
+        border = BorderStroke(2.dp, MonicaDesign.surfaces.item)
+    ) {
+        Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(horizontal = 5.dp)) {
+            Text(
+                text = count.toString(),
+                style = MaterialTheme.typography.labelSmall.tabularNumbers,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+    }
+}
+
+/** Count marker for stacks shown without icons. */
+@Composable
+private fun StackCountPill(count: Int, modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier,
+        shape = MonicaShapeTokens.Pill,
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(Icons.Default.Layers, contentDescription = null, modifier = Modifier.size(16.dp))
+            Text(
+                text = count.toString(),
+                style = MaterialTheme.typography.labelLarge.tabularNumbers
+            )
+        }
+    }
+}
+
+/** `https://accounts.google.com/x` -> `accounts.google.com`. */
+internal fun displayHost(website: String): String =
+    website.trim()
+        .substringAfter("://")
+        .substringBefore('/')
+        .substringBefore('?')
+        .removePrefix("www.")
 
 internal fun summarizePasswordStack(
     passwords: List<takagi.ru.monica.data.PasswordEntry>

@@ -519,11 +519,22 @@ fun rememberUploadedPasswordIcon(value: String?): ImageBitmap? {
     return icon
 }
 
+/**
+ * @param darkVariant whether to prefer the `_dark` asset drawn for dark
+ * backgrounds. Pass the background the icon actually sits on; when null the
+ * system theme decides, which is wrong whenever Monica's own theme differs
+ * from the system's.
+ */
 @Composable
 @Suppress("UNUSED_PARAMETER")
-fun rememberSimpleIconBitmap(slug: String?, tintColor: Color, enabled: Boolean = true): ImageBitmap? {
+fun rememberSimpleIconBitmap(
+    slug: String?,
+    tintColor: Color,
+    enabled: Boolean = true,
+    darkVariant: Boolean? = null
+): ImageBitmap? {
     val context = LocalContext.current
-    val darkTheme = isSystemInDarkTheme()
+    val darkTheme = darkVariant ?: isSystemInDarkTheme()
     var icon by remember(slug, darkTheme, enabled) { mutableStateOf<ImageBitmap?>(null) }
     LaunchedEffect(slug, darkTheme, enabled) {
         if (!enabled || slug.isNullOrBlank()) {
@@ -541,7 +552,8 @@ fun rememberAutoMatchedSimpleIcon(
     title: String? = null,
     appPackageName: String? = null,
     tintColor: Color,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    darkVariant: Boolean? = null
 ): AutoMatchedSimpleIcon {
     val context = LocalContext.current
     var matchedSlug by remember(website, title, appPackageName, enabled) { mutableStateOf<String?>(null) }
@@ -569,7 +581,8 @@ fun rememberAutoMatchedSimpleIcon(
     val bitmap = rememberSimpleIconBitmap(
         slug = matchedSlug,
         tintColor = tintColor,
-        enabled = enabled && !matchedSlug.isNullOrBlank()
+        enabled = enabled && !matchedSlug.isNullOrBlank(),
+        darkVariant = darkVariant
     )
     return AutoMatchedSimpleIcon(slug = matchedSlug, bitmap = bitmap, resolved = resolved)
 }

@@ -2,7 +2,6 @@ package takagi.ru.monica.ui.components
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -32,12 +31,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -47,16 +44,6 @@ import androidx.compose.ui.unit.Velocity
 import takagi.ru.monica.R
 import takagi.ru.monica.data.PasswordEntry
 import takagi.ru.monica.data.primaryLinkedAppPackageName
-import takagi.ru.monica.ui.icons.PASSWORD_ICON_TYPE_NONE
-import takagi.ru.monica.ui.icons.PASSWORD_ICON_TYPE_SIMPLE
-import takagi.ru.monica.ui.icons.PASSWORD_ICON_TYPE_UPLOADED
-import takagi.ru.monica.ui.icons.PASSWORD_ICON_TYPE_EMOJI
-import takagi.ru.monica.ui.icons.EmojiIconText
-import takagi.ru.monica.ui.icons.rememberAutoMatchedSimpleIcon
-import takagi.ru.monica.ui.icons.rememberSimpleIconBitmap
-import takagi.ru.monica.ui.icons.rememberUploadedPasswordIcon
-import takagi.ru.monica.autofill_ng.ui.rememberAppIcon
-import takagi.ru.monica.autofill_ng.ui.rememberFavicon
 import java.net.URI
 import java.text.DateFormat
 import java.util.Date
@@ -491,69 +478,30 @@ private fun PasswordQuickAccessLeadingIcon(
     entry: PasswordEntry,
     iconCardsEnabled: Boolean
 ) {
-    val simpleIcon = if (iconCardsEnabled && entry.customIconType == PASSWORD_ICON_TYPE_SIMPLE) {
-        rememberSimpleIconBitmap(
-            slug = entry.customIconValue,
-            tintColor = MaterialTheme.colorScheme.primary,
-            enabled = true
+    if (iconCardsEnabled) {
+        takagi.ru.monica.ui.icons.VaultItemIcon(
+            website = entry.website,
+            title = entry.title,
+            appPackageName = entry.primaryLinkedAppPackageName(),
+            customIconType = entry.customIconType,
+            customIconValue = entry.customIconValue,
+            defaultIcon = Icons.Outlined.Lock,
+            size = 44.dp
         )
-    } else null
-    val uploadedIcon = if (iconCardsEnabled && entry.customIconType == PASSWORD_ICON_TYPE_UPLOADED) {
-        rememberUploadedPasswordIcon(entry.customIconValue)
-    } else null
-    val emojiIcon = entry.customIconValue.takeIf {
-        iconCardsEnabled && entry.customIconType == PASSWORD_ICON_TYPE_EMOJI
+        return
     }
-    val primaryAppPackageName = entry.primaryLinkedAppPackageName()
-    val appIcon = if (
-        iconCardsEnabled &&
-        primaryAppPackageName.isNotBlank() &&
-        !takagi.ru.monica.autofill_ng.ui.isWebAddress(entry.website)
-    ) {
-        rememberAppIcon(primaryAppPackageName)
-    } else null
-    val autoMatchedSimpleIcon = rememberAutoMatchedSimpleIcon(
-        website = entry.website,
-        title = entry.title,
-        appPackageName = primaryAppPackageName,
-        tintColor = MaterialTheme.colorScheme.primary,
-        enabled = iconCardsEnabled && entry.customIconType == PASSWORD_ICON_TYPE_NONE
-    )
-    val favicon = if (iconCardsEnabled && entry.website.isNotBlank()) {
-        rememberFavicon(
-            url = entry.website,
-            enabled = autoMatchedSimpleIcon.resolved && autoMatchedSimpleIcon.slug == null
-        )
-    } else null
-
     Surface(
         modifier = Modifier.size(44.dp),
-        shape = RoundedCornerShape(14.dp),
+        shape = takagi.ru.monica.ui.theme.MonicaShapeTokens.IconTile,
         color = MaterialTheme.colorScheme.primaryContainer
     ) {
         Box(contentAlignment = Alignment.Center) {
-            val image: ImageBitmap? = simpleIcon
-                ?: uploadedIcon
-                ?: autoMatchedSimpleIcon.bitmap
-                ?: favicon
-                ?: appIcon
-            if (emojiIcon != null) {
-                EmojiIconText(emoji = emojiIcon, size = 24.dp)
-            } else if (image != null) {
-                Image(
-                    bitmap = image,
-                    contentDescription = null,
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier.size(30.dp)
-                )
-            } else {
-                Icon(
-                    imageVector = Icons.Outlined.Lock,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
+            Icon(
+                imageVector = Icons.Outlined.Lock,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                modifier = Modifier.size(24.dp)
+            )
         }
     }
 }

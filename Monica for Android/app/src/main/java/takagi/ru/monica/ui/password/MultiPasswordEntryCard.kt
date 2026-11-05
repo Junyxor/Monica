@@ -1,7 +1,6 @@
 package takagi.ru.monica.ui.password
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,20 +12,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import takagi.ru.monica.ui.icons.EmojiIconText
 import takagi.ru.monica.R
 import takagi.ru.monica.data.PasswordCardDisplayField
 import takagi.ru.monica.data.PasswordEntry
 import takagi.ru.monica.data.primaryLinkedAppPackageName
 import takagi.ru.monica.data.UnmatchedIconHandlingStrategy
-import takagi.ru.monica.ui.icons.UnmatchedIconFallback
-import takagi.ru.monica.ui.icons.shouldShowFallbackSlot
+import takagi.ru.monica.ui.icons.VaultItemIcon
+import takagi.ru.monica.ui.theme.MonicaDesign
+import takagi.ru.monica.ui.theme.MonicaShapeTokens
+import takagi.ru.monica.ui.theme.MonicaSpacing
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
 @Composable
@@ -54,24 +52,19 @@ fun MultiPasswordEntryCard(
 ) {
     val firstEntry = passwords.first()
     val firstEntryTitle = firstEntry.title.ifBlank { stringResource(R.string.untitled) }
-    val cardShape = RoundedCornerShape(if (isInExpandedGroup) 12.dp else 16.dp)
+    val cardShape = if (isInExpandedGroup) MonicaShapeTokens.NestedItem else MonicaShapeTokens.Item
 
-    Card(
-        modifier = Modifier
-            .fillMaxWidth(),
-        colors = if (passwords.any { selectedPasswords.contains(it.id) }) {
-            CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer
-            )
-        } else {
-            CardDefaults.cardColors()
-        },
-        elevation = if (isInExpandedGroup) {
-            CardDefaults.cardElevation(defaultElevation = 2.dp)
-        } else {
-            CardDefaults.cardElevation(defaultElevation = 3.dp, pressedElevation = 6.dp)
-        },
-        shape = cardShape
+    val anySelected = passwords.any { selectedPasswords.contains(it.id) }
+    val containerColor = when {
+        anySelected -> MaterialTheme.colorScheme.primaryContainer
+        isInExpandedGroup -> MonicaDesign.surfaces.nestedItem
+        else -> MonicaDesign.surfaces.item
+    }
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = cardShape,
+        color = containerColor,
+        contentColor = contentColorFor(containerColor)
     ) {
         Column(
             modifier = Modifier
@@ -82,8 +75,11 @@ fun MultiPasswordEntryCard(
                     onClick = { if (isSelectionMode) onClick(firstEntry) else onCardClick?.invoke() },
                     onLongClick = onLongClick
                 )
-                .padding(if (isInExpandedGroup) 12.dp else 14.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .padding(
+                    horizontal = if (isInExpandedGroup) MonicaSpacing.Medium else MonicaSpacing.ListItemHorizontal,
+                    vertical = MonicaSpacing.Medium
+                ),
+            verticalArrangement = Arrangement.spacedBy(MonicaSpacing.Small)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -91,105 +87,22 @@ fun MultiPasswordEntryCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 if (iconCardsEnabled) {
-                    val simpleIcon = if (firstEntry.customIconType == takagi.ru.monica.ui.icons.PASSWORD_ICON_TYPE_SIMPLE) {
-                        takagi.ru.monica.ui.icons.rememberSimpleIconBitmap(
-                            slug = firstEntry.customIconValue,
-                            tintColor = MaterialTheme.colorScheme.primary,
-                            enabled = true
-                        )
-                    } else {
-                        null
-                    }
-                    val uploadedIcon = if (firstEntry.customIconType == takagi.ru.monica.ui.icons.PASSWORD_ICON_TYPE_UPLOADED) {
-                        takagi.ru.monica.ui.icons.rememberUploadedPasswordIcon(firstEntry.customIconValue)
-                    } else {
-                        null
-                    }
-                    val primaryAppPackageName = firstEntry.primaryLinkedAppPackageName()
-                    val appIcon = if (
-                        primaryAppPackageName.isNotBlank() &&
-                        !takagi.ru.monica.autofill_ng.ui.isWebAddress(firstEntry.website)
-                    ) {
-                        takagi.ru.monica.autofill_ng.ui.rememberAppIcon(primaryAppPackageName)
-                    } else null
-                    val autoMatchedSimpleIcon = takagi.ru.monica.ui.icons.rememberAutoMatchedSimpleIcon(
+                    VaultItemIcon(
                         website = firstEntry.website,
                         title = firstEntry.title,
-                        appPackageName = primaryAppPackageName,
-                        tintColor = MaterialTheme.colorScheme.primary,
-                        enabled = firstEntry.customIconType == takagi.ru.monica.ui.icons.PASSWORD_ICON_TYPE_NONE
+                        appPackageName = firstEntry.primaryLinkedAppPackageName(),
+                        customIconType = firstEntry.customIconType,
+                        customIconValue = firstEntry.customIconValue,
+                        defaultIcon = Icons.Default.Key,
+                        unmatchedIconHandlingStrategy = unmatchedIconHandlingStrategy,
+                        size = if (isInExpandedGroup) 36.dp else 42.dp,
+                        endSpacing = MonicaSpacing.Medium
                     )
-
-                    val favicon = if (firstEntry.website.isNotBlank()) {
-                        takagi.ru.monica.autofill_ng.ui.rememberFavicon(
-                            url = firstEntry.website,
-                            enabled = autoMatchedSimpleIcon.resolved && autoMatchedSimpleIcon.slug == null
-                        )
-                    } else null
-
-                    val emojiIcon = firstEntry.customIconValue.takeIf { firstEntry.customIconType == takagi.ru.monica.ui.icons.PASSWORD_ICON_TYPE_EMOJI }
-                    if (emojiIcon != null) {
-                        EmojiIconText(emoji = emojiIcon, size = 26.dp)
-                        Spacer(modifier = Modifier.width(12.dp))
-                    } else if (simpleIcon != null) {
-                        Image(
-                            bitmap = simpleIcon,
-                            contentDescription = null,
-                            contentScale = ContentScale.Fit,
-                            modifier = Modifier.size(32.dp).padding(1.dp)
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                    } else if (uploadedIcon != null) {
-                        Image(
-                            bitmap = uploadedIcon,
-                            contentDescription = null,
-                            contentScale = ContentScale.Fit,
-                            modifier = Modifier.size(32.dp).padding(1.dp)
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                    } else if (autoMatchedSimpleIcon.bitmap != null) {
-                        Image(
-                            bitmap = autoMatchedSimpleIcon.bitmap,
-                            contentDescription = null,
-                            contentScale = ContentScale.Fit,
-                            modifier = Modifier.size(32.dp).padding(1.dp)
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                    } else if (favicon != null) {
-                        Image(
-                            bitmap = favicon,
-                            contentDescription = null,
-                            contentScale = ContentScale.Fit,
-                            modifier = Modifier.size(32.dp).padding(1.dp)
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                    } else if (appIcon != null) {
-                        Image(
-                            bitmap = appIcon,
-                            contentDescription = null,
-                            contentScale = ContentScale.Fit,
-                            modifier = Modifier.size(32.dp).padding(1.dp)
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                    } else if (shouldShowFallbackSlot(unmatchedIconHandlingStrategy)) {
-                        UnmatchedIconFallback(
-                            strategy = unmatchedIconHandlingStrategy,
-                            primaryText = firstEntry.website,
-                            secondaryText = firstEntry.title,
-                            defaultIcon = Icons.Default.Key,
-                            iconSize = 32.dp
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                    }
                 }
 
                 Text(
                     text = firstEntryTitle,
-                    style = if (isInExpandedGroup) {
-                        MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
-                    } else {
-                        MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-                    },
+                    style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.weight(1f),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -305,32 +218,15 @@ fun MultiPasswordEntryCard(
             } else {
                 resolvePasswordCardDisplayLines(firstEntry, passwordCardDisplayFields).take(3)
             }
+            val showLineIcons = displayLines.size > 1
             displayLines.forEach { line ->
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(if (isInExpandedGroup) 6.dp else 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        line.icon,
-                        contentDescription = null,
-                        modifier = Modifier.size(if (isInExpandedGroup) 16.dp else 18.dp),
-                        tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
-                    )
-                    Text(
-                        text = line.text,
-                        style = if (isInExpandedGroup) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
+                PasswordCardDetailLine(line = line, showIcon = showLineIcons)
             }
 
             if (showAuthenticator) {
                 if (authenticatorState != null) {
-                    MultiPasswordAuthenticatorInlineRow(
+                    PasswordAuthenticatorInlineRow(
                         state = authenticatorState,
-                        isInExpandedGroup = isInExpandedGroup,
                         smoothProgress = smoothAuthenticatorProgress
                     )
                 }
@@ -402,52 +298,6 @@ fun MultiPasswordEntryCard(
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun MultiPasswordAuthenticatorInlineRow(
-    state: PasswordAuthenticatorDisplayState,
-    isInExpandedGroup: Boolean,
-    smoothProgress: Boolean
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(if (isInExpandedGroup) 6.dp else 8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.Default.Security,
-                contentDescription = null,
-                modifier = Modifier.size(if (isInExpandedGroup) 16.dp else 18.dp),
-                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
-            )
-            Text(
-                text = state.code,
-                style = if (isInExpandedGroup) {
-                    MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold)
-                } else {
-                    MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
-                },
-                color = MaterialTheme.colorScheme.primary,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f)
-            )
-            state.remainingSeconds?.let { remaining ->
-                Text(
-                    text = stringResource(R.string.password_card_authenticator_seconds, remaining),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-        if (state.progress != null) {
-            PasswordAuthenticatorProgressIndicator(
-                state = state,
-                smoothProgress = smoothProgress
-            )
         }
     }
 }

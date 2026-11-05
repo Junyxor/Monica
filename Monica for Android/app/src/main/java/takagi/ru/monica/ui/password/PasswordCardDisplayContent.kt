@@ -6,18 +6,23 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Update
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -167,7 +172,54 @@ internal fun PasswordAuthenticatorProgressIndicator(
     smoothProgress: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val sampledProgress = state.progress ?: return
+    val animatedProgress = rememberAnimatedAuthenticatorProgress(state, smoothProgress) ?: return
+
+    LinearProgressIndicator(
+        progress = { animatedProgress.value },
+        modifier = modifier
+            .fillMaxWidth()
+            .height(4.dp),
+        color = MaterialTheme.colorScheme.primary,
+        trackColor = MaterialTheme.colorScheme.surfaceVariant
+    )
+}
+
+/**
+ * A small ring that empties as the code's period runs out. Sized to sit on a
+ * text baseline next to the code.
+ */
+@Composable
+internal fun PasswordAuthenticatorCountdownRing(
+    state: PasswordAuthenticatorDisplayState,
+    smoothProgress: Boolean,
+    color: Color,
+    modifier: Modifier = Modifier,
+    size: Dp = 14.dp
+) {
+    val elapsed = rememberAnimatedAuthenticatorProgress(state, smoothProgress) ?: return
+    CircularProgressIndicator(
+        // Read in the draw phase so only the ring redraws as it animates.
+        progress = { 1f - elapsed.value },
+        modifier = modifier.size(size),
+        color = color,
+        strokeWidth = 2.dp,
+        trackColor = color.copy(alpha = 0.18f),
+        strokeCap = StrokeCap.Round,
+        gapSize = 0.dp
+    )
+}
+
+/**
+ * The elapsed fraction of the current period, animated. With
+ * [smoothProgress] it glides linearly to the next second's value; otherwise it
+ * steps once per second.
+ */
+@Composable
+private fun rememberAnimatedAuthenticatorProgress(
+    state: PasswordAuthenticatorDisplayState,
+    smoothProgress: Boolean
+): Animatable<Float, *>? {
+    val sampledProgress = state.progress ?: return null
     val clampedProgress = if (sampledProgress.isFinite()) {
         sampledProgress.coerceIn(0f, 1f)
     } else {
@@ -192,15 +244,7 @@ internal fun PasswordAuthenticatorProgressIndicator(
             )
         }
     }
-
-    LinearProgressIndicator(
-        progress = { animatedProgress.value },
-        modifier = modifier
-            .fillMaxWidth()
-            .height(4.dp),
-        color = MaterialTheme.colorScheme.primary,
-        trackColor = MaterialTheme.colorScheme.surfaceVariant
-    )
+    return animatedProgress
 }
 
 private fun parsePasswordAuthenticatorTotpData(
