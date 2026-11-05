@@ -9,18 +9,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import takagi.ru.monica.ui.theme.MonicaDesign
+import takagi.ru.monica.ui.theme.MonicaShapeTokens
 
 /**
  * Corner treatment shared by every item card and its gesture container.
  * Keeping one shape prevents the outer swipe surface from exposing a second,
  * larger radius around the actual card.
  */
-val MonicaItemCardShape = RoundedCornerShape(8.dp)
+val MonicaItemCardShape = MonicaShapeTokens.Item
 
 // ID-1 cards have an approximately 3.18 mm radius on a 53.98 mm short edge.
 val BankCardShape = RoundedCornerShape(percent = 6)
 
-/** Shared surface for compact vault items across list and tile layouts. */
+/**
+ * Shared surface for vault items across list and tile layouts: a flat tonal
+ * card. Separation comes from the surface tone, not a shadow, so items stay
+ * crisp on OLED black and in long lists.
+ */
 @Composable
 fun MonicaItemCard(
     isSelected: Boolean,
@@ -32,12 +38,12 @@ fun MonicaItemCard(
     Card(
         modifier = modifier,
         shape = shape,
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         colors = CardDefaults.cardColors(
             containerColor = when {
                 transparentContainer -> Color.Transparent
                 isSelected -> MaterialTheme.colorScheme.primaryContainer
-                else -> MaterialTheme.colorScheme.surfaceContainer
+                else -> MonicaDesign.surfaces.item
             }
         ),
         content = content

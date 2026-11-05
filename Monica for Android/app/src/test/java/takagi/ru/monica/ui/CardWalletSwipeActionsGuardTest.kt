@@ -38,15 +38,23 @@ class CardWalletSwipeActionsGuardTest {
     }
 
     @Test
-    fun swipeContainerUsesTheSameEightDpShapeAsVaultCards() {
+    fun swipeContainerUsesTheSameShapeAsVaultCards() {
         val cardSource = projectFile(
             "app/src/main/java/takagi/ru/monica/ui/components/MonicaItemCard.kt"
+        ).readSourceText().replace("\r\n", "\n")
+        val shapeSource = projectFile(
+            "app/src/main/java/takagi/ru/monica/ui/theme/Shape.kt"
         ).readSourceText().replace("\r\n", "\n")
         val swipeSource = projectFile(
             "app/src/main/java/takagi/ru/monica/ui/gestures/SwipeActions.kt"
         ).readSourceText().replace("\r\n", "\n")
 
-        assertTrue(cardSource.contains("val MonicaItemCardShape = RoundedCornerShape(8.dp)"))
+        // Item cards take their corner from the design token, and the swipe
+        // container's default corner is that same 16 dp, so callers that do
+        // not pass a shape still get one radius instead of two.
+        assertTrue(cardSource.contains("val MonicaItemCardShape = MonicaShapeTokens.Item"))
+        assertTrue(shapeSource.contains("val ItemCornerRadius = 16.dp"))
+        assertTrue(shapeSource.contains("val Item = RoundedCornerShape(ItemCornerRadius)"))
         assertTrue(swipeSource.contains("cardShape: Shape = RoundedCornerShape(16.dp)"))
         assertTrue(swipeSource.contains("val componentShape = cardShape"))
     }

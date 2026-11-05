@@ -1251,14 +1251,23 @@ fun MonicaTheme(
     val entryContext = LocalContext.current
     val entrySettingsManager = remember(entryContext) { takagi.ru.monica.utils.SettingsManager(entryContext) }
     val entrySettings by entrySettingsManager.settingsFlow.collectAsState(initial = null)
+    val surfaces = remember(finalColorScheme, darkTheme, oledPureBlackEnabled) {
+        monicaSurfaceColors(
+            colorScheme = finalColorScheme,
+            darkTheme = darkTheme,
+            pureBlack = darkTheme && oledPureBlackEnabled
+        )
+    }
     CompositionLocalProvider(
         takagi.ru.monica.ui.components.LocalEntryContentStyle provides (entrySettings?.passwordContentEditorEnabled == true),
         takagi.ru.monica.ui.components.LocalEntryFieldMotion provides
             (entrySettings?.passwordContentEditorEnabled == true && entrySettings?.reduceAnimations == false),
+        LocalMonicaSurfaces provides surfaces,
     ) {
     MaterialTheme(
         colorScheme = finalColorScheme,
         typography = Typography,
+        shapes = MonicaShapes,
         content = content
     )
     }

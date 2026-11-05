@@ -87,6 +87,7 @@ import takagi.ru.monica.ui.components.rankFrequentPasswordQuickAccessItems
 import takagi.ru.monica.ui.components.rankRecentPasswordQuickAccessItems
 import takagi.ru.monica.ui.components.CardWalletAddTypeChip
 import takagi.ru.monica.ui.main.navigation.BottomNavItem
+import takagi.ru.monica.ui.main.navigation.MonicaBottomNavigationBar
 import takagi.ru.monica.ui.main.navigation.indexToDefaultTabKey
 import takagi.ru.monica.ui.main.navigation.shortLabelRes
 import takagi.ru.monica.ui.main.navigation.toBottomNavItem
@@ -2087,28 +2088,11 @@ fun SimpleMainScreen(
                         }
                     }
 
-                    NavigationBar(
-                        tonalElevation = 0.dp,
-                        containerColor = MaterialTheme.colorScheme.surface
-                    ) {
-                        tabs.forEach { item ->
-                            val label = stringResource(item.shortLabelRes())
-                            NavigationBarItem(
-                                icon = {
-                                    Icon(item.icon, contentDescription = label)
-                                },
-                                label = {
-                                    Text(
-                                        text = label,
-                                        maxLines = 2,
-                                        overflow = TextOverflow.Clip
-                                    )
-                                },
-                                selected = item.key == selectedDockTab.key,
-                                onClick = { selectedTabKey = item.key }
-                            )
-                        }
-                    }
+                    MonicaBottomNavigationBar(
+                        tabs = tabs,
+                        selectedKey = selectedDockTab.key,
+                        onSelect = { item -> selectedTabKey = item.key }
+                    )
                 }
             }
         },

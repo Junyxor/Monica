@@ -10,7 +10,6 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -32,7 +31,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -99,11 +97,8 @@ import takagi.ru.monica.utils.planLocalCategoryMove
 import takagi.ru.monica.viewmodel.PasskeyViewModel
 import takagi.ru.monica.viewmodel.PasswordViewModel
 import kotlinx.coroutines.flow.flowOf
-import takagi.ru.monica.autofill_ng.ui.rememberAppIcon
-import takagi.ru.monica.autofill_ng.ui.rememberFavicon
 import takagi.ru.monica.ui.common.state.rememberSaveableLazyListState
 import takagi.ru.monica.ui.icons.UnmatchedIconFallback
-import takagi.ru.monica.ui.icons.rememberAutoMatchedSimpleIcon
 import takagi.ru.monica.ui.icons.shouldShowFallbackSlot
 import takagi.ru.monica.ui.password.PasskeyScanTopActionsMenuItem
 import takagi.ru.monica.ui.password.PasswordTopActionsDropdownMenu
@@ -1722,48 +1717,6 @@ private fun PasskeyListItem(
         null
     }
     val boundCustomIconType = boundPassword?.customIconType ?: takagi.ru.monica.ui.icons.PASSWORD_ICON_TYPE_NONE
-    val boundEmoji = boundPassword?.customIconValue?.takeIf {
-        iconCardsEnabled && boundCustomIconType == takagi.ru.monica.ui.icons.PASSWORD_ICON_TYPE_EMOJI
-    }
-    val boundSimpleIcon = if (iconCardsEnabled && boundCustomIconType == takagi.ru.monica.ui.icons.PASSWORD_ICON_TYPE_SIMPLE) {
-        takagi.ru.monica.ui.icons.rememberSimpleIconBitmap(
-            slug = boundPassword?.customIconValue,
-            tintColor = MaterialTheme.colorScheme.primary,
-            enabled = true
-        )
-    } else {
-        null
-    }
-    val boundUploadedIcon = if (iconCardsEnabled && boundCustomIconType == takagi.ru.monica.ui.icons.PASSWORD_ICON_TYPE_UPLOADED) {
-        takagi.ru.monica.ui.icons.rememberUploadedPasswordIcon(boundPassword?.customIconValue)
-    } else {
-        null
-    }
-    val autoMatchedSimpleIcon = rememberAutoMatchedSimpleIcon(
-        website = iconWebsite,
-        title = iconTitle,
-        appPackageName = iconAppPackage,
-        tintColor = MaterialTheme.colorScheme.primary,
-        enabled = iconCardsEnabled && boundCustomIconType == takagi.ru.monica.ui.icons.PASSWORD_ICON_TYPE_NONE
-    )
-    val favicon = if (iconWebsite.isNotBlank()) {
-        rememberFavicon(
-            url = iconWebsite,
-            enabled = iconCardsEnabled && autoMatchedSimpleIcon.resolved && autoMatchedSimpleIcon.slug == null
-        )
-    } else {
-        null
-    }
-    val appIcon = if (
-        iconCardsEnabled &&
-        !iconAppPackage.isNullOrBlank() &&
-        !takagi.ru.monica.autofill_ng.ui.isWebAddress(iconWebsite)
-    ) {
-        rememberAppIcon(iconAppPackage)
-    } else {
-        null
-    }
-
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -1803,80 +1756,30 @@ private fun PasskeyListItem(
                     modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Passkey 图标（无背景直出）
-                    var iconSlotVisible = true
-                    when {
-                        boundEmoji != null -> {
-                            takagi.ru.monica.ui.icons.EmojiIconText(
-                                emoji = boundEmoji,
-                                size = 28.dp,
-                                modifier = Modifier.size(40.dp),
-                            )
-                        }
-                        iconCardsEnabled && boundSimpleIcon != null -> {
-                            Image(
-                                bitmap = boundSimpleIcon,
-                                contentDescription = null,
-                                contentScale = ContentScale.Fit,
-                                modifier = Modifier
-                                    .size(40.dp)
-                            )
-                        }
-                        iconCardsEnabled && boundUploadedIcon != null -> {
-                            Image(
-                                bitmap = boundUploadedIcon,
-                                contentDescription = null,
-                                contentScale = ContentScale.Fit,
-                                modifier = Modifier
-                                    .size(40.dp)
-                            )
-                        }
-                        iconCardsEnabled && autoMatchedSimpleIcon.bitmap != null -> {
-                            Image(
-                                bitmap = autoMatchedSimpleIcon.bitmap,
-                                contentDescription = null,
-                                contentScale = ContentScale.Fit,
-                                modifier = Modifier
-                                    .size(40.dp)
-                            )
-                        }
-                        iconCardsEnabled && favicon != null -> {
-                            Image(
-                                bitmap = favicon,
-                                contentDescription = null,
-                                contentScale = ContentScale.Fit,
-                                modifier = Modifier
-                                    .size(40.dp)
-                            )
-                        }
-                        iconCardsEnabled && appIcon != null -> {
-                            Image(
-                                bitmap = appIcon,
-                                contentDescription = null,
-                                contentScale = ContentScale.Fit,
-                                modifier = Modifier
-                                    .size(40.dp)
-                            )
-                        }
-                        else -> {
-                            if (shouldShowFallbackSlot(unmatchedIconHandlingStrategy)) {
-                                UnmatchedIconFallback(
-                                    strategy = unmatchedIconHandlingStrategy,
-                                    primaryText = iconWebsite,
-                                    secondaryText = iconTitle,
-                                    defaultIcon = Icons.Default.Key,
-                                    iconSize = 40.dp
-                                )
-                            } else {
-                                iconSlotVisible = false
-                            }
-                        }
-                    }
-
-                    if (iconSlotVisible) {
+                    // Passkey 图标：与密码列表同一套图标解析与图标底板
+                    if (iconCardsEnabled) {
+                        takagi.ru.monica.ui.icons.VaultItemIcon(
+                            website = iconWebsite,
+                            title = iconTitle,
+                            appPackageName = iconAppPackage.orEmpty(),
+                            customIconType = boundCustomIconType,
+                            customIconValue = boundPassword?.customIconValue,
+                            defaultIcon = Icons.Default.Key,
+                            unmatchedIconHandlingStrategy = unmatchedIconHandlingStrategy,
+                            size = 40.dp,
+                            endSpacing = 12.dp
+                        )
+                    } else if (shouldShowFallbackSlot(unmatchedIconHandlingStrategy)) {
+                        UnmatchedIconFallback(
+                            strategy = unmatchedIconHandlingStrategy,
+                            primaryText = iconWebsite,
+                            secondaryText = iconTitle,
+                            defaultIcon = Icons.Default.Key,
+                            iconSize = 40.dp
+                        )
                         Spacer(modifier = Modifier.width(12.dp))
                     }
-                    
+
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = passkey.displayTitle(),

@@ -109,8 +109,13 @@ class PasswordQuickAccessSheetTest {
         assertTrue(source.contains("activeItems.size <= QUICK_ACCESS_COMPACT_LIST_LIMIT"))
         assertTrue(source.contains("rememberLazyListState()"))
         assertTrue(source.contains("key = { it.entry.id }"))
-        assertTrue(source.contains("rememberAutoMatchedSimpleIcon("))
-        assertTrue(source.contains("rememberFavicon("))
+        // Rows show brand marks and favicons through the shared vault icon.
+        assertTrue(source.contains("VaultItemIcon("))
+        val iconSource = projectFile(
+            "app/src/main/java/takagi/ru/monica/ui/icons/VaultItemIcon.kt"
+        ).readText()
+        assertTrue(iconSource.contains("rememberAutoMatchedSimpleIcon("))
+        assertTrue(iconSource.contains("rememberFavicon("))
         assertTrue(source.contains("contentWindowInsets = {"))
         assertTrue(source.contains("WindowInsets(0, 0, 0, 0)"))
         assertTrue(source.contains("nestedScroll(topHandoffConnection)"))

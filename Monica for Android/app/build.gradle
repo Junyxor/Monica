@@ -167,6 +167,14 @@ android {
 
     testOptions {
         unitTests.includeAndroidResources = true
+        unitTests.all {
+            // Design previews render real composables to PNG with Robolectric's native
+            // graphics. They are opt-in because native rendering is slow:
+            // ./gradlew :app:testDebugUnitTest --tests '*DesignPreview*' -PmonicaDesignPreviews
+            systemProperty 'monica.designPreviews', project.hasProperty('monicaDesignPreviews') ? 'true' : 'false'
+            systemProperty 'monica.designPreviews.dir', layout.buildDirectory.dir('outputs/design-previews').get().asFile.absolutePath
+            systemProperty 'robolectric.pixelCopyRenderMode', 'hardware'
+        }
     }
 
     sourceSets {
@@ -373,6 +381,8 @@ dependencies {
     testImplementation 'org.robolectric:robolectric:4.16.1'
     testImplementation libs.kotlin.coroutines.test
     testImplementation 'com.squareup.okhttp3:mockwebserver:4.12.0'
+    testImplementation platform(libs.androidx.compose.bom)
+    testImplementation libs.androidx.ui.test.junit4
     androidTestImplementation libs.androidx.junit
     androidTestImplementation 'com.squareup.okhttp3:mockwebserver:4.12.0'
     androidTestImplementation libs.androidx.espresso.core

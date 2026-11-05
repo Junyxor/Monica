@@ -169,7 +169,7 @@ fun ExpressiveTopBar(
             Text(
                 text = title,
                 style = titleStyle,
-                fontWeight = FontWeight.Bold,
+                fontWeight = if (isLongTitle) FontWeight.SemiBold else FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground,
                 maxLines = if (isLongTitle) 2 else 1,
                 overflow = TextOverflow.Clip
@@ -214,8 +214,8 @@ fun ExpressiveTopBar(
                         }
                     },
                 shape = RoundedCornerShape(50),
-                color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                tonalElevation = 2.dp
+                color = takagi.ru.monica.ui.theme.MonicaDesign.surfaces.toolbar,
+                tonalElevation = 0.dp
             ) {
                 // 内容切换
                 AnimatedContent(

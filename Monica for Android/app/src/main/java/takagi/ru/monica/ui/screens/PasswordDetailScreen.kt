@@ -20,7 +20,6 @@ import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -38,7 +37,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -108,13 +106,6 @@ import takagi.ru.monica.data.SsoProvider
 import takagi.ru.monica.data.bitwarden.BitwardenFolder
 import takagi.ru.monica.attachments.AttachmentContainer
 import takagi.ru.monica.attachments.facade.AttachmentFacade
-import takagi.ru.monica.ui.icons.UnmatchedIconFallback
-import takagi.ru.monica.ui.icons.rememberAutoMatchedSimpleIcon
-import takagi.ru.monica.ui.icons.rememberSimpleIconBitmap
-import takagi.ru.monica.ui.icons.rememberUploadedPasswordIcon
-import takagi.ru.monica.ui.icons.shouldShowFallbackSlot
-import takagi.ru.monica.autofill_ng.ui.rememberAppIcon
-import takagi.ru.monica.autofill_ng.ui.rememberFavicon
 import takagi.ru.monica.ui.password.BitwardenSyncSnapshotSection
 import takagi.ru.monica.ui.password.getPasswordInfoKey
 import kotlinx.coroutines.flow.flowOf
@@ -1699,99 +1690,17 @@ private fun PasswordDetailIcon(
     entry: PasswordEntry,
     unmatchedIconHandlingStrategy: UnmatchedIconHandlingStrategy
 ) {
-    val simpleIcon = if (entry.customIconType == takagi.ru.monica.ui.icons.PASSWORD_ICON_TYPE_SIMPLE) {
-        rememberSimpleIconBitmap(
-            slug = entry.customIconValue,
-            tintColor = MaterialTheme.colorScheme.primary,
-            enabled = true
-        )
-    } else null
-    val uploadedIcon = if (entry.customIconType == takagi.ru.monica.ui.icons.PASSWORD_ICON_TYPE_UPLOADED) {
-        rememberUploadedPasswordIcon(entry.customIconValue)
-    } else null
-    val emojiIcon = entry.customIconValue.takeIf {
-        entry.customIconType == takagi.ru.monica.ui.icons.PASSWORD_ICON_TYPE_EMOJI
-    }
-    val primaryAppPackageName = entry.primaryLinkedAppPackageName()
-    val appIcon = if (
-        primaryAppPackageName.isNotBlank() &&
-        !takagi.ru.monica.autofill_ng.ui.isWebAddress(entry.website)
-    ) {
-        rememberAppIcon(primaryAppPackageName)
-    } else null
-    val autoMatchedSimpleIcon = rememberAutoMatchedSimpleIcon(
-        website = entry.website,
-        title = entry.title,
-        appPackageName = primaryAppPackageName,
-        tintColor = MaterialTheme.colorScheme.primary,
-        enabled = entry.customIconType == takagi.ru.monica.ui.icons.PASSWORD_ICON_TYPE_NONE
-    )
     val primaryWebsite = remember(entry.website) { normalizeWebsiteUrl(entry.website) }
-    val favicon = if (!primaryWebsite.isNullOrBlank()) {
-        rememberFavicon(
-            url = primaryWebsite,
-            enabled = autoMatchedSimpleIcon.resolved && autoMatchedSimpleIcon.slug == null
-        )
-    } else null
-
-    when {
-        emojiIcon != null -> {
-            takagi.ru.monica.ui.icons.EmojiIconText(
-                emoji = emojiIcon,
-                size = 34.dp,
-                modifier = Modifier.size(52.dp)
-            )
-        }
-        simpleIcon != null -> {
-            Image(
-                bitmap = simpleIcon,
-                contentDescription = null,
-                contentScale = ContentScale.Fit,
-                modifier = Modifier.size(52.dp).padding(2.dp)
-            )
-        }
-        uploadedIcon != null -> {
-            Image(
-                bitmap = uploadedIcon,
-                contentDescription = null,
-                contentScale = ContentScale.Fit,
-                modifier = Modifier.size(52.dp).padding(2.dp)
-            )
-        }
-        autoMatchedSimpleIcon.bitmap != null -> {
-            Image(
-                bitmap = autoMatchedSimpleIcon.bitmap,
-                contentDescription = null,
-                contentScale = ContentScale.Fit,
-                modifier = Modifier.size(52.dp).padding(2.dp)
-            )
-        }
-        favicon != null -> {
-            Image(
-                bitmap = favicon,
-                contentDescription = null,
-                contentScale = ContentScale.Fit,
-                modifier = Modifier.size(52.dp).padding(2.dp)
-            )
-        }
-        appIcon != null -> {
-            Image(
-                bitmap = appIcon,
-                contentDescription = null,
-                contentScale = ContentScale.Fit,
-                modifier = Modifier.size(52.dp).padding(2.dp)
-            )
-        }
-        shouldShowFallbackSlot(unmatchedIconHandlingStrategy) -> {
-            UnmatchedIconFallback(
-                strategy = unmatchedIconHandlingStrategy,
-                primaryText = entry.website,
-                secondaryText = entry.title,
-                defaultIcon = Icons.Default.Key,
-                iconSize = 52.dp
-            )
-        }
-    }
+    takagi.ru.monica.ui.icons.VaultItemIcon(
+        website = primaryWebsite ?: entry.website,
+        title = entry.title,
+        appPackageName = entry.primaryLinkedAppPackageName(),
+        customIconType = entry.customIconType,
+        customIconValue = entry.customIconValue,
+        defaultIcon = Icons.Default.Key,
+        unmatchedIconHandlingStrategy = unmatchedIconHandlingStrategy,
+        size = 52.dp
+    )
 }
 
 @Composable

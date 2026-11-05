@@ -10,12 +10,10 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
@@ -32,7 +30,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.platform.LocalContext
@@ -42,12 +39,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.progressBarRangeInfo
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import takagi.ru.monica.R
+import takagi.ru.monica.ui.icons.VaultItemIcon
+import takagi.ru.monica.ui.theme.MonicaSpacing
+import takagi.ru.monica.ui.theme.tabularNumbers
 import takagi.ru.monica.data.AppSettings
 import takagi.ru.monica.data.ProgressBarStyle
 import takagi.ru.monica.data.SecureItem
@@ -59,8 +58,6 @@ import takagi.ru.monica.util.TotpDataResolver
 import kotlin.math.PI
 import kotlin.math.sin
 import takagi.ru.monica.bitwarden.sync.SyncStatus
-import takagi.ru.monica.ui.icons.UnmatchedIconFallback
-import takagi.ru.monica.ui.icons.shouldShowFallbackSlot
 import takagi.ru.monica.ui.nextSmoothTotpProgressTarget
 import takagi.ru.monica.ui.rememberTotpTickerMillis
 import takagi.ru.monica.ui.shouldResetSmoothTotpProgress
@@ -252,47 +249,6 @@ fun TotpCodeCard(
     val iconWebsite = remember(totpData.link) { totpData.link.trim() }
     val iconTitle = remember(item.title, totpData.issuer) { totpData.issuer.ifBlank { item.title } }
     val associatedAppPackage = remember(totpData.associatedApp) { totpData.associatedApp.trim() }
-    val selectedSimpleIconBitmap = takagi.ru.monica.ui.icons.rememberSimpleIconBitmap(
-        slug = if (totpData.customIconType == takagi.ru.monica.ui.icons.PASSWORD_ICON_TYPE_SIMPLE) {
-            totpData.customIconValue
-        } else {
-            null
-        },
-        tintColor = MaterialTheme.colorScheme.primary,
-        enabled = settings.iconCardsEnabled
-    )
-    val selectedUploadedIconBitmap = takagi.ru.monica.ui.icons.rememberUploadedPasswordIcon(
-        value = if (totpData.customIconType == takagi.ru.monica.ui.icons.PASSWORD_ICON_TYPE_UPLOADED) {
-            totpData.customIconValue
-        } else {
-            null
-        }
-    )
-    val autoMatchedSimpleIcon = takagi.ru.monica.ui.icons.rememberAutoMatchedSimpleIcon(
-        website = iconWebsite,
-        title = iconTitle,
-        appPackageName = associatedAppPackage.ifBlank { null },
-        tintColor = MaterialTheme.colorScheme.primary,
-        enabled = settings.iconCardsEnabled &&
-            totpData.customIconType == takagi.ru.monica.ui.icons.PASSWORD_ICON_TYPE_NONE
-    )
-    val favicon = if (iconWebsite.isNotBlank()) {
-        takagi.ru.monica.autofill_ng.ui.rememberFavicon(
-            url = iconWebsite,
-            enabled = settings.iconCardsEnabled && autoMatchedSimpleIcon.resolved && autoMatchedSimpleIcon.slug == null
-        )
-    } else {
-        null
-    }
-    val appIcon = if (
-        settings.iconCardsEnabled &&
-        associatedAppPackage.isNotBlank() &&
-        !takagi.ru.monica.autofill_ng.ui.isWebAddress(iconWebsite)
-    ) {
-        takagi.ru.monica.autofill_ng.ui.rememberAppIcon(packageName = associatedAppPackage)
-    } else {
-        null
-    }
     val infoLines = remember(
         totpData.issuer,
         totpData.accountName,
@@ -350,7 +306,7 @@ fun TotpCodeCard(
     val infoSlotCount = settings.authenticatorCardDisplayFields.distinct().size
     val headerHeight = with(density) {
         (MaterialTheme.typography.titleMedium.lineHeight.toDp() +
-            MaterialTheme.typography.bodySmall.lineHeight.toDp() * infoSlotCount).coerceAtLeast(48.dp)
+            MaterialTheme.typography.bodyMedium.lineHeight.toDp() * infoSlotCount).coerceAtLeast(48.dp)
     }
 
     if (compactTile) {
@@ -359,13 +315,10 @@ fun TotpCodeCard(
         val titleStyle = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold)
         val subtitleStyle = MaterialTheme.typography.labelSmall
         val codeMaxSize = if (totpData.otpType == OtpType.STEAM) 24.sp else 28.sp
-        val codeStyle = LocalTextStyle.current.copy(
-            fontFamily = FontFamily.Monospace,
-            fontWeight = FontWeight.ExtraBold,
-        )
-        val nextStyle = MaterialTheme.typography.titleSmall.copy(
-            fontFamily = FontFamily.Monospace,
-            fontWeight = FontWeight.SemiBold,
+        // The tile's 142 dp height and its preview fallbacks are measured with
+        // the ambient line height, so only the face changes here.
+        val codeStyle = LocalTextStyle.current.merge(OtpCodeTextStyle)
+        val nextStyle = MaterialTheme.typography.titleSmall.tabularNumbers.copy(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         val tileMetrics = remember(textMeasurer, density, titleStyle, subtitleStyle,
@@ -411,52 +364,21 @@ fun TotpCodeCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (settings.iconCardsEnabled) {
-                        when {
-                            selectedSimpleIconBitmap != null -> Image(
-                                bitmap = selectedSimpleIconBitmap,
-                                contentDescription = null,
-                                modifier = Modifier.size(30.dp),
-                                contentScale = ContentScale.Fit
-                            )
-                            selectedUploadedIconBitmap != null -> Image(
-                                bitmap = selectedUploadedIconBitmap,
-                                contentDescription = null,
-                                modifier = Modifier.size(30.dp),
-                                contentScale = ContentScale.Fit
-                            )
-                            autoMatchedSimpleIcon.bitmap != null -> Image(
-                                bitmap = autoMatchedSimpleIcon.bitmap,
-                                contentDescription = null,
-                                modifier = Modifier.size(30.dp),
-                                contentScale = ContentScale.Fit
-                            )
-                            favicon != null -> Image(
-                                bitmap = favicon,
-                                contentDescription = null,
-                                modifier = Modifier.size(30.dp).clip(CircleShape)
-                            )
-                            appIcon != null -> Image(
-                                bitmap = appIcon,
-                                contentDescription = null,
-                                modifier = Modifier.size(30.dp).clip(CircleShape)
-                            )
-                            shouldShowFallbackSlot(settings.unmatchedIconHandlingStrategy) ->
-                                UnmatchedIconFallback(
-                                    strategy = settings.unmatchedIconHandlingStrategy,
-                                    primaryText = iconWebsite,
-                                    secondaryText = iconTitle,
-                                    defaultIcon = Icons.Default.Security,
-                                    iconSize = 30.dp
-                                )
-                        }
-                        Spacer(modifier = Modifier.width(8.dp))
+                        TotpItemIcon(
+                            totpData = totpData,
+                            website = iconWebsite,
+                            title = iconTitle,
+                            appPackageName = associatedAppPackage,
+                            strategy = settings.unmatchedIconHandlingStrategy,
+                            size = 30.dp,
+                            endSpacing = 8.dp
+                        )
                     }
 
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = item.title,
                             style = MaterialTheme.typography.titleSmall,
-                            fontWeight = FontWeight.Bold,
                             maxLines = 1,
                             overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                         )
@@ -644,9 +566,17 @@ fun TotpCodeCard(
                 }
             ) {
             Column(
-                modifier = Modifier.padding(
-                    cardVerticalPadding ?: if (uniformAuthenticatorLayout) 12.dp else 10.dp
-                )
+                modifier = if (cardVerticalPadding != null) {
+                    Modifier.padding(cardVerticalPadding)
+                } else {
+                    // The code's text box already carries space under the digits.
+                    Modifier.padding(
+                        start = MonicaSpacing.Large,
+                        end = MonicaSpacing.Large,
+                        top = if (uniformAuthenticatorLayout) 14.dp else MonicaSpacing.Large,
+                        bottom = MonicaSpacing.Medium
+                    )
+                }
             ) {
             // Standalone cards show identity; embedded credentials already identify the account.
             if (showIdentity) {
@@ -665,75 +595,21 @@ fun TotpCodeCard(
                         leadingContent()
                         Spacer(modifier = Modifier.width(12.dp))
                     } else if (settings.iconCardsEnabled) {
-                        when {
-                            selectedSimpleIconBitmap != null -> {
-                                Image(
-                                    bitmap = selectedSimpleIconBitmap,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(40.dp),
-                                    contentScale = ContentScale.Fit
-                                )
-                            }
-                            selectedUploadedIconBitmap != null -> {
-                                Image(
-                                    bitmap = selectedUploadedIconBitmap,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(40.dp),
-                                    contentScale = ContentScale.Fit
-                                )
-                            }
-                            autoMatchedSimpleIcon.bitmap != null -> {
-                                Image(
-                                    bitmap = autoMatchedSimpleIcon.bitmap,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(40.dp),
-                                    contentScale = ContentScale.Fit
-                                )
-                            }
-                            favicon != null -> {
-                                Image(
-                                    bitmap = favicon,
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .size(40.dp)
-                                        .clip(CircleShape)
-                                )
-                            }
-                            appIcon != null -> {
-                                Image(
-                                    bitmap = appIcon,
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .size(40.dp)
-                                        .clip(CircleShape)
-                                )
-                            }
-                            else -> {
-                                if (shouldShowFallbackSlot(settings.unmatchedIconHandlingStrategy)) {
-                                    UnmatchedIconFallback(
-                                        strategy = settings.unmatchedIconHandlingStrategy,
-                                        primaryText = iconWebsite,
-                                        secondaryText = iconTitle,
-                                        defaultIcon = Icons.Default.Security,
-                                        iconSize = 40.dp
-                                    )
-                                }
-                            }
-                        }
-                        if (autoMatchedSimpleIcon.bitmap != null ||
-                            favicon != null ||
-                            appIcon != null ||
-                            shouldShowFallbackSlot(settings.unmatchedIconHandlingStrategy)
-                        ) {
-                            Spacer(modifier = Modifier.width(12.dp))
-                        }
+                        TotpItemIcon(
+                            totpData = totpData,
+                            website = iconWebsite,
+                            title = iconTitle,
+                            appPackageName = associatedAppPackage,
+                            strategy = settings.unmatchedIconHandlingStrategy,
+                            size = 42.dp,
+                            endSpacing = MonicaSpacing.LeadingGap
+                        )
                     }
 
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = item.title,
                             style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
                             maxLines = if (uniformAuthenticatorLayout) 1 else Int.MAX_VALUE,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -743,7 +619,7 @@ fun TotpCodeCard(
                         displayedInfo.forEach { line ->
                             Text(
                                 text = line,
-                                style = MaterialTheme.typography.bodySmall,
+                                style = MaterialTheme.typography.bodyMedium,
                                 maxLines = if (uniformAuthenticatorLayout) 1 else Int.MAX_VALUE,
                                 overflow = TextOverflow.Ellipsis,
                                 color = if (hasImmersiveBackground) {
@@ -974,8 +850,7 @@ fun TotpCodeCard(
                             // the code glyphs redraw during the final seconds.
                             alpha = expiryBlinkAlpha.value
                         },
-                        style = TextStyle(fontFamily = FontFamily.Monospace,
-                            fontWeight = FontWeight.ExtraBold, color = when {
+                        style = OtpCodeTextStyle.copy(color = when {
                             totpData.otpType == OtpType.STEAM && hasImmersiveBackground -> immersiveTertiaryColor
                             totpData.otpType != OtpType.HOTP && remainingSeconds <= 5 && hasImmersiveBackground -> immersiveErrorColor
                             hasImmersiveBackground -> immersiveAccentColor
@@ -1013,9 +888,8 @@ fun TotpCodeCard(
                                 modifier = Modifier.fillMaxWidth(),
                                 maxLines = 1,
                                 autoSize = TextAutoSize.StepBased(minFontSize = 8.sp,
-                                    maxFontSize = MaterialTheme.typography.labelSmall.fontSize),
-                                style = MaterialTheme.typography.labelSmall.copy(
-                                    fontFamily = FontFamily.Monospace,
+                                    maxFontSize = MaterialTheme.typography.labelMedium.fontSize),
+                                style = MaterialTheme.typography.labelMedium.tabularNumbers.copy(
                                     textAlign = androidx.compose.ui.text.style.TextAlign.End,
                                     color = if (hasImmersiveBackground) {
                                     immersiveSecondaryColor
@@ -1166,7 +1040,7 @@ private fun M3EProgressIndicator(
     smoothProgress: Boolean,
     periodSeconds: Int,
     modifier: Modifier = Modifier,
-    trackHeight: Dp = 12.dp,
+    trackHeight: Dp = 8.dp,
     trackColor: Color? = null
 ) {
     val safeProgress = if (progress.isFinite()) progress else 0f
@@ -1346,4 +1220,38 @@ private fun formatOtpCode(code: String, otpType: OtpType): String {
             }
         }
     }
+}
+
+/**
+ * One-time codes in the system face: medium weight, tabular figures and a
+ * little tracking, so groups of digits read at a glance and do not shift as
+ * they change.
+ */
+private val OtpCodeTextStyle = TextStyle(
+    fontWeight = FontWeight.Medium,
+    letterSpacing = 1.sp,
+    fontFeatureSettings = "tnum"
+)
+
+@Composable
+private fun TotpItemIcon(
+    totpData: TotpData,
+    website: String,
+    title: String,
+    appPackageName: String,
+    strategy: takagi.ru.monica.data.UnmatchedIconHandlingStrategy,
+    size: Dp,
+    endSpacing: Dp
+) {
+    VaultItemIcon(
+        website = website,
+        title = title,
+        appPackageName = appPackageName,
+        customIconType = totpData.customIconType,
+        customIconValue = totpData.customIconValue,
+        defaultIcon = Icons.Default.Security,
+        unmatchedIconHandlingStrategy = strategy,
+        size = size,
+        endSpacing = endSpacing
+    )
 }
